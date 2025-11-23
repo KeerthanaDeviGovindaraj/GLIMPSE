@@ -101,8 +101,12 @@ export default function EmployeeJobs() {
         overflowY: 'auto',
         overflowX: 'hidden', 
         px: { xs: 2, md: 4 },
-        py: 0, 
+        pt: 3,
+        pb: 0,
       }}>
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 3 }}>
+          User Dashboard
+        </Typography>
         <Box sx={{ py: 2 }}>
           {paginated.map((job, idx) => (
             <JobCard key={job.id || idx} job={job} userType={user?.type} />

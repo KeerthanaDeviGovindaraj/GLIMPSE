@@ -73,7 +73,7 @@ export default function Login() {
 
       // Redirect based on role
       if (payload.type === "admin") {
-        navigate("/admin/employees");
+        navigate("/admin/dashboard");
       } else {
         navigate("/employee/jobs");
       }

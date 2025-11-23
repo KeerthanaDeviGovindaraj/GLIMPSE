@@ -21,6 +21,9 @@ export default function Employees() {
 
   return (
     <>
+      <Typography variant="h4" fontWeight={800} sx={{ mb: 3 }}>
+        Admin Dashboard
+      </Typography>
       {loading ? (
         <Stack spacing={2}>
           {[...Array(5)].map((_, i) => (

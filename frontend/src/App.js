@@ -56,7 +56,7 @@ export default function App() {
               }
             />
             <Route
-              path="/admin/employees"
+              path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <Container sx={{ py: 4 }}>
