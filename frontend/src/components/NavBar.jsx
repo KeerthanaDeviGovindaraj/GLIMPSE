@@ -1,245 +1,252 @@
-import * as React from "react";
+// src/components/NavBar.jsx
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  IconButton,
   Box,
-  Stack,
-  Drawer,
-  List,
-  ListItemButton,
-  useScrollTrigger,
-  useMediaQuery
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
-import LoginIcon from "@mui/icons-material/Login";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/slices/authSlice";
+  IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Chip
+} from '@mui/material';
+import {
+  AccountCircle,
+  Logout,
+  Dashboard,
+  People,
+  Analytics,
+  Settings,
+  Home,
+  Info,
+  ContactMail,
+  AdminPanelSettings,
+  Assessment
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../redux/slices/authSlice';
 
-function ElevationScroll({ children }) {
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 4,
-  });
-  return React.cloneElement(children, { elevation: trigger ? 6 : 0 });
-}
-
-// -----------------------------
-// MENU ITEMS PER ROLE
-// -----------------------------
-const commonPages = [
-  { to: "/", label: "HOME" },
-  { to: "/about", label: "ABOUT" },
-];
-
-const employeePages = [
-  ...commonPages,
-];
-
-const analystPages = [
-  ...commonPages,
-  // { to: "/analyst/dashboard", label: "DASHBOARD" }, // Example for analyst
-];
-
-const adminPages = [
-  ...commonPages,
-];
-
-const unauthedPages = [
-  { to: "/", label: "HOME" },
-  { to: "/about", label: "ABOUT" },
-];
-
-const linkSx = {
-  px: 1.25,
-  py: 0.5,
-  borderRadius: 2,
-  color: "white",
-  textTransform: "none",
-  "&:hover": { bgcolor: "rgba(255,255,255,0.12)" },
-  "&.active": { bgcolor: "rgba(255,255,255,0.18)", fontWeight: 700 },
-};
-
-export default function NavBar() {
-  const dispatch = useDispatch();
+const NavBar = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
-  const [open, setOpen] = React.useState(false);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const { isAuthenticated, role, user } = useSelector((state) => state.auth);
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login");
+    handleClose();
+    navigate('/login');
   };
 
-  // role-based menu
-  const pages =
-    !isAuthenticated
-      ? unauthedPages
-      : role === "admin"
-      ? adminPages : role === "analyst"
-      ? analystPages
-      : employeePages;
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+  };
+
+  // Get navigation items based on user role
+  const getNavigationItems = () => {
+    const baseItems = [
+      { label: 'Home', path: '/', icon: <Home /> },
+      { label: 'About', path: '/about', icon: <Info /> },
+      { label: 'Contact', path: '/contact', icon: <ContactMail /> }
+    ];
+
+    const roleSpecificItems = {
+      admin: [
+        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+        { label: 'User Management', path: '/admin/users', icon: <People /> },
+        { label: 'System Analytics', path: '/admin/analytics', icon: <Analytics /> },
+        { label: 'Settings', path: '/admin/settings', icon: <Settings /> }
+      ],
+      analyst: [
+        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
+        { label: 'Data Analytics', path: '/analyst/analytics', icon: <Analytics /> },
+        { label: 'Reports', path: '/analyst/reports', icon: <Dashboard /> }
+      ],
+      user: [
+        { label: 'My Dashboard', path: '/user/dashboard', icon: <Dashboard /> },
+        { label: 'Profile', path: '/user/profile', icon: <AccountCircle /> }
+      ]
+    };
+
+    return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
+  };
+
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'admin': return 'error';
+      case 'analyst': return 'warning';
+      case 'user': return 'primary';
+      default: return 'default';
+    }
+  };
+
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+      case 'admin': return 'Administrator';
+      case 'analyst': return 'Analyst';
+      case 'user': return 'User';
+      default: return 'User';
+    }
+  };
+
+  const navigationItems = getNavigationItems();
 
   return (
-    <ElevationScroll>
-      <AppBar
-        position="sticky"
-        sx={{
-          background: "linear-gradient(90deg, #0b6b61 0%, #0fa39e 100%)",
-        }}
-      >
-        <Toolbar
-          disableGutters
-          sx={{
-            px: { xs: 1.5, sm: 2, md: 3 },
-            minHeight: { xs: 56, sm: 64 },
-            gap: 1,
-            display: "flex",
-            alignItems: "center",
-          }}
+    <AppBar position="static">
+      <Toolbar>
+        {/* Logo/Brand */}
+        <Typography 
+          variant="h6" 
+          component="div" 
+          sx={{ cursor: 'pointer' }}
+          onClick={() => navigate('/')}
         >
-          {/* Mobile Menu Icon */}
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
+          Info Portal
+        </Typography>
+
+        {/* Role Badge */}
+        <Chip
+          label={getRoleDisplayName(user?.role)}
+          color={getRoleColor(user?.role)}
+          size="small"
+          sx={{ ml: 2, color: 'white' }}
+        />
+
+        {/* Navigation Links - Desktop */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+          {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
+            <Button
+              key={item.path}
               color="inherit"
-              onClick={() => setOpen(true)}
+              onClick={() => navigate(item.path)}
+              startIcon={item.icon}
+              sx={{ ml: 1 }}
             >
-              <MenuIcon />
-            </IconButton>
-          </Box>
+              {item.label}
+            </Button>
+          ))}
+        </Box>
 
-          {/* Brand */}
-          <Typography
-            variant="h6"
-            noWrap
-            sx={{
-              flexGrow: 1,
-              fontWeight: 800,
-              letterSpacing: 0.5,
-              textAlign: { xs: "center", md: "left" },
-            }}
-          >
-            Glimpse
+        {/* User Menu */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}>
+            {user?.email?.split('@')[0] || 'User'}
           </Typography>
-
-          {/* Desktop Menu */}
-          <Stack
-            direction="row"
-            spacing={0.5}
-            sx={{
-              display: { xs: "none", md: "flex" },
-              mr: 2,
+          
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+              <AccountCircle />
+            </Avatar>
+          </IconButton>
+          
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            PaperProps={{
+              sx: { mt: 1, minWidth: 200 }
             }}
           >
-            {pages.map((p) => (
-              <Button
-                key={p.to}
-                component={NavLink}
-                to={p.to}
-                sx={linkSx}
-              >
-                {p.label}
-              </Button>
-            ))}
-          </Stack>
+            {/* User Info */}
+            <MenuItem disabled>
+              <Box>
+                <Typography variant="body2" fontWeight="bold">
+                  {user?.email}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {getRoleDisplayName(user?.role)}
+                </Typography>
+              </Box>
+            </MenuItem>
+            
+            <Divider />
 
-          {/* Right Side: Auth */}
-          <Box>
-            {isMdUp ? (
-              isAuthenticated ? (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Box sx={{ textAlign: "right", pr: 1.5 }}>
-                    <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.9)" }}>
-                      {user?.email}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      ({role.charAt(0).toUpperCase() + role.slice(1)})
-                    </Typography>
-                  </Box>
-                  <Button
-                    color="inherit"
-                    startIcon={<LogoutIcon />}
-                    sx={{ textTransform: "none" }}
-                    onClick={handleLogout}
-                  >
-                    LOGOUT
-                  </Button>
-                </Stack>
-              ) : (
-                <Button
-                  color="inherit"
-                  startIcon={<LoginIcon />}
-                  sx={{ textTransform: "none" }}
-                  onClick={() => navigate("/login")}
-                >
-                  LOG IN
-                </Button>
-              )
-            ) : (
-              <IconButton
-                color="inherit"
-                onClick={isAuthenticated ? handleLogout : () => navigate("/login")}
-              >
-                {isAuthenticated ? <LogoutIcon /> : <LoginIcon />}
-              </IconButton>
-            )}
-          </Box>
-        </Toolbar>
+            {/* Dashboard Quick Access */}
+            <MenuItem onClick={() => handleNavigation('/dashboard')}>
+              <ListItemIcon>
+                <Dashboard fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>My Dashboard</ListItemText>
+            </MenuItem>
 
-        {/* MOBILE DRAWER */}
-        <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
-          <Box sx={{ width: 260, p: 2 }}>
-            <Typography
-              variant="h6"
-              sx={{ mb: 2, fontWeight: 800 }}
-            >
-              Glimpse
-            </Typography>
-
-            <List sx={{ py: 0 }}>
-              {pages.map((p) => (
-                <ListItemButton
-                  key={p.to}
-                  component={NavLink}
-                  to={p.to}
-                  sx={{ "&.active": { bgcolor: "action.selected", fontWeight: 700 } }}
-                  onClick={() => setOpen(false)}
-                >
-                  {p.label}
-                </ListItemButton>
+            {/* Mobile Navigation Items */}
+            <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              <Divider />
+              {navigationItems.map((item) => (
+                <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
+                  <ListItemIcon>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText>{item.label}</ListItemText>
+                </MenuItem>
               ))}
-            </List>
+            </Box>
 
-            {isAuthenticated ? (
-              <ListItemButton
-                onClick={() => {
-                  setOpen(false);
-                  handleLogout();
-                }}
-              >
-                LOGOUT
-              </ListItemButton>
-            ) : (
-              <ListItemButton
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/login");
-                }}
-              >
-                LOG IN
-              </ListItemButton>
-            )}
-          </Box>
-        </Drawer>
-      </AppBar>
-    </ElevationScroll>
+            <Divider />
+
+            {/* Profile & Settings */}
+            <MenuItem onClick={() => handleNavigation('/profile')}>
+              <ListItemIcon>
+                <AccountCircle fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
+
+            <MenuItem onClick={() => handleNavigation('/settings')}>
+              <ListItemIcon>
+                <Settings fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Settings</ListItemText>
+            </MenuItem>
+
+            <Divider />
+
+            {/* Logout */}
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <Logout fontSize="small" color="error" />
+              </ListItemIcon>
+              <ListItemText>
+                <Typography color="error">Logout</Typography>
+              </ListItemText>
+            </MenuItem>
+          </Menu>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
-}
+};
+
+export default NavBar;

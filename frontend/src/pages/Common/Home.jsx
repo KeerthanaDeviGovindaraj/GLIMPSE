@@ -1,101 +1,186 @@
-import * as React from "react";
+// src/pages/Common/Home.jsx
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   Box,
   Container,
-  Grid,
+  Typography,
   Card,
   CardContent,
-  Typography,
-  Paper,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import PrimaryButton from "../../components/PrimaryButton.jsx";
-import heroImg from "../../assets/image2.jpg";
+  Grid,
+  Button,
+  CircularProgress
+} from '@mui/material';
+import {
+  Dashboard,
+  AdminPanelSettings,
+  Assessment,
+  Person
+} from '@mui/icons-material';
 
-export default function Home() {
+const Home = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  //Redux replaces useAuth()
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  // Auto-redirect to dashboard after a short delay
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const timer = setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000); // 2-second delay to show welcome message
 
-  const handleSearchClick = () => {
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
+      return () => clearTimeout(timer);
     }
+  }, [isAuthenticated, user, navigate]);
 
-    switch (user?.role) {
-      case "admin":
-        navigate("/admin/dashboard"); // Or another admin-specific page
-        break;
-      case "analyst":
-        navigate("/analyst/dashboard"); // Or another analyst-specific page
-        break;
-      default: // for 'user'
-        navigate("/dashboard"); // Redirect 'user' to their dashboard
+  const getRoleInfo = (role) => {
+    switch (role) {
+      case 'admin':
+        return {
+          title: 'Administrator',
+          description: 'Manage users, view system analytics, and configure platform settings.',
+          icon: <AdminPanelSettings sx={{ fontSize: 48, color: 'error.main' }} />,
+          color: 'error.main'
+        };
+      case 'analyst':
+        return {
+          title: 'Data Analyst',
+          description: 'Access advanced analytics, generate reports, and analyze data trends.',
+          icon: <Assessment sx={{ fontSize: 48, color: 'warning.main' }} />,
+          color: 'warning.main'
+        };
+      case 'user':
+        return {
+          title: 'User',
+          description: 'Access your personal dashboard and manage your account settings.',
+          icon: <Person sx={{ fontSize: 48, color: 'primary.main' }} />,
+          color: 'primary.main'
+        };
+      default:
+        return {
+          title: 'User',
+          description: 'Welcome to the platform!',
+          icon: <Person sx={{ fontSize: 48, color: 'primary.main' }} />,
+          color: 'primary.main'
+        };
     }
   };
 
-  return (
-    <>
-      <Container maxWidth="lg" sx={{ px: 0 }}>
-        {/* Hero Section */}
-        <Card
-          variant="outlined"
-          sx={{
-            borderRadius: 3,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            mb: { xs: 6, md: 8 },
-          }}
-        >
-          <Box
-            component="img"
-            src={heroImg}
-            alt="Career growth illustration"
-            sx={{
-              width: { xs: "100%", md: "50%" },
-              height: { xs: 260, md: "auto" },
-              objectFit: "contain",
-              bgcolor: "#fff",
-              p: 2,
-            }}
-          />
-
-          <CardContent
-            sx={{
-              flex: 1,
-              p: { xs: 3, md: 6 },
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              gap: 2.5,
-              bgcolor: "#fafafa",
-            }}
-          >
-            <Typography variant="h4" fontWeight={800} sx={{ color: "#004d40" }}>
-              Welcome to Your Dashboard
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              This is your personal space. You can manage your profile and explore
-              features from here.
-            </Typography>
-
-            <PrimaryButton
-              onClick={handleSearchClick}
-              size="large"
-              sx={{
-                alignSelf: "flex-start",
-                px: 4,
-              }}
-            >
-              Go to Dashboard
-            </PrimaryButton>
-          </CardContent>
-        </Card>
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 8, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading...
+        </Typography>
       </Container>
-    </>
+    );
+  }
+
+  const roleInfo = getRoleInfo(user.role);
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box textAlign="center" sx={{ mb: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Welcome to Info Portal
+        </Typography>
+        <Typography variant="h6" color="textSecondary" paragraph>
+          Hello, {user.email?.split('@')[0] || 'User'}! You're logged in as a {roleInfo.title}.
+        </Typography>
+      </Box>
+
+      <Grid container spacing={4} justifyContent="center">
+        {/* Role Information Card */}
+        <Grid item xs={12} md={8}>
+          <Card sx={{ textAlign: 'center', p: 3 }}>
+            <CardContent>
+              <Box sx={{ mb: 3 }}>
+                {roleInfo.icon}
+              </Box>
+              <Typography variant="h4" gutterBottom sx={{ color: roleInfo.color }}>
+                {roleInfo.title} Dashboard
+              </Typography>
+              <Typography variant="body1" color="textSecondary" paragraph>
+                {roleInfo.description}
+              </Typography>
+              
+              <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<Dashboard />}
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Go to Dashboard
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() => navigate('/about')}
+                >
+                  Learn More
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Quick Stats/Info Cards */}
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ textAlign: 'center', p: 2 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Secure Access
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Your account is protected with JWT authentication and role-based access control.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ textAlign: 'center', p: 2 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Modern Interface
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Built with React and Material-UI for a responsive and intuitive experience.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ textAlign: 'center', p: 2 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Role-Based Features
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Different features and capabilities based on your assigned role.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      {/* Auto-redirect message */}
+      <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Typography variant="body2" color="textSecondary">
+          Redirecting to your dashboard in a few seconds...
+        </Typography>
+        <CircularProgress size={20} sx={{ mt: 1 }} />
+      </Box>
+    </Container>
   );
-}
+};
+
+export default Home;

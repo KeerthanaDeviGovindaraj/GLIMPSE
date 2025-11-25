@@ -1,38 +1,106 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Box } from "@mui/material";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { Box } from '@mui/material';
 
-import NavBar from "./components/NavBar";
-import Home from "./pages/Common/Home";
-import About from "./pages/Common/About";
-import Login from "./pages/Common/Login";
-import UserDashboard from "./pages/User/Dashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+// Components
+import NavBar from './components/NavBar';
+import ProtectedRoute from './components/ProtectedRoute';
+import AuthRedirector from './components/AuthRedirector';
 
+// Pages
+import Login from './pages/Common/Login';
+import Home from './pages/Common/Home';
+import About from './pages/Common/About';
+import Contact from './pages/Common/Contact';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import AnalystDashboard from './pages/Analyst/AnalystDashboard';
+import UserDashboard from './pages/User/UserDashboard';
+
+// Create theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <NavBar />
-      <Box component="main" sx={{ flexGrow: 1, py: { xs: 2, md: 4 } }}>
-        <Routes>
-          {/* If logged in, redirect from /login to home */}
-          <Route
-            path="/login"
-            element={isAuthenticated ? <Navigate to="/" /> : <Login />}
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/" element={<ProtectedRoute element={Home} />} />
-          <Route
-            path="/dashboard"
-            element={<ProtectedRoute element={UserDashboard} />}
-          />
-        </Routes>
-      </Box>
-    </Box>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          {isAuthenticated && <NavBar />}
+          
+          <Box component="main" sx={{ flexGrow: 1 }}>
+            <Routes>
+              {/* Public Routes */}
+              <Route
+                path="/login"
+                element={
+                  <AuthRedirector>
+                    <Login />
+                  </AuthRedirector>
+                }
+              />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+
+              {/* Protected Routes */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Dashboard Routes - Protected */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/analyst/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AnalystDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Catch all route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Box>
+        </Box>
+      </Router>
+    </ThemeProvider>
   );
 }
 
-export default App
+export default App;

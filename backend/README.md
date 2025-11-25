@@ -1,176 +1,246 @@
-# Assignment 10 - Advanced React Job Portal with Redux & Admin Features
-This project extends the Job Portal from Assignment 9 by adding complete Role-Based Access Control, Redux Toolkit, Admin CRUD features, and secure API integrations with the backend from Assignment 8.
+# Backend - Node.js Express REST API
 
-The result is a production-style Admin & Employee Portal with user management, job management, authentication, protected routes, and modern UI design using Material UI.
+A secure, production-ready REST API built with Node.js and Express, featuring JWT authentication, role-based access control, MongoDB integration, and comprehensive API documentation via Swagger/OpenAPI.
 
-# Key Enhancements in Assignment 10
--- Redux Toolkit Integration
-Replaces React Context from Assignment 9.
-Redux now manages:
-- Authentication (token + email + type)
-- Jobs list (fetch & create)
-- Users list (admin only)
-- Loading & error states
-- Global API handling with Axios interceptors
+## Overview
 
-# Role-Based Access (Admin vs Employee)
-Backend now enforces role via type field in /user/create API.
-
-Frontend enforces role-based routing:
-| Role                | Allowed Pages                                            |
-| ------------------- | -------------------------------------------------------- |
-| **Admin**           | Employees, Add Job, Add Company, Edit Company, Companies |
-| **Employee**        | Jobs, Companies                                          |
-| **Unauthenticated** | Login                                                    |
-
-# Admin Portal Features
-- Employees Page
-- Fetches /users
-- Displays all users
-- Password field removed (handled in backend)
-- Add Job Page
-- Validation for all fields
-- Salary input fully restricted
-- Uses createAsyncThunk for API calls
-- POSTs to /api/create/job
-- Company Management (optional bonus)
-- Add, update, delete company
-- Upload logo via multipart/form-data
-- Image preview + replacement
-
-# Employee Portal Features
-- Jobs Page
-- Fetches /api/jobs
-- Fully redesigned job cards
-- Expandable job description
-- Pagination at bottom
-- Loader shown while fetching jobs
-
+This backend service powers the Info Portal application, providing secure authentication, user management, and data operations with enterprise-grade security practices including input validation, error handling, and CORS support.
 
 ## Key Features
--   **Redux State Management**: Migrated from React Context to Redux Toolkit for a scalable and centralized state management solution for authentication, jobs, and companies.
--   **Role-Based Access Control (RBAC)**:
-    -   **Admin Role**: Has exclusive access to create, edit, and view all jobs, companies, and employees. Admins can upload or remove company logos and manage all site content.
-    -   **Employee Role**: Can view job listings and company profiles, with a user experience tailored for job seeking.
--   **Full CRUD Functionality**:
-    -   **Companies**: Admins can add new companies, edit their details (name, description), and upload or remove logos.
-    -   **Jobs**: Admins can create new job postings that are displayed to all users.
--   **Advanced UI/UX**:
-    -   **Protected Routes**: Utilizes a `ProtectedRoute` component to restrict access to pages based on user roles (`admin`, `employee`).
-    -   **Loading States**: Implements a full-screen `Backdrop` with a `CircularProgress` loader during API calls (e.g., login, form submissions) to provide clear user feedback.
-    -   **Success Notifications**: Uses Material-UI `Snackbar` to display success messages after creating or updating content.
-    -   **Enhanced Forms**: Includes real-time input validation, such as word count limits for descriptions.
+
+- **🔐 JWT Authentication**: Secure token-based authentication with bcryptjs password hashing
+- **👥 Role-Based Access Control (RBAC)**: Different access levels for Admin, Analyst, and User roles
+- **📦 MongoDB Integration**: Persistent data storage with Mongoose ODM
+- **✅ Input Validation**: Express Validator for sanitizing and validating all inputs
+- **🛡️ Security Headers**: Helmet.js for setting secure HTTP headers
+- **📝 API Documentation**: Swagger/OpenAPI specs for complete API reference
+- **📊 Request Logging**: Morgan middleware for HTTP request logging
+- **📁 File Upload**: Multer integration for handling file uploads
+- **🚀 CORS Support**: Configurable CORS for cross-origin requests
+- **⚡ Error Handling**: Comprehensive error handling and validation middleware
 
 ## Tech Stack
 
-| Category           | Tools                                    |
-| ------------------ | ---------------------------------------- |
-| **Frontend**       | React 18, Redux Toolkit, React Router v6 |
-| **UI Library**     | Material UI                              |
-| **Backend**        | Node.js + Express + MongoDB              |
-| **HTTP Client**    | Axios                                    |
-| **State**          | Redux Toolkit (Slices + Thunks)          |
-| **Authentication** | JWT Token stored in LocalStorage         |
+| Category | Tools |
+| :--- | :--- |
+| **Runtime** | Node.js |
+| **Framework** | Express.js 4 |
+| **Database** | MongoDB 8 with Mongoose ODM |
+| **Authentication** | JWT, bcryptjs |
+| **Validation** | Express Validator |
+| **Security** | Helmet, CORS |
+| **Logging** | Morgan |
+| **File Upload** | Multer |
+| **API Documentation** | Swagger/OpenAPI (swagger-ui-express, yamljs) |
+| **Dev Tools** | Nodemon, ESLint |
 
 ## Folder Structure
+
 ```
-frontend/
+backend/
+├── config/
+│   └── db.js                  # MongoDB connection configuration
+├── controllers/
+│   ├── authController.js      # Authentication logic (login, signup)
+│   └── userController.js      # User management operations
+├── middleware/
+│   ├── auth.js                # JWT token verification
+│   ├── authMiddleware.js      # Additional auth checks
+│   ├── upload.js              # Multer file upload configuration
+│   └── validate.js            # Input validation middleware
+├── models/
+│   └── User.js                # User database schema
+├── routes/
+│   ├── authRoutes.js          # Authentication endpoints
+│   └── userRoutes.js          # User management endpoints
 ├── public/
-│   └── index.html
-│
-├── src/
-│   ├── assets/
-│   ├── components/
-│   │   ├── NavBar/
-│   │   ├── PrimaryButton/
-│   │   └── ProtectedRoutes/      # Component to protect routes based on role
-│   │
-│   ├── pages/
-│   │   ├── Admin/                # Admin-only pages
-│   │   │   ├── AddCompany.jsx
-│   │   │   ├── AddJob.jsx
-│   │   │   ├── EditCompany.jsx
-│   │   │   └── Employees.jsx
-│   │   ├── Common/               # Pages accessible to all logged-in users
-│   │   │   ├── About.jsx
-│   │   │   ├── CompanyShowcase.jsx
-│   │   │   ├── Contact.jsx
-│   │   │   ├── Home.jsx
-│   │   │   └── Login.jsx
-│   │   └── Employees/            # Employee-specific pages
-│   │       └── Jobs.jsx
-│   │
-│   ├── redux/
-│   │   ├── slices/               # Redux Toolkit slices
-│   │   │   ├── authSlice.js
-│   │   │   └── jobSlice.js
-│   │   └── store.js              # Redux store configuration
-│   │
-│   ├── services/
-│   │   └── api.js                # Axios instance and interceptors
-│   │
-│   ├── App.js                    # Main app layout and route definitions
-│   ├── index.js
-│   └── theme.js                  # MUI theme customization
-│
-├── .env
+│   └── images/                # Directory for uploaded images
+├── docs/
+│   └── openapi.yaml           # Swagger/OpenAPI documentation
+├── app.js                     # Express app configuration
+├── server.js                  # Server entry point
+├── .env                       # Environment variables
 ├── package.json
 └── README.md
 ```
 
-## Setup & Installation
+## Installation & Setup
 
-**1. Clone and Install**
+### Prerequisites
+- Node.js 16+ and npm installed
+- MongoDB 6+ running locally or remote connection string available
+- Git for version control
+
+### Steps
+
+**1. Navigate to the Backend Directory**
 ```bash
-git clone <repo-url>
-cd assignment10/frontend
+cd backend
+```
+
+**2. Install Dependencies**
+```bash
 npm install
 ```
 
-**2. Set Environment Variable**
+**3. Configure Environment Variables**
 
-Create a `.env` file in the `frontend` project root and add the backend API URL:
-```
-REACT_APP_API_BASE_URL=http://localhost:4000
+Create a `.env` file in the backend root directory:
+```env
+PORT=4000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/info-portal
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRE=7d
+FRONTEND_URL=http://localhost:5173
+UPLOAD_DIR=./public/images
+MAX_FILE_SIZE=5242880
 ```
 
-**3. Run the Application**
+**4. Start the Development Server**
 ```bash
-npm start
+npm run dev
 ```
-Open http://localhost:3000 in your browser.
-Frontend → http://localhost:3000
-Backend → http://localhost:4000
 
+The API will be at `http://localhost:4000` and docs at `http://localhost:4000/api-docs`
 
-## Navigation and Pages
-----
-| Page                 | Path                     | Role   | Description                                                   |
-| :------------------- | :----------------------- | :----- | :------------------------------------------------------------ |
-| **Login**            | `/login`                 | Public | Secure login page. Unauthenticated users are redirected here. |
-| **Home**             | `/`                      | All    | Hero banner with quick info and navigation.                   |
-| **About**            | `/about`                 | All    | Mission statement and company details.                        |
-| **Contact**          | `/contact`               | All    | Contact form and information.                                 |
-| **Company Showcase** | `/companies`             | All    | Displays all companies with logos fetched from the backend.   |
-| **Job Listings**     | `/employee/jobs`         | All    | Displays all available jobs with a fixed pagination footer.   |
-| **Employees**        | `/admin/employees`       | Admin  | (Placeholder) Page for viewing employees.                     |
-| **Add Job**          | `/admin/add-job`         | Admin  | Form to create a new job posting.                             |
-| **Add Company**      | `/admin/add-company`     | Admin  | Form to add a new company profile with a logo.                |
-| **Edit Company**     | `/admin/edit-company/:id`| Admin  | Form to update company details and change or remove the logo. |
+## Available Scripts
 
+| Command | Purpose |
+| :--- | :--- |
+| `npm run dev` | Start with Nodemon (auto-restart) |
+| `npm start` | Start in production mode |
+| `npm run lint` | Run ESLint checks |
 
-## Key Functionalities
--   **Authentication Flow**:
-    -   If not logged in, all routes redirect to `/login`. The navigation bar is hidden.
-    -   On successful login, a JWT is stored in `localStorage` and the user's auth state is managed by Redux.
-    -   The JWT is automatically attached to all subsequent API requests via an Axios interceptor.
--   **Redux State**:
-    -   `authSlice`: Manages user authentication status, user info (email, role), and the JWT.
-    -   `jobSlice`: Handles asynchronous fetching and creation of job data using `createAsyncThunk`.
--   **Dynamic Content Management**:
-    -   Admins can dynamically add, update, and manage company and job data, with changes immediately reflected in the UI.
-    -   Image uploads are handled using `multipart/form-data` requests.
--   **Responsive & Consistent UI**:
-    -   Built with Material-UI components like `Card`, `Fab`, `Backdrop`, and `Pagination`.
-    -   Layouts are fully responsive, with fixed footers for pagination and consistent styling across all pages.
+## API Endpoints
 
+### Authentication (`/api/auth`)
+- `POST /auth/signup` - Register a new user
+- `POST /auth/login` - Login and receive JWT
+
+### Users (`/api/users`)
+- `GET /users` - Get all users (Admin only)
+- `GET /users/:id` - Get user details
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user (Admin only)
+
+## Authentication Flow
+
+1. **Registration**: POST email, password, role to `/auth/signup`
+2. **Password Hashing**: Bcryptjs hashes before database storage
+3. **Login**: POST email, password to `/auth/login`
+4. **JWT Token**: Server generates and returns JWT token
+5. **Token Storage**: Frontend stores JWT in localStorage
+6. **Request Headers**: JWT attached to all API requests
+7. **Token Verification**: Middleware verifies JWT for protected routes
+8. **RBAC**: Additional middleware checks user role
+
+## Request Examples
+
+### Sign Up
+```bash
+curl -X POST http://localhost:4000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!",
+    "role": "user"
+  }'
+```
+
+### Login
+```bash
+curl -X POST http://localhost:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "507f1f77bcf86cd799439011",
+    "email": "user@example.com",
+    "role": "user"
+  }
+}
+```
+
+## Middleware
+
+- **auth.js**: Verifies JWT, adds user to request
+- **validate.js**: Sanitizes and validates input data
+- **upload.js**: Multer configuration for file uploads
+
+## Security
+
+- Bcryptjs password hashing with salt rounds
+- JWT tokens with expiration (default: 7 days)
+- Express Validator for input sanitization
+- Helmet.js for secure HTTP headers
+- CORS configured for frontend domain
+- Environment variables for sensitive data
+
+## Database Schema
+
+### User
+```javascript
+{
+  _id: ObjectId,
+  email: String (unique, required),
+  password: String (hashed),
+  role: String (enum: ['user', 'admin', 'analyst']),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+## Error Responses
+
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "errors": [{"field": "email", "message": "Invalid email"}]
+}
+```
+
+Status Codes:
+- **200**: Success
+- **201**: Created
+- **400**: Bad Request
+- **401**: Unauthorized
+- **403**: Forbidden
+- **404**: Not Found
+- **500**: Server Error
+
+## Troubleshooting
+
+| Problem | Solution |
+| :--- | :--- |
+| MongoDB connection refused | Ensure MongoDB is running; check `MONGODB_URI` |
+| JWT verification fails | Verify `JWT_SECRET` matches |
+| CORS errors | Ensure `FRONTEND_URL` matches frontend origin |
+| File upload fails | Check `UPLOAD_DIR` exists and is writable |
+
+## Development Tips
+
+- Test endpoints with Postman or Insomnia
+- View API docs at `/api-docs`
+- Use MongoDB Compass for database visualization
+- Check terminal logs for request details
+- Enable verbose logging: `DEBUG=* npm run dev`
+
+## Production Deployment
+
+1. Set `NODE_ENV=production`
+2. Use production MongoDB instance
+3. Generate secure `JWT_SECRET`
+4. Enable HTTPS
+5. Configure appropriate `CORS` origins
+6. Use PM2 or Docker for process management
+7. Set up monitoring and logging
