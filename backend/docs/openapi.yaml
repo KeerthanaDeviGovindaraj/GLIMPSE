@@ -1,543 +1,223 @@
 openapi: 3.0.0
 info:
-  title: Glimpse - AI Sports Commentary Platform
-  description: |
-    A comprehensive API for a full-stack job portal application. This API manages users, authentication, jobs, and companies, featuring role-based access control (Admin vs. Employee) and secure endpoints for all CRUD operations.
+  title: Glimpse API
+  description: API for user authentication, roles, and other features.
   version: 1.0.0
 
 servers:
-  - url: http://localhost:4000
-
-tags:
-  - name: User
-    description: User account & profile management
-  - name: Auth
-    description: Authentication endpoints
-  - name: Jobs
-    description: Job listings and management
-  - name: Companies
-    description: Company profiles and logo management
-
-paths:
-
-  ###############################################
-  # USER CREATE
-  ###############################################
-  /api/user/create:
-    post:
-      summary: Create User (Admin or Employee)
-      tags: [User]
-      description: |
-        Creates a new user with a specified role (`admin` or `employee`). 
-        In a production environment, this endpoint would typically be protected and restricted to admins.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [fullName, email, password, type]
-              properties:
-                fullName:
-                  type: string
-                  example: "Rushitaben Vachhani"
-                email:
-                  type: string
-                  example: "rv@northeastern.edu"
-                password:
-                  type: string
-                  example: "Nu#4106522"
-                type:
-                  type: string
-                  enum: [admin, employee]
-                  example: "admin"
-      responses:
-        "201":
-          description: User created
-          content:
-            application/json:
-              example:
-                message: "User created successfully."
-        "409":
-          description: Conflict - User already exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                error: "User with this email already exists."
-
-  ###############################################
-  # LOGIN
-  ###############################################
-  /api/auth/login:
-    post:
-      summary: Login
-      tags: [Auth]
-      description: |
-        Authenticates a user and returns a JWT token.  
-        Token payload includes **email, sub (userId), type (admin/employee)**.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  example: "rv@northeastern.edu"
-                password:
-                  type: string
-                  example: "Nu#4106522"
-      responses:
-        "200":
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LoginResponse"
-              example:
-                message: "Login successful"
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                user:
-                  email: "admin@test.com"
-                  type: "admin"
-        "401":
-          description: Invalid email or password
-          content:
-            application/json:
-              example:
-                error: "Invalid credentials"
-
-  ###############################################
-  # EDIT USER
-  ###############################################
-  /api/user/edit:
-    put:
-      summary: Edit User
-      tags: [User]
-      security:
-        - bearerAuth: []
-      description: Updates fullName or password for a user.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email]
-              properties:
-                email:
-                  type: string
-                  example: "john@test.com"
-                fullName:
-                  type: string
-                  example: "John Smith"
-                password:
-                  type: string
-                  example: "NewPass@123"
-      responses:
-        "200":
-          description: User updated
-          content:
-            application/json:
-              example:
-                message: "User updated successfully"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              example:
-                error: "User not found."
-
-  ###############################################
-  # DELETE USER
-  ###############################################
-  /api/user/delete:
-    delete:
-      summary: Delete User
-      tags: [User]
-      security:
-        - bearerAuth: []
-      description: Deletes a user by email.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email]
-              properties:
-                email:
-                  type: string
-                  example: "employee@test.com"
-      responses:
-        "200":
-          description: Deleted
-          content:
-            application/json:
-              example:
-                message: "User deleted successfully."
-        "404":
-          description: Not found
-          content:
-            application/json:
-              example:
-                error: "User not found."
-
-  ###############################################
-  # UPLOAD IMAGE
-  ###############################################
-  /api/user/uploadImage:
-    post:
-      summary: Upload Profile Image
-      tags: [User]
-      security:
-        - bearerAuth: []
-      description: Upload a profile image for a user.
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [email, image]
-              properties:
-                email:
-                  type: string
-                  example: "john@test.com"
-                image:
-                  type: string
-                  format: binary
-      responses:
-        "201":
-          description: Image uploaded
-          content:
-            application/json:
-              example:
-                message: "Image uploaded successfully"
-                filePath: "/images/173205-profile.jpg"
-        "400":
-          description: Bad upload
-          content:
-            application/json:
-              example:
-                error: "Invalid file format. Only JPEG, PNG, and GIF are allowed."
-
-  ###############################################
-  # GET ALL USERS
-  ###############################################
-  /api/user/getAll:
-    get:
-      summary: Get All Users (Password Included)
-      tags: [User]
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: List of users
-          content:
-            application/json:
-              example:
-                users:
-                  - fullName: "Admin User"
-                    email: "admin@test.com"
-                    password: "$2b$10$encrypted"
-                  - fullName: "Employee A"
-                    email: "emp@test.com"
-                    password: "$2b$10$encrypted"
-
-  ###############################################
-  # ADMIN: GET CLEAN USERS LIST
-  ############################################### 
-  /api/users:
-    get:
-      summary: Get All Users (Admin)
-      tags: [User]
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Clean user list for admin
-          content:
-            application/json:
-              example:
-                - fullName: "Admin User"
-                  email: "admin@test.com"
-                  type: "admin"
-                - fullName: "Employee Bob"
-                  email: "bob@test.com"
-                  type: "employee"
-
-  ###############################################
-  # ADMIN: CREATE JOB
-  ###############################################
-  /api/jobs/create:
-    post:
-      summary: Create Job (Admin)
-      tags: [Jobs, Admin]
-      security:
-        - bearerAuth: []
-      description: Admin-only job creation.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [company, title, description, salary]
-              properties:
-                company:
-                  type: string
-                  example: "Google"
-                title:
-                  type: string
-                  example: "Frontend Developer"
-                description:
-                  type: string
-                  example: "React + Node Developer"
-                salary:
-                  type: number
-                  example: 150000
-      responses:
-        "201":
-          description: Job created
-          content:
-            application/json:
-              example:
-                message: "Job created successfully"
-
-  ###############################################
-  # GET ALL JOBS
-  ###############################################
-  /api/jobs:
-    get:
-      summary: Get All Jobs
-      tags: [Jobs]
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: List of jobs
-          content:
-            application/json:
-              example:
-                jobs:
-                  - company: "Apple"
-                    title: "iOS Developer"
-                    salary: 180000
-                    description: "Swift, UIKit, MVVM"
-                  - company: "Meta"
-                    title: "React Developer"
-                    salary: 160000
-                    description: "React, GraphQL, Webpack"
-
-  ###############################################
-  # COMPANIES: CREATE
-  ###############################################
-  /api/companies/create:
-    post:
-      summary: Create Company (Admin)
-      tags: [Companies, Admin]
-      security:
-        - bearerAuth: []
-      description: Creates a new company profile.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-                  example: "Northeastern University"
-                description:
-                  type: string
-                  example: "A private research university."
-      responses:
-        "201":
-          description: Company created successfully.
-          content:
-            application/json:
-              example:
-                message: "Company created successfully"
-                company:
-                  _id: "60d21b4667d0d8992e610c85"
-                  name: "Northeastern University"
-                  description: "A private research university."
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                error: "Company name is required."
-
-  ###############################################
-  # COMPANIES: GET ALL
-  ###############################################
-  /api/companies:
-    get:
-      summary: Get All Companies
-      tags: [Companies]
-      security:
-        - bearerAuth: []
-      description: Retrieves a list of all company profiles.
-      responses:
-        "200":
-          description: A list of companies.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Company'
-              example:
-                - _id: "60d21b4667d0d8992e610c85"
-                  name: "Northeastern University"
-                  description: "A private research university."
-                  imagePath: "/images/neu-logo.png"
-
-  ###############################################
-  # COMPANIES: GET BY ID
-  ###############################################
-  /api/companies/{id}:
-    get:
-      summary: Get Company by ID
-      tags: [Companies]
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Company details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Company'
-
-  ###############################################
-  # COMPANIES: EDIT
-  ###############################################
-  /api/companies/edit/{id}:
-    put:
-      summary: Edit Company (Admin)
-      tags: [Companies, Admin]
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                removeImage:
-                  type: boolean
-      responses:
-        "200":
-          description: Company updated successfully.
-
-  ###############################################
-  # COMPANIES: UPLOAD IMAGE
-  ###############################################
-  /api/companies/uploadImage:
-    post:
-      summary: Upload Company Logo (Admin)
-      tags: [Companies, Admin]
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [companyId, image]
-              properties:
-                companyId:
-                  type: string
-                image:
-                  type: string
-                  format: binary
-      responses:
-        "200":
-          description: Image uploaded successfully.
+  - url: /api
+    description: API Base Path
 
 components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: The user's unique ID.
+          example: 60d0fe4f5311236168a109ca
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        role:
+          type: string
+          enum: [user, admin, analyst]
+          example: user
 
-  ##############################
-  # SECURITY
-  ##############################
+    AuthResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 60d0fe4f5311236168a109ca
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        role:
+          type: string
+          enum: [user, admin, analyst]
+          example: user
+        token:
+          type: string
+          description: JWT token for authentication.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        error:
+          type: string
+          description: Detailed error information (optional).
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
 
-  ##############################
-  # SCHEMAS
-  ##############################
-  schemas:
+security:
+  - bearerAuth: []
 
-    LoginResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        token:
-          type: string
-        user:
-          type: object
-          properties:
-            email:
-              type: string
-            type:
-              type: string
-              enum: [admin, employee]
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      description: Creates a new user account. The default role is 'user'.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: Jane Doe
+                email:
+                  type: string
+                  format: email
+                  example: jane.doe@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                role:
+                  type: string
+                  enum: [user, admin, analyst]
+                  description: Optional role for the new user. Defaults to 'user'.
+                  example: user
+      responses:
+        '201':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Bad Request (e.g., user already exists, invalid data).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-    User:
-      type: object
-      properties:
-        fullName:
-          type: string
-        email:
-          type: string
-        type:
-          type: string
-          enum: [admin, employee]
+  /auth/login:
+    post:
+      summary: Log in a user
+      description: Authenticates a user and returns a JWT.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jane.doe@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized (Invalid email or password).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-    Company:
-      type: object
-      properties:
-        _id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        imagePath:
-          type: string
+  /profile:
+    get:
+      summary: Get user profile
+      description: Retrieves the profile of the currently logged-in user.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authorized (token is missing or invalid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
+  /analyst-data:
+    get:
+      summary: Get analyst data (Protected)
+      description: Accessible only by users with the 'analyst' or 'admin' role.
+      tags:
+        - Protected
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response.
+        '401':
+          description: Not authorized (token is missing or invalid).
+        '403':
+          description: Forbidden (user does not have the required role).
+
+  /admin-panel:
+    get:
+      summary: Get admin panel data (Protected)
+      description: Accessible only by users with the 'admin' role.
+      tags:
+        - Protected
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response.
+        '401':
+          description: Not authorized (token is missing or invalid).
+        '403':
+          description: Forbidden (user does not have the required role).

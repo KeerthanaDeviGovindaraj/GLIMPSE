@@ -7,9 +7,12 @@ import swaggerUi from "swagger-ui-express";
 import path from "path";
 import multer from "multer"; 
 
-import userRoutes from "./routes/userRoutes.js";
-import jobRoutes from "./routes/jobRoutes.js";
-import companyRoutes from "./routes/companyRoutes.js";
+// Assuming you will replace userRoutes with authRoutes for user management
+// import userRoutes from "./routes/userRoutes.js"; 
+import authRoutes from "./routes/authRoutes.js";
+import { protect, authorize } from "./middleware/authMiddleware.js";
+// import jobRoutes from "./routes/jobRoutes.js";
+// import companyRoutes from "./routes/companyRoutes.js";
 
 const app = express();
 
@@ -29,10 +32,23 @@ const swaggerDocument = YAML.load(
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API routes
-app.use("/api", userRoutes);
-app.use("/api/jobs", jobRoutes);
-app.use("/api/companies", companyRoutes);
+app.use("/api/auth", authRoutes);
+// app.use("/api/jobs", jobRoutes);
+// app.use("/api/companies", companyRoutes);
 app.get("/health", (req, res) => res.json({ ok: true }));
+
+// Example Protected Routes
+app.get('/api/profile', protect, (req, res) => {
+  res.json(req.user);
+});
+
+app.get('/api/analyst-data', protect, authorize('analyst', 'admin'), (req, res) => {
+  res.json({ message: 'Welcome Analyst/Admin! Here is your data.' });
+});
+
+app.get('/api/admin-panel', protect, authorize('admin'), (req, res) => {
+  res.json({ message: 'Welcome to the Admin Panel!' });
+});
 
 // ----- Global error handler (keeps invalid image format as 400 JSON) -----
 app.use((err, req, res, next) => {
