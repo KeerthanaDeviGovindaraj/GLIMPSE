@@ -188,36 +188,3 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /analyst-data:
-    get:
-      summary: Get analyst data (Protected)
-      description: Accessible only by users with the 'analyst' or 'admin' role.
-      tags:
-        - Protected
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful response.
-        '401':
-          description: Not authorized (token is missing or invalid).
-        '403':
-          description: Forbidden (user does not have the required role).
-
-  /admin-panel:
-    get:
-      summary: Get admin panel data (Protected)
-      description: Accessible only by users with the 'admin' role.
-      tags:
-        - Protected
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful response.
-        '401':
-          description: Not authorized (token is missing or invalid).
-        '403':
-          description: Forbidden (user does not have the required role).

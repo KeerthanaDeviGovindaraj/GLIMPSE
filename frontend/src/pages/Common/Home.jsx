@@ -76,11 +76,11 @@ export default function Home() {
             }}
           >
             <Typography variant="h4" fontWeight={800} sx={{ color: "#004d40" }}>
-              Find your job better and faster
+              Welcome to Your Dashboard
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Discover roles that match your skills and interests. Start searching and
-              apply with confidence.
+              This is your personal space. You can manage your profile and explore
+              features from here.
             </Typography>
 
             <PrimaryButton
@@ -91,66 +91,10 @@ export default function Home() {
                 px: 4,
               }}
             >
-              Browse Jobs
+              Go to Dashboard
             </PrimaryButton>
           </CardContent>
         </Card>
-
-        {/* Features Section */}
-        <Grid
-          container
-          spacing={3}
-          sx={{
-            mb: 8,
-            justifyContent: "center",
-            alignItems: "stretch",
-          }}
-        >
-          {[
-            {
-              title: "Curated Jobs",
-              body: "Browse a hand-picked list of opportunities with clear skills and salary ranges.",
-            },
-            {
-              title: "Company Showcase",
-              body: "Explore companies and see real profile images pulled from the backend.",
-            },
-            {
-              title: "Fast Apply",
-              body: "Jump straight to the application with one click from the listings.",
-            },
-            {
-              title: "AI Career Guidance",
-              body: "Use smart suggestions to tailor your resume and find jobs that fit your long-term goals.",
-            },
-          ].map((f, i) => (
-            <Grid item xs={12} sm={6} md={3} key={i} sx={{ display: "flex" }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 3,
-                  borderRadius: 2,
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-start",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: 3,
-                  },
-                }}
-              >
-                <Typography variant="h6" fontWeight={700}>
-                  {f.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  {f.body}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
       </Container>
     </>
   );

@@ -7,12 +7,10 @@ import swaggerUi from "swagger-ui-express";
 import path from "path";
 import multer from "multer"; 
 
-// Assuming you will replace userRoutes with authRoutes for user management
-// import userRoutes from "./routes/userRoutes.js"; 
+
 import authRoutes from "./routes/authRoutes.js";
 import { protect, authorize } from "./middleware/authMiddleware.js";
-// import jobRoutes from "./routes/jobRoutes.js";
-// import companyRoutes from "./routes/companyRoutes.js";
+
 
 const app = express();
 
@@ -33,8 +31,6 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/jobs", jobRoutes);
-// app.use("/api/companies", companyRoutes);
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 // Example Protected Routes
