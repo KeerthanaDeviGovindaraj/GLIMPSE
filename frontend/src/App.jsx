@@ -6,7 +6,9 @@ import NavBar from "./components/NavBar";
 import Home from "./pages/Common/Home";
 import About from "./pages/Common/About";
 import Login from "./pages/Common/Login";
+import UserDashboard from "./pages/User/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -23,6 +25,10 @@ function App() {
           />
           <Route path="/about" element={<About />} />
           <Route path="/" element={<ProtectedRoute element={Home} />} />
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute element={UserDashboard} />}
+          />
         </Routes>
       </Box>
     </Box>

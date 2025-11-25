@@ -19,11 +19,11 @@ components:
           example: 60d0fe4f5311236168a109ca
         name:
           type: string
-          example: Jane Doe
+          example: Rushitaben Vachhani
         email:
           type: string
           format: email
-          example: jane.doe@example.com
+          example: rushi@northeastern.edu
         role:
           type: string
           enum: [user, admin, analyst]
@@ -37,11 +37,11 @@ components:
           example: 60d0fe4f5311236168a109ca
         name:
           type: string
-          example: Jane Doe
+          example: Rushitaben Vachhani
         email:
           type: string
           format: email
-          example: jane.doe@example.com
+          example: rushi@northeastern.edu
         role:
           type: string
           enum: [user, admin, analyst]
@@ -90,15 +90,15 @@ paths:
               properties:
                 name:
                   type: string
-                  example: Jane Doe
+                  example: Rushitaben Vachhani
                 email:
                   type: string
                   format: email
-                  example: jane.doe@example.com
+                  example: rushi@northeastern.edu
                 password:
                   type: string
                   format: password
-                  example: password123
+                  example: 'Nu#4106552'
                 role:
                   type: string
                   enum: [user, admin, analyst]
@@ -143,11 +143,11 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: jane.doe@example.com
+                  example: rushi@northeastern.edu
                 password:
                   type: string
                   format: password
-                  example: password123
+                  example: 'Nu#4106552'
       responses:
         '200':
           description: Login successful.

@@ -66,13 +66,13 @@ export default function Login() {
           token,
           user: {
             email: payload.email,
-            type: payload.type || "user",
+            role: payload.role || "user",
           },
         })
       );
 
       // Redirect based on role
-      switch (payload.type) {
+      switch (payload.role) {
         case "admin":
           navigate("/admin/dashboard"); // Or another admin-specific page
           break;
@@ -80,10 +80,12 @@ export default function Login() {
           navigate("/analyst/dashboard"); // Or another analyst-specific page
           break;
         default:
-          navigate("/"); // Default page for 'user'
+          navigate("/dashboard"); // Redirect 'user' to their dashboard
       }
 
     } catch (err) {
+      // This will show the full error object in the browser console
+      console.error("Login API Error:", err); 
       setError(err?.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);

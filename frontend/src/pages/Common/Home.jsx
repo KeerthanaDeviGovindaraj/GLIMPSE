@@ -25,7 +25,7 @@ export default function Home() {
       return;
     }
 
-    switch (user?.type) {
+    switch (user?.role) {
       case "admin":
         navigate("/admin/dashboard"); // Or another admin-specific page
         break;
@@ -33,7 +33,7 @@ export default function Home() {
         navigate("/analyst/dashboard"); // Or another analyst-specific page
         break;
       default: // for 'user'
-        navigate("/"); // Or a user-specific dashboard
+        navigate("/dashboard"); // Redirect 'user' to their dashboard
     }
   };
 
