@@ -35,26 +35,24 @@ function ElevationScroll({ children }) {
 const commonPages = [
   { to: "/", label: "HOME" },
   { to: "/about", label: "ABOUT" },
-  { to: "/contact", label: "CONTACT" }
 ];
 
 const employeePages = [
   ...commonPages,
-  { to: "/employee/jobs", label: "JOBS" },
-  { to: "/companies", label: "COMPANIES" }
+];
+
+const analystPages = [
+  ...commonPages,
+  // { to: "/analyst/dashboard", label: "DASHBOARD" }, // Example for analyst
 ];
 
 const adminPages = [
   ...commonPages,
-  { to: "/admin/employees", label: "EMPLOYEES" },
-  { to: "/employee/jobs", label: "JOBS" },
-  { to: "/companies", label: "COMPANIES" }
 ];
 
 const unauthedPages = [
   { to: "/", label: "HOME" },
   { to: "/about", label: "ABOUT" },
-  { to: "/contact", label: "CONTACT" },
 ];
 
 const linkSx = {
@@ -86,7 +84,8 @@ export default function NavBar() {
     !isAuthenticated
       ? unauthedPages
       : role === "admin"
-      ? adminPages
+      ? adminPages : role === "analyst"
+      ? analystPages
       : employeePages;
 
   return (
@@ -128,7 +127,7 @@ export default function NavBar() {
               textAlign: { xs: "center", md: "left" },
             }}
           >
-            JobBest
+            Glimpse
           </Typography>
 
           {/* Desktop Menu */}
@@ -162,7 +161,7 @@ export default function NavBar() {
                       {user?.email}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      ({role === "admin" ? "Admin" : "Employee"})
+                      ({role.charAt(0).toUpperCase() + role.slice(1)})
                     </Typography>
                   </Box>
                   <Button
@@ -202,7 +201,7 @@ export default function NavBar() {
               variant="h6"
               sx={{ mb: 2, fontWeight: 800 }}
             >
-              JobBest
+              Glimpse
             </Typography>
 
             <List sx={{ py: 0 }}>

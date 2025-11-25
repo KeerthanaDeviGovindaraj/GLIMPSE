@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Assignment 10 - Full-Stack Job Portal API
+  title: Glimpse - AI Sports Commentary Platform
   description: |
     A comprehensive API for a full-stack job portal application. This API manages users, authentication, jobs, and companies, featuring role-based access control (Admin vs. Employee) and secure endpoints for all CRUD operations.
   version: 1.0.0
@@ -230,7 +230,7 @@ paths:
   ###############################################
   /api/user/getAll:
     get:
-      summary: Get All Users (Password Included - Assignment Use Only)
+      summary: Get All Users (Password Included)
       tags: [User]
       security:
         - bearerAuth: []

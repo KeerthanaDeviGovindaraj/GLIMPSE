@@ -66,16 +66,21 @@ export default function Login() {
           token,
           user: {
             email: payload.email,
-            type: payload.type || "employee",
+            type: payload.type || "user",
           },
         })
       );
 
       // Redirect based on role
-      if (payload.type === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/employee/jobs");
+      switch (payload.type) {
+        case "admin":
+          navigate("/admin/dashboard"); // Or another admin-specific page
+          break;
+        case "analyst":
+          navigate("/analyst/dashboard"); // Or another analyst-specific page
+          break;
+        default:
+          navigate("/"); // Default page for 'user'
       }
 
     } catch (err) {

@@ -25,8 +25,16 @@ export default function Home() {
       return;
     }
 
-    if (user?.type === "admin") navigate("/admin/employees");
-    else navigate("/employee/jobs");
+    switch (user?.type) {
+      case "admin":
+        navigate("/admin/dashboard"); // Or another admin-specific page
+        break;
+      case "analyst":
+        navigate("/analyst/dashboard"); // Or another analyst-specific page
+        break;
+      default: // for 'user'
+        navigate("/"); // Or a user-specific dashboard
+    }
   };
 
   return (
