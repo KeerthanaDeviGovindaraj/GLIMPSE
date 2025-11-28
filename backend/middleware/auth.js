@@ -1,43 +1,54 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const ResponseHandler = require('../utils/responseHandler');
 
+// Protect routes
 exports.protect = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return ResponseHandler.unauthorized(res, 'Not authorized to access this route');
+  }
+
   try {
-    let token;
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
+    // Get user from token
+    req.user = await User.findById(decoded.id).select('-password');
+
+    if (!req.user) {
+      return ResponseHandler.unauthorized(res, 'User not found');
     }
 
-    if (!token) {
-      req.user = { _id: 'test-user', role: 'Analyst' };
-      return next();
+    if (!req.user.isActive) {
+      return ResponseHandler.forbidden(res, 'Account has been deactivated');
     }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-      req.user = decoded;
-      next();
-    } catch (err) {
-      req.user = { _id: 'test-user', role: 'Analyst' };
-      next();
-    }
-
+    next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: 'Not authorized'
-    });
+    console.error('Auth error:', error);
+    return ResponseHandler.unauthorized(res, 'Not authorized to access this route');
   }
 };
 
+// Grant access to specific roles
 exports.authorize = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized for this role'
-      });
+    if (!roles.includes(req.user.role)) {
+      return ResponseHandler.forbidden(
+        res,
+        `User role '${req.user.role}' is not authorized to access this route`
+      );
     }
     next();
   };
 };
+
+// Export as default for compatibility
+module.exports = exports.protect;
+module.exports.authorize = exports.authorize;

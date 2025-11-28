@@ -1,75 +1,95 @@
-import axios from 'axios';
-
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json'
+class ApiService {
+  constructor() {
+    this.baseURL = API_BASE_URL;
   }
-});
 
-// Add token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    };
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
-
-export const commentaryAPI = {
-  generate: async (matchId, customPrompt) => {
     try {
-      const response = await api.post('/commentary/generate', { matchId, customPrompt });
-      return response.data;
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
     } catch (error) {
+      console.error('API request failed:', error);
       throw error;
     }
-  },
-  
-  getMatchCommentary: async (matchId) => {
-    const response = await api.get(`/commentary/match/${matchId}`);
-    return response.data;
   }
+
+  get(endpoint, options = {}) {
+    return this.request(endpoint, { ...options, method: 'GET' });
+  }
+
+  post(endpoint, data, options = {}) {
+    return this.request(endpoint, {
+      ...options,
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  put(endpoint, data, options = {}) {
+    return this.request(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  delete(endpoint, options = {}) {
+    return this.request(endpoint, { ...options, method: 'DELETE' });
+  }
+}
+
+// Create instance
+const apiService = new ApiService();
+
+// Named exports for specific APIs
+export const matchAPI = {
+  getMatches: () => apiService.get('/matches'),
+  getMatchById: (id) => apiService.get(`/matches/${id}`),
+  createMatch: (data) => apiService.post('/matches', data),
+  updateMatch: (id, data) => apiService.put(`/matches/${id}`, data),
+  deleteMatch: (id) => apiService.delete(`/matches/${id}`),
 };
 
-export const matchAPI = {
-  getLive: async () => {
-    const response = await api.get('/matches/live');
-    return response.data;
-  },
-  
-  getById: async (id) => {
-    const response = await api.get(`/matches/${id}`);
-    return response.data;
-  }
+export const commentaryAPI = {
+  getCommentary: (matchId) => apiService.get(`/commentary/${matchId}`),
+  generateCommentary: (data) => apiService.post('/commentary/generate', data),
+  voteCommentary: (id, vote) => apiService.post(`/commentary/${id}/vote`, { vote }),
+  bookmarkCommentary: (id) => apiService.post(`/commentary/${id}/bookmark`),
+  deleteCommentary: (id) => apiService.delete(`/commentary/${id}`),
 };
 
 export const predictionAPI = {
-  generate: async (matchId) => {
-    const response = await api.post('/predictions/generate', { matchId });
-    return response.data;
-  }
+  getPredictions: (matchId) => apiService.get(`/predictions/${matchId}`),
+  generatePrediction: (data) => apiService.post('/predictions/generate', data),
+  updatePrediction: (id, data) => apiService.put(`/predictions/${id}`, data),
 };
 
 export const analysisAPI = {
-  generate: async (matchId, analysisType = 'tactical') => {
-    const response = await api.post('/analysis/generate', { matchId, analysisType });
-    return response.data;
-  }
+  getAnalysis: (matchId) => apiService.get(`/analysis/${matchId}`),
+  generateAnalysis: (data) => apiService.post('/analysis/generate', data),
 };
 
-export default api;
+export const insightsAPI = {
+  getInsights: (matchId) => apiService.get(`/insights/${matchId}`),
+  generateInsights: (data) => apiService.post('/insights/generate', data),
+};
+
+// Default export
+export default apiService;

@@ -1,10 +1,11 @@
-// frontend/src/App.js
 import React from 'react';
 import AISportsCommentary from './components/AISportsCommentary';
 
 function App() {
   return (
-    <AISportsCommentary />
+    <div className="App">
+      <AISportsCommentary />
+    </div>
   );
 }
 

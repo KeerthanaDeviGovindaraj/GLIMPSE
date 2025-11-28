@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const userRoutes = require('./routes/userRoutes');
+const voiceRoutes = require('./routes/voiceRoutes');
 
 dotenv.config();
 
@@ -27,6 +29,9 @@ app.use('/api/matches', require('./routes/matchRoutes'));
 app.use('/api/commentary', require('./routes/commentaryRoutes'));
 app.use('/api/predictions', require('./routes/predictionRoutes'));
 app.use('/api/analysis', require('./routes/analysisRoutes'));
+app.use('/api/users', userRoutes);
+app.use('/api/voice', voiceRoutes);
+
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
