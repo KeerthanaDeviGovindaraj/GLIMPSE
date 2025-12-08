@@ -5,7 +5,7 @@ const uploadSchema = new mongoose.Schema({
     type: String,
     required: true,
     
-  },
+},
   originalName: {
     type: String,
     required: true,
