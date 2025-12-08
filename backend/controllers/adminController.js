@@ -3,6 +3,7 @@ const Upload = require('../models/Upload');
 const User = require('../models/User');
 
 exports.getDashboardStats = async (req, res) => {
+  
   try {
     const totalUsers = await User.countDocuments();
     const totalUploads = await Upload.countDocuments();
