@@ -1,97 +1,208 @@
+// services/llmService.js
 const axios = require('axios');
+const cacheService = require('./cacheService');
 
 class LLMService {
   constructor() {
-    this.provider = process.env.LLM_PROVIDER || 'anthropic';
-    this.anthropicKey = process.env.ANTHROPIC_API_KEY;
-    this.openaiKey = process.env.OPENAI_API_KEY;
+    this.providers = {
+      openai: {
+        baseURL: 'https://api.openai.com/v1',
+        apiKey: process.env.OPENAI_API_KEY,
+        models: ['gpt-4', 'gpt-3.5-turbo']
+      },
+      anthropic: {
+        baseURL: 'https://api.anthropic.com/v1',
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        models: ['claude-3-opus', 'claude-3-sonnet']
+      }
+    };
+    
+    this.defaultProvider = 'openai';
+    this.defaultModel = 'gpt-3.5-turbo';
   }
 
-  async generateCommentary(matchContext, customPrompt = null) {
-    const systemPrompt = `You are an expert sports commentator. Generate exciting, vivid live sports commentary.`;
-    const userPrompt = customPrompt || `Generate live commentary for: ${matchContext}. Make it exciting!`;
-    return await this.callLLM(systemPrompt, userPrompt, 200);
-  }
+  async generateText(prompt, options = {}) {
+    try {
+      const cacheKey = `llm:${this.hashString(prompt)}`;
+      const cached = cacheService.get(cacheKey);
+      
+      if (cached && !options.noCache) {
+        console.log('📦 Using cached LLM response');
+        return cached;
+      }
 
-  async generatePrediction(matchContext) {
-    const systemPrompt = `You are a sports analytics expert.`;
-    const userPrompt = `Predict the outcome for: ${matchContext}. Include confidence percentage (e.g., 75%) and key factors.`;
-    const response = await this.callLLM(systemPrompt, userPrompt, 400);
-    const confidenceMatch = response.match(/(\d{1,3})%/);
-    const confidence = confidenceMatch ? parseInt(confidenceMatch[1]) : 75;
-    return { text: response, confidence };
-  }
+      const provider = options.provider || this.defaultProvider;
+      const model = options.model || this.defaultModel;
 
-  async generateAnalysis(matchContext, analysisType = 'tactical') {
-    const systemPrompt = `You are a professional sports analyst.`;
-    const userPrompt = `Provide ${analysisType} analysis for: ${matchContext}. Be detailed and insightful.`;
-    return await this.callLLM(systemPrompt, userPrompt, 500);
-  }
+      let response;
+      
+      if (provider === 'openai') {
+        response = await this.callOpenAI(prompt, model, options);
+      } else if (provider === 'anthropic') {
+        response = await this.callAnthropic(prompt, model, options);
+      }
 
-  async callLLM(systemPrompt, userPrompt, maxTokens = 300) {
-    if (this.provider === 'anthropic') {
-      return await this.callAnthropicAPI(systemPrompt, userPrompt, maxTokens);
-    } else if (this.provider === 'openai') {
-      return await this.callOpenAI(systemPrompt, userPrompt, maxTokens);
+      // Cache the response
+      if (response && !options.noCache) {
+        cacheService.set(cacheKey, response, 3600); // Cache for 1 hour
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error generating text:', error);
+      throw error;
     }
-    throw new Error('Invalid LLM provider');
   }
 
-  async callAnthropicAPI(systemPrompt, userPrompt, maxTokens) {
-    if (!this.anthropicKey) {
-      throw new Error('ANTHROPIC_API_KEY not set in .env file');
-    }
-
-    console.log('🤖 Calling Anthropic Claude API...');
-
+  async callOpenAI(prompt, model, options) {
+    const config = this.providers.openai;
+    
     const response = await axios.post(
-      'https://api.anthropic.com/v1/messages',
+      `${config.baseURL}/chat/completions`,
       {
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: maxTokens,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }]
+        model: model,
+        messages: [
+          {
+            role: 'system',
+            content: options.systemPrompt || 'You are a helpful assistant.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: options.temperature || 0.7,
+        max_tokens: options.maxTokens || 1000,
+        top_p: options.topP || 1,
+        frequency_penalty: options.frequencyPenalty || 0,
+        presence_penalty: options.presencePenalty || 0
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.anthropicKey,
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json'
         }
       }
     );
 
-    console.log('✅ Claude Response received');
-    return response.data.content[0].text;
+    return {
+      text: response.data.choices[0].message.content,
+      model: model,
+      provider: 'openai',
+      tokens: response.data.usage.total_tokens,
+      finishReason: response.data.choices[0].finish_reason
+    };
   }
 
-  async callOpenAI(systemPrompt, userPrompt, maxTokens) {
-    if (!this.openaiKey) {
-      throw new Error('OPENAI_API_KEY not set');
-    }
-
-    console.log('🤖 Calling OpenAI...');
-
+  async callAnthropic(prompt, model, options) {
+    const config = this.providers.anthropic;
+    
     const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
+      `${config.baseURL}/messages`,
       {
-        model: 'gpt-4',
-        max_tokens: maxTokens,
+        model: model,
+        max_tokens: options.maxTokens || 1000,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          {
+            role: 'user',
+            content: prompt
+          }
         ]
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.openaiKey}`
+          'x-api-key': config.apiKey,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json'
         }
       }
     );
 
-    console.log('✅ OpenAI Response received');
-    return response.data.choices[0].message.content;
+    return {
+      text: response.data.content[0].text,
+      model: model,
+      provider: 'anthropic',
+      tokens: response.data.usage.input_tokens + response.data.usage.output_tokens,
+      finishReason: response.data.stop_reason
+    };
+  }
+
+  async streamText(prompt, options = {}, onChunk) {
+    try {
+      const provider = options.provider || this.defaultProvider;
+      
+      if (provider === 'openai') {
+        return await this.streamOpenAI(prompt, options, onChunk);
+      }
+      
+      throw new Error(`Streaming not implemented for provider: ${provider}`);
+    } catch (error) {
+      console.error('Error streaming text:', error);
+      throw error;
+    }
+  }
+
+  async streamOpenAI(prompt, options, onChunk) {
+    const config = this.providers.openai;
+    
+    const response = await axios.post(
+      `${config.baseURL}/chat/completions`,
+      {
+        model: options.model || this.defaultModel,
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        stream: true
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        responseType: 'stream'
+      }
+    );
+
+    return new Promise((resolve, reject) => {
+      let fullText = '';
+      
+      response.data.on('data', (chunk) => {
+        const lines = chunk.toString().split('\n').filter(line => line.trim() !== '');
+        
+        for (const line of lines) {
+          if (line.includes('[DONE]')) {
+            resolve(fullText);
+            return;
+          }
+          
+          if (line.startsWith('data: ')) {
+            try {
+              const json = JSON.parse(line.substring(6));
+              const content = json.choices[0]?.delta?.content || '';
+              fullText += content;
+              onChunk(content);
+            } catch (e) {
+              // Skip parsing errors
+            }
+          }
+        }
+      });
+
+      response.data.on('error', reject);
+    });
+  }
+
+  hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash.toString(36);
   }
 }
 

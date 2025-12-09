@@ -1,142 +1,170 @@
+// services/websocketService.js
 const WebSocket = require('ws');
-const config = require('../config/websocket');
 
 class WebSocketService {
   constructor() {
     this.wss = null;
     this.clients = new Map();
-    this.heartbeatInterval = null;
+    this.rooms = new Map();
   }
 
   initialize(server) {
     this.wss = new WebSocket.Server({ server });
-    console.log('🔌 WebSocket server initialized');
 
     this.wss.on('connection', (ws, req) => {
       const clientId = this.generateClientId();
-      this.clients.set(clientId, { ws, alive: true });
-      
-      console.log(`✅ Client connected: ${clientId}`);
+      this.clients.set(clientId, {
+        ws,
+        id: clientId,
+        ip: req.socket.remoteAddress,
+        connectedAt: new Date()
+      });
 
-      // Send welcome message
-      this.sendToClient(ws, 'connected', { clientId, message: 'Connected to InsightOS' });
+      console.log(`✅ Client connected: ${clientId} (Total: ${this.clients.size})`);
 
-      // Handle incoming messages
       ws.on('message', (message) => {
-        try {
-          const data = JSON.parse(message);
-          this.handleMessage(clientId, data);
-        } catch (error) {
-          console.error('Error parsing message:', error);
-        }
+        this.handleMessage(clientId, message);
       });
 
-      // Handle pong (heartbeat response)
-      ws.on('pong', () => {
-        const client = this.clients.get(clientId);
-        if (client) client.alive = true;
-      });
-
-      // Handle disconnection
       ws.on('close', () => {
-        this.clients.delete(clientId);
-        console.log(`❌ Client disconnected: ${clientId}`);
+        this.handleDisconnect(clientId);
       });
 
       ws.on('error', (error) => {
-        console.error(`WebSocket error for ${clientId}:`, error);
+        console.error(`WebSocket error for client ${clientId}:`, error);
+      });
+
+      // Send welcome message
+      this.sendToClient(clientId, {
+        type: 'connection',
+        clientId,
+        message: 'Connected to InsightOS Commentary'
       });
     });
 
-    // Start heartbeat
-    this.startHeartbeat();
+    console.log('🔌 WebSocket server initialized');
   }
 
-  startHeartbeat() {
-    this.heartbeatInterval = setInterval(() => {
-      this.clients.forEach((client, clientId) => {
-        if (!client.alive) {
-          console.log(`💔 Terminating inactive client: ${clientId}`);
-          client.ws.terminate();
-          this.clients.delete(clientId);
-          return;
-        }
-        
-        client.alive = false;
-        client.ws.ping();
-      });
-    }, config.heartbeat);
-  }
+  handleMessage(clientId, message) {
+    try {
+      const data = JSON.parse(message);
+      console.log(`📨 Message from ${clientId}:`, data.type);
 
-  handleMessage(clientId, data) {
-    console.log(`📨 Message from ${clientId}:`, data);
-    
-    switch (data.type) {
-      case 'subscribe':
-        this.handleSubscribe(clientId, data.channel);
-        break;
-      case 'unsubscribe':
-        this.handleUnsubscribe(clientId, data.channel);
-        break;
-      default:
-        console.log('Unknown message type:', data.type);
+      switch (data.type) {
+        case 'join_room':
+          this.joinRoom(clientId, data.room);
+          break;
+        case 'leave_room':
+          this.leaveRoom(clientId, data.room);
+          break;
+        case 'commentary':
+          this.broadcastToRoom(data.room, {
+            type: 'commentary',
+            data: data.payload,
+            from: clientId
+          });
+          break;
+        case 'ping':
+          this.sendToClient(clientId, { type: 'pong' });
+          break;
+        default:
+          console.log(`Unknown message type: ${data.type}`);
+      }
+    } catch (error) {
+      console.error('Error handling message:', error);
     }
   }
 
-  handleSubscribe(clientId, channel) {
+  handleDisconnect(clientId) {
+    // Remove from all rooms
+    this.rooms.forEach((members, roomId) => {
+      if (members.has(clientId)) {
+        this.leaveRoom(clientId, roomId);
+      }
+    });
+
+    this.clients.delete(clientId);
+    console.log(`❌ Client disconnected: ${clientId} (Total: ${this.clients.size})`);
+  }
+
+  joinRoom(clientId, roomId) {
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, new Set());
+    }
+
+    this.rooms.get(roomId).add(clientId);
+    console.log(`👥 Client ${clientId} joined room ${roomId}`);
+
+    this.sendToClient(clientId, {
+      type: 'joined_room',
+      room: roomId,
+      members: this.rooms.get(roomId).size
+    });
+
+    this.broadcastToRoom(roomId, {
+      type: 'user_joined',
+      clientId,
+      members: this.rooms.get(roomId).size
+    }, clientId);
+  }
+
+  leaveRoom(clientId, roomId) {
+    if (this.rooms.has(roomId)) {
+      this.rooms.get(roomId).delete(clientId);
+      
+      if (this.rooms.get(roomId).size === 0) {
+        this.rooms.delete(roomId);
+      } else {
+        this.broadcastToRoom(roomId, {
+          type: 'user_left',
+          clientId,
+          members: this.rooms.get(roomId).size
+        });
+      }
+
+      console.log(`👋 Client ${clientId} left room ${roomId}`);
+    }
+  }
+
+  sendToClient(clientId, data) {
     const client = this.clients.get(clientId);
-    if (client) {
-      if (!client.subscriptions) client.subscriptions = new Set();
-      client.subscriptions.add(channel);
-      console.log(`✅ Client ${clientId} subscribed to ${channel}`);
+    if (client && client.ws.readyState === WebSocket.OPEN) {
+      client.ws.send(JSON.stringify(data));
     }
   }
 
-  handleUnsubscribe(clientId, channel) {
-    const client = this.clients.get(clientId);
-    if (client && client.subscriptions) {
-      client.subscriptions.delete(channel);
-      console.log(`❌ Client ${clientId} unsubscribed from ${channel}`);
-    }
-  }
+  broadcastToRoom(roomId, data, excludeClientId = null) {
+    if (!this.rooms.has(roomId)) return;
 
-  broadcast(event, data, channel = null) {
-    const message = JSON.stringify({ event, data, timestamp: new Date().toISOString() });
-    
-    this.clients.forEach((client, clientId) => {
-      if (client.ws.readyState === WebSocket.OPEN) {
-        // If channel specified, only send to subscribed clients
-        if (!channel || (client.subscriptions && client.subscriptions.has(channel))) {
-          client.ws.send(message);
-        }
+    const members = this.rooms.get(roomId);
+    members.forEach(clientId => {
+      if (clientId !== excludeClientId) {
+        this.sendToClient(clientId, data);
       }
     });
   }
 
-  sendToClient(ws, event, data) {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ event, data, timestamp: new Date().toISOString() }));
-    }
+  broadcast(data, excludeClientId = null) {
+    this.clients.forEach((client, clientId) => {
+      if (clientId !== excludeClientId && client.ws.readyState === WebSocket.OPEN) {
+        client.ws.send(JSON.stringify(data));
+      }
+    });
   }
 
   generateClientId() {
     return `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  close() {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-    }
-    
-    this.clients.forEach((client) => {
-      client.ws.close();
-    });
-    
-    if (this.wss) {
-      this.wss.close();
-    }
-    
-    console.log('🔌 WebSocket server closed');
+  getStats() {
+    return {
+      totalClients: this.clients.size,
+      totalRooms: this.rooms.size,
+      rooms: Array.from(this.rooms.entries()).map(([roomId, members]) => ({
+        roomId,
+        members: members.size
+      }))
+    };
   }
 }
 
