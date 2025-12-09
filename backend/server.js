@@ -1,61 +1,86 @@
+require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const http = require('http');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes');
-const voiceRoutes = require('./routes/voiceRoutes');
+const helmet = require('helmet');
+const mongoose = require('mongoose');
+const socketIo = require('socket.io');
 
-dotenv.config();
+const app = express(); // ✅ Only ONE app instance
+const server = http.createServer(app);
 
-const app = express();
+// Socket.IO initialization
+const io = socketIo(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST']
+  }
+});
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
-  credentials: true
-}));
+// Middleware
+app.use(helmet());
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  next();
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
+// Routes
+const matchRoutes = require('./routes/matchRoutes');
+app.use('/api/matches', matchRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
 });
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/insightos')
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.log('⚠️  MongoDB not connected:', err.message));
+// Socket.IO handling
+io.on('connection', (socket) => {
+  console.log(`🔌 Client connected: ${socket.id}`);
 
-app.use('/api/matches', require('./routes/matchRoutes'));
-app.use('/api/commentary', require('./routes/commentaryRoutes'));
-app.use('/api/predictions', require('./routes/predictionRoutes'));
-app.use('/api/analysis', require('./routes/analysisRoutes'));
-app.use('/api/users', userRoutes);
-app.use('/api/voice', voiceRoutes);
+  socket.on('join_room', (roomId) => {
+    socket.join(roomId);
+    console.log(`👥 ${socket.id} joined ${roomId}`);
 
+    io.to(roomId).emit('user_joined', {
+      clientId: socket.id,
+      roomId
+    });
+  });
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    success: true, 
-    message: 'API is healthy',
-    llmProvider: process.env.LLM_PROVIDER || 'anthropic',
-    llmConfigured: !!(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY),
-    timestamp: new Date().toISOString()
+  socket.on('leave_room', (roomId) => {
+    socket.leave(roomId);
+    console.log(`👋 ${socket.id} left ${roomId}`);
+
+    io.to(roomId).emit('user_left', {
+      clientId: socket.id,
+      roomId
+    });
+  });
+
+  socket.on('commentary', ({ roomId, payload }) => {
+    io.to(roomId).emit('commentary', {
+      from: socket.id,
+      payload
+    });
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`❌ Client disconnected: ${socket.id}`);
   });
 });
 
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err);
-  res.status(500).json({
-    success: false,
-    message: err.message
-  });
-});
+// Expose io for other files
+app.set('io', io);
 
+// Start server
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 API: http://localhost:${PORT}`);
-  console.log(`🤖 LLM: ${process.env.LLM_PROVIDER || 'anthropic'}`);
-  console.log(`🔑 API Key: ${!!(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY) ? 'Set ✅' : 'Missing ❌'}`);
+  console.log(`🌐 Socket.IO active at ws://localhost:${PORT}`);
 });
+
+module.exports = { app, server, io };
