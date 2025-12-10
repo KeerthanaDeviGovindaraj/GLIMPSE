@@ -19,12 +19,7 @@ import {
   AccountCircle,
   Logout,
   Dashboard,
-  People,
-  Analytics,
-  Settings,
   Home,
-  Info,
-  ContactMail,
   AdminPanelSettings,
   Assessment
 } from '@mui/icons-material';
@@ -60,26 +55,18 @@ const NavBar = () => {
   // Get navigation items based on user role
   const getNavigationItems = () => {
     const baseItems = [
-      { label: 'Home', path: '/', icon: <Home /> },
-      { label: 'About', path: '/about', icon: <Info /> },
-      { label: 'Contact', path: '/contact', icon: <ContactMail /> }
+      { label: 'Home', path: '/', icon: <Home /> }
     ];
 
     const roleSpecificItems = {
       admin: [
         { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
-        { label: 'User Management', path: '/admin/users', icon: <People /> },
-        { label: 'System Analytics', path: '/admin/analytics', icon: <Analytics /> },
-        { label: 'Settings', path: '/admin/settings', icon: <Settings /> }
       ],
       analyst: [
         { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
-        { label: 'Data Analytics', path: '/analyst/analytics', icon: <Analytics /> },
-        { label: 'Reports', path: '/analyst/reports', icon: <Dashboard /> }
       ],
       user: [
-        { label: 'My Dashboard', path: '/user/dashboard', icon: <Dashboard /> },
-        { label: 'Profile', path: '/profile', icon: <AccountCircle /> }
+        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
       ]
     };
 
@@ -120,12 +107,14 @@ const NavBar = () => {
         </Typography>
 
         {/* Role Badge */}
-        <Chip
-          label={getRoleDisplayName(user?.role)}
-          color={getRoleColor(user?.role)}
-          size="small"
-          sx={{ ml: 2, color: 'white' }}
-        />
+        {['admin', 'analyst'].includes(user?.role) && (
+          <Chip
+            label={getRoleDisplayName(user?.role)}
+            color={getRoleColor(user?.role)}
+            size="small"
+            sx={{ ml: 2, color: 'white' }}
+          />
+        )}
 
         {/* Navigation Links - Desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
@@ -144,8 +133,8 @@ const NavBar = () => {
 
         {/* User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}>
-            {user?.email?.split('@')[0] || 'User'}
+          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
+            {user?.firstName || user?.email?.split('@')[0] || 'User'}
           </Typography>
           
           <IconButton
@@ -156,7 +145,7 @@ const NavBar = () => {
             onClick={handleMenu}
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }} src={user?.photoUrl} alt={user?.email}>
               <AccountCircle />
             </Avatar>
           </IconButton>
@@ -193,17 +182,8 @@ const NavBar = () => {
             
             <Divider />
 
-            {/* Dashboard Quick Access */}
-            <MenuItem onClick={() => handleNavigation('/dashboard')}>
-              <ListItemIcon>
-                <Dashboard fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>My Dashboard</ListItemText>
-            </MenuItem>
-
             {/* Mobile Navigation Items */}
             <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-              <Divider />
               {navigationItems.map((item) => (
                 <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
                   <ListItemIcon>
@@ -212,23 +192,15 @@ const NavBar = () => {
                   <ListItemText>{item.label}</ListItemText>
                 </MenuItem>
               ))}
+              <Divider />
             </Box>
 
-            <Divider />
-
-            {/* Profile & Settings */}
+            {/* Profile */}
             <MenuItem onClick={() => handleNavigation('/profile')}>
               <ListItemIcon>
                 <AccountCircle fontSize="small" />
               </ListItemIcon>
               <ListItemText>Profile</ListItemText>
-            </MenuItem>
-
-            <MenuItem onClick={() => handleNavigation('/settings')}>
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Settings</ListItemText>
             </MenuItem>
 
             <Divider />

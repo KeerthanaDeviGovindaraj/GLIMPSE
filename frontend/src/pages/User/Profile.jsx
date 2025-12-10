@@ -67,6 +67,7 @@ const Profile = () => {
         });
 
         setProfile(data);
+        dispatch(setCredentials({ user: data, token }));
         // Ensure favoriteSport is an ID for the form
         setFormData({
           ...data, favoriteSport: data.favoriteSport?._id || ''
@@ -78,7 +79,7 @@ const Profile = () => {
       }
     };
 
-  }, [token]);
+  }, [token, dispatch]);
 
   useEffect(() => {
     fetchProfile();
@@ -219,7 +220,7 @@ const Profile = () => {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Card elevation={3}>
         <CardContent>
-          <Grid container spacing={3} alignItems="center">
+          <Grid container spacing={3} alignItems="flex-start">
             <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
               <Box
                 position="relative"
