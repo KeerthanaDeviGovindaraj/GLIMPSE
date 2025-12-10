@@ -20,7 +20,7 @@ export async function getProfile(req, res) {
   if (req.user) {
     const userProfile = await User.findById(req.user.id).populate('favoriteSport', 'name').select('-password');
     console.log(`[getProfile] User found: ${userProfile.email}. Sending profile.`);
-    return res.status(200).json(req.user);
+    return res.status(200).json(userProfile);
   } else {
     console.error("[getProfile] Error: req.user is not defined. This should not happen if 'protect' middleware is working correctly.");
     return res.status(404).json({ message: "User not found." });
@@ -51,7 +51,7 @@ export async function editUser(req, res) {
     await user.save();
 
     // Return the updated user, excluding the password
-    const updatedUser = await User.findById(req.user.id).select('-password');
+    const updatedUser = await User.findById(req.user.id).populate('favoriteSport', 'name').select('-password');
     return res.status(200).json({ message: "Profile updated successfully.", user: updatedUser });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });

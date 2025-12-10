@@ -13,10 +13,7 @@ import {
   Backdrop,
   CircularProgress,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  Autocomplete,
 } from "@mui/material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import api from "../../services/api.js";
@@ -45,8 +42,8 @@ export default function Register() {
   React.useEffect(() => {
     const fetchSports = async () => {
       try {
-        const { data } = await api.get('/sports');
-        setSports(data);
+        const { data } = await api.get("/sports");
+        setSports(data.sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
         console.error("Failed to fetch sports", error);
       }
@@ -67,9 +64,6 @@ export default function Register() {
       tempErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValues.email)
         ? ""
         : "Email is not valid.";
-    }
-    if ("favoriteSport" in fieldValues) {
-      tempErrors.favoriteSport = fieldValues.favoriteSport ? "" : "Favorite sport is required.";
     }
     if ("password" in fieldValues) {
       tempErrors.password = fieldValues.password.length >= 8 ? "" : "Password must be at least 8 characters long.";
@@ -238,21 +232,22 @@ export default function Register() {
                 error={!!errors.email}
                 helperText={errors.email}
               />
-              <FormControl fullWidth required error={!!errors.favoriteSport}>
-                <InputLabel id="favorite-sport-label">Favorite Sport</InputLabel>
-                <Select
-                  labelId="favorite-sport-label"
-                  label="Favorite Sport"
-                  name="favoriteSport"
-                  value={formData.favoriteSport}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                >
-                  {sports.map((sport) => (
-                    <MenuItem key={sport._id} value={sport._id}>{sport.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                fullWidth
+                options={sports}
+                getOptionLabel={(option) => option.name}
+                value={sports.find((s) => s._id === formData.favoriteSport) || null}
+                onChange={(event, newValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    favoriteSport: newValue ? newValue._id : "",
+                  }));
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Favorite Sport" />
+                )}
+                isOptionEqualToValue={(option, value) => option._id === value._id}
+              />
               <TextField
                 label="Password"
                 name="password"
