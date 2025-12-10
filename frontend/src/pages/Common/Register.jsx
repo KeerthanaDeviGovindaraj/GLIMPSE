@@ -69,8 +69,9 @@ export default function Register() {
       tempErrors.password = fieldValues.password.length >= 8 ? "" : "Password must be at least 8 characters long.";
     }
     if ("confirmPassword" in fieldValues) {
+      const password = fieldValues.password !== undefined ? fieldValues.password : formData.password;
       tempErrors.confirmPassword =
-        fieldValues.password === fieldValues.confirmPassword
+        password === fieldValues.confirmPassword
           ? ""
           : "Passwords do not match.";
     }

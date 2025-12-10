@@ -5,7 +5,8 @@ import {
   getAllUsers,
   getUsers,
   uploadImage,
-  getProfile
+  getProfile,
+  getSystemAnalytics
 } from "../controllers/userController.js";
 
 import { createUserValidation, editUserValidation, loginValidation } from "../middleware/validate.js";
@@ -56,6 +57,9 @@ router.route("/profile")
 
 // Upload/update current user's profile picture
 router.post("/profile/photo", protect, upload.single("photo"), uploadImage);
+
+// Analyst/Admin System Analytics
+router.get("/analyst-data", protect, authorize('analyst', 'admin'), getSystemAnalytics);
 
 // ----------------------------
 // ADMIN-ONLY ROUTES

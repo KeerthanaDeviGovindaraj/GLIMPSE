@@ -40,10 +40,6 @@ app.use("/api/sports", sportRoutes);
 app.use("/api/password", passwordRoutes);
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-app.get('/api/analyst-data', protect, authorize('analyst', 'admin'), (req, res) => {
-  res.json({ message: 'Welcome Analyst/Admin! Here is your data.' });
-});
-
 app.get('/api/admin-panel', protect, authorize('admin'), (req, res) => {
   res.json({ message: 'Welcome to the Admin Panel!' });
 });

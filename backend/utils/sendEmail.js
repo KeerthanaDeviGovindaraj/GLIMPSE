@@ -1,22 +1,22 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
-  // Generate test SMTP service account from ethereal.email
-  const testAccount = await nodemailer.createTestAccount();
+  if (!process.env.SMTP_HOST) {
+    throw new Error("SMTP_HOST is not defined in .env file");
+  }
 
-  // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT || 587,
+    secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
     auth: {
-      user: testAccount.user, // generated ethereal user
-      pass: testAccount.pass, // generated ethereal password
+      user: process.env.SMTP_EMAIL,
+      pass: process.env.SMTP_PASSWORD,
     },
   });
 
   const message = {
-    from: '"Info Portal Support" <support@infoportal.com>',
+    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
@@ -26,8 +26,6 @@ const sendEmail = async (options) => {
   const info = await transporter.sendMail(message);
 
   console.log("Message sent: %s", info.messageId);
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 };
 
 export default sendEmail;
