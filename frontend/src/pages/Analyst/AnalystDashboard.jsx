@@ -49,7 +49,7 @@ const AnalystDashboard = () => {
 
   const fetchAnalyticsData = async () => {
     try {
-      const response = await api.get('/analyst-data');
+      const response = await api.get('/users/analyst-data');
       setData(response.data);
     } catch (err) {
       console.error("Failed to fetch analytics", err);
@@ -76,8 +76,8 @@ const AnalystDashboard = () => {
   }
 
   // Prepare data for charts
-  const roleData = data?.usersByRole.map(item => ({ name: item._id, value: item.count })) || [];
-  const sportData = data?.usersBySport.map(item => ({ name: item._id, count: item.count })) || [];
+  const roleData = data?.usersByRole?.map(item => ({ name: item._id, value: item.count })) || [];
+  const sportData = data?.usersBySport?.map(item => ({ name: item._id, count: item.count })) || [];
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   const MetricCard = ({ title, value, icon, color }) => (
@@ -193,7 +193,7 @@ const AnalystDashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data?.recentUsers.map((user) => (
+                  {data?.recentUsers?.map((user) => (
                     <TableRow key={user._id}>
                       <TableCell>{user.firstName} {user.lastName}</TableCell>
                       <TableCell>{user.email}</TableCell>

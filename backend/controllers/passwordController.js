@@ -30,12 +30,14 @@ export const forgotPassword = async (req, res) => {
 
     // Create reset url
     // NOTE: Ensure this port matches your Frontend port (usually 5173 for Vite)
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+    console.log(`[forgotPassword] Reset URL generated: ${resetUrl}`);
 
     const message = `
       <h1>You have requested a password reset</h1>
       <p>Please go to this link to reset your password:</p>
-      <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+      <a href="${resetUrl}" clicktracking="off">${resetUrl}</a>
     `;
 
     try {
@@ -48,6 +50,7 @@ export const forgotPassword = async (req, res) => {
 
       res.status(200).json({ success: true, data: 'Email sent' });
     } catch (error) {
+      console.error("Email send error:", error);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save();

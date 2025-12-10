@@ -39,6 +39,8 @@ const userSchema = new mongoose.Schema({
   photoType: {
     type: String,
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
