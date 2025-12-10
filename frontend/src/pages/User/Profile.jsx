@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  FormControl,
   Container,
   Box,
   Typography,
@@ -20,11 +19,10 @@ import {
   Button,
   TextField,
   Snackbar,
-  Select,
-  MenuItem,
-  InputLabel
+  IconButton,
+  Autocomplete
 } from '@mui/material';
-import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera } from '@mui/icons-material';
+import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera, Delete } from '@mui/icons-material';
 import { setCredentials } from '../../redux/slices/authSlice';
 import api from '../../services/api';
 
@@ -40,12 +38,13 @@ const Profile = () => {
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [sports, setSports] = useState([]);
+  const [newSport, setNewSport] = useState('');
 
   useEffect(() => {
     const fetchSports = async () => {
       try {
         const { data } = await api.get('/sports');
-        setSports(data);
+        setSports(data.sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
         console.error("Failed to fetch sports", error);
       }
@@ -60,16 +59,12 @@ const Profile = () => {
       setLoading(true);
       setError('');
       try {
-        const response = await api.get('/users/profile', {
+        // For axios, the response data is in the `data` property.
+        const { data } = await api.get('/users/profile', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to fetch profile data.');
-        }
 
         setProfile(data);
         // Ensure favoriteSport is an ID for the form
@@ -77,7 +72,7 @@ const Profile = () => {
           ...data, favoriteSport: data.favoriteSport?._id || ''
         });
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message || 'Failed to fetch profile data.');
       } finally {
         setLoading(false);
       }
@@ -88,6 +83,39 @@ const Profile = () => {
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  const handleAddSport = async () => {
+    if (!newSport.trim()) return;
+    setLoading(true);
+    try {
+      const { data } = await api.post('/sports', { name: newSport }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSports([...sports, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewSport('');
+      setSuccess('Sport added successfully!');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to add sport');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSport = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this sport?')) return;
+    setLoading(true);
+    try {
+      await api.delete(`/sports/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSports(sports.filter((sport) => sport._id !== id));
+      setSuccess('Sport deleted successfully!');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete sport');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -146,25 +174,19 @@ const Profile = () => {
     setSuccess('');
 
     try {
-      const response = await api.post('/users/profile/photo', formData, {
-        method: 'POST',
+      // The api service is an axios instance. The second argument is the data.
+      await api.post('/users/profile/photo', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
-        body: formData,
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to upload photo.');
-      }
 
       // Refetch profile to get the latest user data with the new photo
       await fetchProfile();
       setSuccess('Profile photo updated successfully!');
 
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to upload photo.');
     } finally {
       setUploading(false);
     }
@@ -269,20 +291,20 @@ const Profile = () => {
                     <TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} />
                   </Grid>
                   <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="favorite-sport-label">Favorite Sport</InputLabel>
-                      <Select
-                        labelId="favorite-sport-label"
-                        label="Favorite Sport"
-                        name="favoriteSport"
-                        value={formData.favoriteSport}
-                        onChange={handleInputChange}
-                      >
-                        {sports.map((sport) => (
-                          <MenuItem key={sport._id} value={sport._id}>{sport.name}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      fullWidth
+                      options={sports}
+                      getOptionLabel={(option) => option.name}
+                      value={sports.find((s) => s._id === formData.favoriteSport) || null}
+                      onChange={(event, newValue) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          favoriteSport: newValue ? newValue._id : '',
+                        }));
+                      }}
+                      renderInput={(params) => <TextField {...params} label="Favorite Sport" />}
+                      isOptionEqualToValue={(option, value) => option._id === value._id}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField fullWidth disabled label="Email" value={formData.email} />
@@ -311,13 +333,54 @@ const Profile = () => {
                   </ListItem>
                   <ListItem>
                     <ListItemIcon><SportsSoccer /></ListItemIcon>
-                    <ListItemText primary="Favorite Sport" secondary={profile.favoriteSport?.name} />
+                    <ListItemText primary="Favorite Sport" secondary={profile.favoriteSport?.name || 'None'} />
                   </ListItem>
                   <ListItem>
                     <ListItemIcon><CalendarToday /></ListItemIcon>
                     <ListItemText primary="Member Since" secondary={new Date(profile.createdAt).toLocaleDateString()} />
                   </ListItem>
                 </List>
+              )}
+
+              {profile.role === 'admin' && !editMode && (
+                <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)' }}>
+                  <Typography variant="h6" gutterBottom>
+                    Admin Functionality
+                  </Typography>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Add New Sport
+                  </Typography>
+                  <Box display="flex" gap={2}>
+                    <TextField
+                      label="Sport Name"
+                      value={newSport}
+                      onChange={(e) => setNewSport(e.target.value)}
+                      size="small"
+                      fullWidth
+                    />
+                    <Button variant="contained" onClick={handleAddSport} disabled={loading || !newSport.trim()}>
+                      Add
+                    </Button>
+                  </Box>
+
+                  <Typography variant="subtitle1" gutterBottom sx={{ mt: 3 }}>
+                    Manage Existing Sports
+                  </Typography>
+                  <List dense sx={{ maxHeight: 200, overflow: 'auto', bgcolor: 'background.paper', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
+                    {sports.map((sport) => (
+                      <ListItem
+                        key={sport._id}
+                        secondaryAction={
+                          <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteSport(sport._id)} disabled={loading}>
+                            <Delete />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemText primary={sport.name} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
               )}
             </Grid>
           </Grid>
