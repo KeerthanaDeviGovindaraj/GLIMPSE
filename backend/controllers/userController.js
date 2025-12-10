@@ -20,7 +20,14 @@ export async function getProfile(req, res) {
   if (req.user) {
     const userProfile = await User.findById(req.user.id).populate('favoriteSport', 'name').select('-password');
     console.log(`[getProfile] User found: ${userProfile.email}. Sending profile.`);
-    return res.status(200).json(userProfile);
+    
+    // Convert to object with virtuals to ensure photoUrl is included
+    const userObj = userProfile.toObject({ virtuals: true });
+    // Remove raw binary photo data to keep response light
+    delete userObj.photo;
+    delete userObj.photoType;
+    
+    return res.status(200).json(userObj);
   } else {
     console.error("[getProfile] Error: req.user is not defined. This should not happen if 'protect' middleware is working correctly.");
     return res.status(404).json({ message: "User not found." });
@@ -52,7 +59,12 @@ export async function editUser(req, res) {
 
     // Return the updated user, excluding the password
     const updatedUser = await User.findById(req.user.id).populate('favoriteSport', 'name').select('-password');
-    return res.status(200).json({ message: "Profile updated successfully.", user: updatedUser });
+    
+    const userObj = updatedUser.toObject({ virtuals: true });
+    delete userObj.photo;
+    delete userObj.photoType;
+
+    return res.status(200).json({ message: "Profile updated successfully.", user: userObj });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }
@@ -84,7 +96,15 @@ export async function getUsers(req, res) {
     // Admin-only endpoint: returns users WITHOUT password
     const users = await User.find({}, { password: 0, __v: 0 });
 
-    return res.status(200).json(users);
+    // Process users to include virtuals (photoUrl) but exclude raw photo data
+    const safeUsers = users.map(user => {
+      const u = user.toObject({ virtuals: true });
+      delete u.photo;
+      delete u.photoType;
+      return u;
+    });
+
+    return res.status(200).json(safeUsers);
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }

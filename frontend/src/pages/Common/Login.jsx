@@ -195,6 +195,12 @@ export default function Login() {
                 }}
               />
 
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <RouterLink to="/forgot-password" style={{ textDecoration: 'none', color: '#1976d2', fontSize: '0.875rem' }}>
+                  Forgot Password?
+                </RouterLink>
+              </Box>
+
               {error && <Alert severity="error">{error}</Alert>}
 
               <PrimaryButton type="submit">LOG IN</PrimaryButton>
