@@ -7,6 +7,7 @@ import { Box } from '@mui/material';
 
 // Components
 import NavBar from './components/NavBar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthRedirector from './components/AuthRedirector';
 
@@ -16,6 +17,8 @@ import Home from './pages/Common/Home';
 import Register from './pages/Common/Register';
 import About from './pages/Common/About';
 import Contact from './pages/Common/Contact';
+import ForgotPassword from './pages/Common/ForgotPassword';
+import ResetPassword from './pages/Common/ResetPassword';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
 import UserDashboard from './pages/User/UserDashboard';
@@ -64,6 +67,8 @@ function App() {
               />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
               {/* Protected Routes */}
               <Route
@@ -116,6 +121,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>
+          <Footer />
         </Box>
       </Router>
     </ThemeProvider>
