@@ -1,6 +1,4 @@
 
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import User from "../models/User.js";
 import path from "path";
@@ -14,45 +12,47 @@ function handleValidation(req, res) {
   return false;
 }
 
-export async function createUser(req, res) {
-  if (handleValidation(req, res)) return;
-
-  try {
-    const { fullName, email, password, type } = req.body;
-
-    // Validate type
-    if (!["admin", "employee"].includes(type)) {
-      return res.status(400).json({ error: "Invalid type. Must be 'admin' or 'employee'." });
-    }
-
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ error: "User already exists." });
-
-    const hash = await bcrypt.hash(password, 10);
-
-    // Add type when creating user
-    await User.create({ fullName, email, password: hash, type });
-
-    return res.status(201).json({ message: "User created successfully." });
-  } catch (err) {
-    return res.status(500).json({ error: "Server error" });
+export async function getProfile(req, res) {
+  // The user object is attached to the request by the 'protect' middleware.
+  console.log("[getProfile] Attempting to retrieve user profile.");
+  // The middleware has already fetched the user and removed the password.
+  // We can simply return the user object.
+  if (req.user) {
+    const userProfile = await User.findById(req.user.id).populate('favoriteSport', 'name').select('-password');
+    console.log(`[getProfile] User found: ${userProfile.email}. Sending profile.`);
+    return res.status(200).json(req.user);
+  } else {
+    console.error("[getProfile] Error: req.user is not defined. This should not happen if 'protect' middleware is working correctly.");
+    return res.status(404).json({ message: "User not found." });
   }
 }
-
 
 export async function editUser(req, res) {
   if (handleValidation(req, res)) return;
   try {
-    const { email, fullName, password } = req.body;
+    // User is identified by the JWT from the 'protect' middleware (req.user)
+    const user = await User.findById(req.user.id);
 
-    const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "User not found." });
 
-    if (fullName) user.fullName = fullName;
-    if (password) user.password = await bcrypt.hash(password, 10);
+    // Get updatable fields from the body
+    const { firstName, lastName, favoriteSport, password } = req.body;
+
+    // Update fields if they are provided
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.favoriteSport = favoriteSport || user.favoriteSport;
+
+    // If a new password is provided, the 'pre-save' hook will hash it
+    if (password) {
+      user.password = password;
+    }
 
     await user.save();
-    return res.status(200).json({ message: "User updated successfully." });
+
+    // Return the updated user, excluding the password
+    const updatedUser = await User.findById(req.user.id).select('-password');
+    return res.status(200).json({ message: "Profile updated successfully.", user: updatedUser });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }
@@ -60,8 +60,9 @@ export async function editUser(req, res) {
 
 export async function deleteUser(req, res) {
   try {
-    const { email } = req.body;
-    const user = await User.findOneAndDelete({ email });
+    // Admin deleting a user by ID from params
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
     if (!user) return res.status(404).json({ error: "User not found." });
     return res.status(200).json({ message: "User deleted successfully." });
   } catch (err) {
@@ -92,64 +93,24 @@ export async function getUsers(req, res) {
 
 export async function uploadImage(req, res) {
   try {
-    const email = req.body.email;
-    if (!email) return res.status(400).json({ error: "Email is required." });
-
-    const user = await User.findOne({ email });
+    // User is identified by the JWT from the 'protect' middleware (req.user)
+    const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: "User not found." });
 
-    if (user.imagePath) {
-      return res.status(400).json({ error: "Image already exists for this user." });
-    }
-
     if (!req.file) {
-      return res.status(400).json({ error: "Invalid file format. Only JPEG, PNG, and GIF are allowed." });
+      return res.status(400).json({ error: "No image file provided." });
     }
 
-    const relPath = path.posix.join("/images", req.file.filename);
-    user.imagePath = relPath;
-    await user.save();
+    user.photo = req.file.buffer;
+    user.photoType = req.file.mimetype;
 
-    return res.status(201).json({ message: "Image uploaded successfully.", filePath: relPath });
+    const updatedUser = await user.save();
+
+    return res.status(200).json({ message: "Image uploaded successfully.", photoUrl: updatedUser.photoUrl });
   } catch (err) {
     if (err?.message?.includes("Invalid file format")) {
       return res.status(400).json({ error: "Invalid file format. Only JPEG, PNG, and GIF are allowed." });
     }
-    return res.status(500).json({ error: "Server error" });
-  }
-}
-
-export async function login(req, res) {
-  if (handleValidation(req, res)) return;
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ error: "User not exist" });
-
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
-
-    // Include user.type in JWT payload
-    const token = jwt.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        type: user.type, // <-- IMPORTANT
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "2h" }
-    );
-
-    return res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        email: user.email,
-        type: user.type,
-      },
-    });
-  } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }
 }

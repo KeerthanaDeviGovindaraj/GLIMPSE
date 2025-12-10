@@ -1,19 +1,22 @@
 import express from "express";
 import {
-  createUser,
   editUser,
   deleteUser,
   getAllUsers,
   getUsers,
   uploadImage,
-  login
+  getProfile
 } from "../controllers/userController.js";
 
-import { authRequired } from "../middleware/auth.js";
+import { createUserValidation, editUserValidation, loginValidation } from "../middleware/validate.js";
+import { protect, authorize } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
 import { body } from "express-validator";
 
+// Use memory storage to handle file buffer for DB storage
+const storage = multer.memoryStorage();
+/*
 const storage = multer.diskStorage({
   destination: "public/images/",
   filename: function (req, file, cb) {
@@ -21,13 +24,15 @@ const storage = multer.diskStorage({
     cb(null, "user-" + uniqueSuffix + path.extname(file.originalname));
   },
 });
+*/
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif/;
-  if (allowedTypes.test(file.mimetype) && allowedTypes.test(path.extname(file.originalname).toLowerCase())) {
-    return cb(null, true);
+  if (allowedTypes.test(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file format. Only JPEG, PNG, and GIF are allowed."));
   }
-  cb(new Error("Invalid file format. Only JPEG, PNG, and GIF are allowed."));
 };
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
@@ -37,67 +42,41 @@ const router = express.Router();
 // PUBLIC ROUTES
 // ----------------------------
 
-// CREATE USER (admin or employee)
-router.post(
-  "/user/create",
-  [
-    body("fullName").notEmpty().withMessage("Full name is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password").notEmpty().withMessage("Password is required"),
-    body("type")
-      .isIn(["admin", "employee"])
-      .withMessage("Type must be admin or employee"),
-  ],
-  createUser
-);
-
-// LOGIN
-router.post(
-  "/auth/login",
-  [
-    body("email").isEmail().withMessage("Email is required"),
-    body("password").notEmpty().withMessage("Password is required"),
-  ],
-  login
-);
 
 // ----------------------------
 // PROTECTED ROUTES
 // ----------------------------
 
-// EDIT USER
-router.put(
-  "/user/edit",
-  authRequired,
-  [
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("fullName").optional().isString(),
-    body("password").optional().isString(),
-  ],
-  editUser
-);
+// --- Routes for the authenticated user ---
 
-// DELETE USER
-router.delete(
-  "/user/delete",
-  authRequired,
-  [body("email").isEmail().withMessage("Valid email is required")],
-  deleteUser
-);
+// GET & UPDATE current user's profile
+router.route("/profile")
+  .get(protect, getProfile)
+  .put(protect, editUserValidation, editUser);
 
-// GET ALL USERS (with password)
-router.get("/getAll", authRequired, getAllUsers);
+// Upload/update current user's profile picture
+router.post("/profile/photo", protect, upload.single("photo"), uploadImage);
 
-// UPLOAD IMAGE
-router.post(
-  "/user/uploadImage",
-  authRequired,
-  upload.single("image"), 
-  [body("email").isEmail().withMessage("Valid email is required")],
-  uploadImage
-);
+// ----------------------------
+// ADMIN-ONLY ROUTES
+// ----------------------------
 
-// ADMIN USER LIST (no password)
-router.get("/users", authRequired, getUsers);
+// Use a router group for admin routes affecting all users
+router.route("/")
+  .get(
+    protect,
+    authorize('admin'),
+    getUsers // GET /api/users - For admins to get a list of all users.
+  );
+
+// Routes for a specific user by ID
+router.route("/:id")
+  // You could add GET /api/users/:id for an admin to get a specific user
+  // .get(protect, authorize('admin'), getUserById)
+  .delete(
+    protect,
+    authorize('admin'),
+    deleteUser
+  );
 
 export default router;

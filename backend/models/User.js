@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
-  name: {
+  firstName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  lastName: {
     type: String,
     required: true,
     trim: true,
@@ -23,7 +28,29 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "analyst"],
     default: "user",
   },
-}, { timestamps: true });
+  favoriteSport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Sport',
+    required: true,
+  },
+  photo: {
+    type: Buffer,
+  },
+  photoType: {
+    type: String,
+  },
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Virtual for user's photo URL
+userSchema.virtual('photoUrl').get(function() {
+  if (this.photo != null && this.photoType != null) {
+    return `data:${this.photoType};charset=utf-8;base64,${this.photo.toString('base64')}`;
+  }
+});
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {

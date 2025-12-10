@@ -13,11 +13,13 @@ import AuthRedirector from './components/AuthRedirector';
 // Pages
 import Login from './pages/Common/Login';
 import Home from './pages/Common/Home';
+import Register from './pages/Common/Register';
 import About from './pages/Common/About';
 import Contact from './pages/Common/Contact';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
 import UserDashboard from './pages/User/UserDashboard';
+import Profile from './pages/User/Profile';
 
 // Create theme
 const theme = createTheme({
@@ -52,6 +54,14 @@ function App() {
                   </AuthRedirector>
                 }
               />
+              <Route
+                path="/register"
+                element={
+                  <AuthRedirector>
+                    <Register />
+                  </AuthRedirector>
+                }
+              />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
 
@@ -61,6 +71,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Home />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 }
               />

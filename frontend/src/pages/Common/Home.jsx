@@ -23,17 +23,6 @@ const Home = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  // Auto-redirect to dashboard after a short delay
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      const timer = setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000); // 2-second delay to show welcome message
-
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, user, navigate]);
-
   const getRoleInfo = (role) => {
     switch (role) {
       case 'admin':
@@ -171,14 +160,6 @@ const Home = () => {
           </Grid>
         </Grid>
       </Grid>
-
-      {/* Auto-redirect message */}
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Typography variant="body2" color="textSecondary">
-          Redirecting to your dashboard in a few seconds...
-        </Typography>
-        <CircularProgress size={20} sx={{ mt: 1 }} />
-      </Box>
     </Container>
   );
 };

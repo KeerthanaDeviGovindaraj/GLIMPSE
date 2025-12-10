@@ -14,9 +14,9 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/slices/authSlice.js";
+import { setCredentials } from "../../redux/slices/authSlice.js";
 import api from "../../services/api.js";
 
 import PrimaryButton from "../../components/PrimaryButton.jsx";
@@ -55,24 +55,22 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await api.post("/auth/login", { email, password });
-      const token = res.data.token;
+      const { token, user } = res.data;
 
-      // Decode JWT payload
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      // Ensure user and token exist before proceeding
+      if (!user || !token) {
+        setError("Login failed: Invalid response from server.");
+        return;
+      }
 
       // Save to Redux
       dispatch(
-        loginSuccess({
-          token,
-          user: {
-            email: payload.email,
-            role: payload.role || "user",
-          },
-        })
+        setCredentials({ token, user })
       );
 
       // Redirect based on role
-      switch (payload.role) {
+      // Use the user object from the API response for redirection
+      switch (user.role) {
         case "admin":
           navigate("/admin/dashboard"); // Or another admin-specific page
           break;
@@ -200,6 +198,13 @@ export default function Login() {
               {error && <Alert severity="error">{error}</Alert>}
 
               <PrimaryButton type="submit">LOG IN</PrimaryButton>
+
+              <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
+                Don't have an account?{' '}
+                <RouterLink to="/register" style={{ textDecoration: 'none' }}>
+                  Sign Up
+                </RouterLink>
+              </Typography>
             </Stack>
           </CardContent>
         </Card>

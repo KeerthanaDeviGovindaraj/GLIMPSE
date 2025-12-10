@@ -1,76 +1,66 @@
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
-import { validationResult } from 'express-validator';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import { validationResult } from "express-validator";
 
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
-};
-
-export const signup = async (req, res) => {
+function handleValidation(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ error: "Validation failed.", details: errors.array() });
+    return true;
   }
+  return false;
+}
 
-  const { name, email, password, role } = req.body;
+export async function register(req, res) {
+  if (handleValidation(req, res)) return;
 
   try {
-    const userExists = await User.findOne({ email });
+    const { firstName, lastName, email, password, role, favoriteSport } = req.body;
 
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+    // Validate role
+    if (role && !["admin", "user", "analyst"].includes(role)) {
+      return res.status(400).json({ error: "Invalid role. Must be 'admin', 'user' or 'analyst'." });
     }
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role, // If role is not provided, it will default to 'user' based on the schema
-    });
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ error: "User already exists." });
 
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id, user.role),
-      });
-    } else {
-      res.status(400).json({ message: 'Invalid user data' });
+    const newUser = { firstName, lastName, email, password, role, favoriteSport };
+
+    if (req.file) {
+      newUser.photo = req.file.buffer;
+      newUser.photoType = req.file.mimetype;
     }
-  } catch (error) {
-    console.error('SIGNUP ERROR:', error);
-    res.status(500).json({ message: 'Server Error', error: error.message });
+    await User.create(newUser);
+
+    return res.status(201).json({ message: "User created successfully." });
+  } catch (err) {
+    return res.status(500).json({ error: "Server error" });
   }
-};
+}
 
-export const login = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-
+export async function login(req, res) {
+  if (handleValidation(req, res)) return;
   try {
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: "User not exist" });
 
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id, user.role),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
-    }
-  } catch (error) {
-    console.error('LOGIN ERROR:', error);
-    res.status(500).json({ message: 'Server Error', error: error.message });
+    const ok = await user.matchPassword(password);
+    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    const userProfile = await User.findById(user.id).select('-password');
+
+    return res.status(200).json({ message: "Login successful", token, user: userProfile });
+  } catch (err) {
+    return res.status(500).json({ error: "Server error" });
   }
-};
+}

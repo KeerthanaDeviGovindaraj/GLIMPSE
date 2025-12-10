@@ -9,6 +9,8 @@ import multer from "multer";
 
 
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import sportRoutes from "./routes/sportRoutes.js";
 import { protect, authorize } from "./middleware/authMiddleware.js";
 
 
@@ -18,9 +20,10 @@ app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
 app.use(cors());
-app.use(express.json());
+// Increase the limit for JSON payloads and URL-encoded bodies
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan("dev"));
 
 // Swagger docs
@@ -31,12 +34,9 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/sports", sportRoutes);
 app.get("/health", (req, res) => res.json({ ok: true }));
-
-// Example Protected Routes
-app.get('/api/profile', protect, (req, res) => {
-  res.json(req.user);
-});
 
 app.get('/api/analyst-data', protect, authorize('analyst', 'admin'), (req, res) => {
   res.json({ message: 'Welcome Analyst/Admin! Here is your data.' });
@@ -48,14 +48,13 @@ app.get('/api/admin-panel', protect, authorize('admin'), (req, res) => {
 
 // ----- Global error handler (keeps invalid image format as 400 JSON) -----
 app.use((err, req, res, next) => {
-  if (
-    err instanceof multer.MulterError ||
-    (typeof err?.message === "string" &&
-      err.message.includes("Invalid file format"))
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Invalid file format. Only JPEG, PNG, and GIF are allowed." });
+  // Handle Multer-specific errors
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: `File upload error: ${err.message}` });
+  }
+  // Handle our custom fileFilter error
+  if (err.message.includes("Invalid file format")) {
+    return res.status(400).json({ error: err.message });
   }
   console.error(err);
   return res.status(500).json({ error: "Server error" });

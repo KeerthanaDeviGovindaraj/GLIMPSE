@@ -79,7 +79,7 @@ const NavBar = () => {
       ],
       user: [
         { label: 'My Dashboard', path: '/user/dashboard', icon: <Dashboard /> },
-        { label: 'Profile', path: '/user/profile', icon: <AccountCircle /> }
+        { label: 'Profile', path: '/profile', icon: <AccountCircle /> }
       ]
     };
 
