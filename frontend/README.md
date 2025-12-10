@@ -1,70 +1,201 @@
-# Getting Started with Create React App
+# Frontend - React Vite Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, production-ready React application built with Vite, featuring role-based access control, Redux state management, and Material-UI for a professional user experience.
 
-## Available Scripts
+## Overview
 
-In the project directory, you can run:
+This is the frontend application for the Info Portal project. It provides a responsive and interactive user interface with secure authentication, protected routes, and comprehensive user/admin dashboards.
 
-### `npm start`
+## Key Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **⚡ Vite-Powered**: Fast development experience with instant HMR (Hot Module Replacement)
+- **🔐 Authentication**: JWT-based secure login with token persistence using Redux Persist
+- **👥 Role-Based Access Control (RBAC)**: Different views and features for Admin, Analyst, and User roles
+- **📦 Redux Toolkit State Management**: Centralized state for auth, user data, loading, and errors
+- **🎨 Material-UI Components**: Professional, responsive UI with MUI design system
+- **🛡️ Protected Routes**: Route guards based on authentication and user roles
+- **⚙️ Axios Interceptors**: Automatic token injection and error handling for API requests
+- **💾 Redux Persist**: Maintains auth state across browser sessions
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Tech Stack
 
-### `npm test`
+| Category | Tools |
+| :--- | :--- |
+| **Framework** | React 19, Vite 7 |
+| **UI Library** | Material-UI (MUI) v7 |
+| **State Management** | Redux Toolkit, Redux Persist |
+| **Routing** | React Router v7 |
+| **HTTP Client** | Axios |
+| **Authentication** | JWT (JSON Web Tokens) |
+| **Styling** | Emotion (CSS-in-JS) |
+## Folder Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+frontend/
+├── public/                    # Static assets
+├── src/
+│   ├── assets/               # Images and media files
+│   ├── components/           # Reusable UI components
+│   │   ├── AuthRedirector.jsx
+│   │   ├── NavBar.jsx
+│   │   ├── PrimaryButton.jsx
+│   │   └── ProtectedRoute.jsx
+│   ├── pages/               # Page components
+│   │   ├── Admin/           # Admin-only pages
+│   │   ├── Common/          # Public/shared pages
+│   │   │   ├── About.jsx
+│   │   │   ├── Contact.jsx
+│   │   │   ├── Home.jsx
+│   │   │   └── Login.jsx
+│   │   └── User/            # User-specific pages
+│   │       └── Dashboard.jsx
+│   ├── redux/               # Redux store and slices
+│   │   ├── slices/
+│   │   │   ├── authSlice.js
+│   │   │   └── userSlice.js
+│   │   └── store.js
+│   ├── services/            # API integration
+│   │   └── api.js           # Axios instance with interceptors
+│   ├── App.jsx              # Main app component
+│   ├── main.jsx             # Entry point
+│   ├── App.css
+│   └── index.css
+├── .env                      # Environment variables
+## Installation & Setup
 
-### `npm run build`
+### Prerequisites
+- Node.js 16+ and npm installed
+- Backend server running on `http://localhost:4000`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Steps
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**1. Navigate to the Frontend Directory**
+```bash
+cd frontend
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**2. Install Dependencies**
+```bash
+npm install
+```
 
-### `npm run eject`
+**3. Configure Environment Variables**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Create a `.env` file in the frontend root directory:
+```env
+VITE_API_BASE_URL=http://localhost:4000/api
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**4. Start the Development Server**
+```bash
+npm run dev
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
+## Pages & Routes
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Page | Path | Role | Description |
+| :--- | :--- | :--- | :--- |
+| **Login** | `/login` | Public | Authentication page. Unauthenticated users are redirected here. |
+| **Home** | `/` | Authenticated | Main landing page for logged-in users. |
+| **About** | `/about` | Public | Information about the project. |
+| **Contact** | `/contact` | Public | Contact form and information. |
+| **User Dashboard** | `/dashboard` | User | Personal dashboard for regular users. |
+| **Admin Dashboard** | `/admin/dashboard` | Admin | Admin-only dashboard for management tasks. |
+| **Analyst Dashboard** | `/analyst/dashboard` | Analyst | Analyst-specific dashboard. |
 
-## Learn More
+## Authentication Flow
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. **Login**: User enters credentials on the login page
+2. **JWT Token**: Backend returns a JWT token on successful authentication
+3. **Token Storage**: Token is saved in Redux store and persisted to localStorage via Redux Persist
+4. **Protected Routes**: Routes are protected by the `ProtectedRoute` component based on user role
+5. **API Requests**: Axios interceptors automatically attach the token to all API requests
+6. **Token Refresh**: On session restoration, the app verifies the stored token
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Redux State Structure
 
-### Code Splitting
+### authSlice
+```javascript
+{
+  isAuthenticated: boolean,
+  user: {
+    email: string,
+    role: 'user' | 'admin' | 'analyst'
+  },
+  token: string,
+  loading: boolean,
+  error: string | null
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### userSlice
+```javascript
+{
+  users: [],
+  loading: boolean,
+  error: string | null
+}
+```
 
-### Analyzing the Bundle Size
+## API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+The `services/api.js` file contains:
+- **Axios Instance**: Configured with base URL from environment variables
+- **Request Interceptor**: Automatically adds JWT token to headers
+- **Response Interceptor**: Handles errors and token expiration
+- **API Methods**: Pre-configured endpoints for authentication and user operations
 
-### Making a Progressive Web App
+## Component Overview
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **ProtectedRoute.jsx**: Guards routes based on authentication and role
+- **NavBar.jsx**: Navigation component with role-based menu items
+- **PrimaryButton.jsx**: Reusable button component
+- **AuthRedirector.jsx**: Redirects authenticated users away from login page
 
-### Advanced Configuration
+## Development Tips
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- Use React Router's `useNavigate` hook for programmatic navigation
+- Access Redux state with `useSelector` hook
+- Dispatch actions with `useDispatch` hook
+- Use `createAsyncThunk` in Redux for async API calls
+- Leverage Material-UI's `sx` prop for styled components
+- Check browser DevTools Redux extension for state debugging
 
-### Deployment
+## Troubleshooting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+**Problem**: Port 5173 already in use
+**Solution**: Vite will automatically use the next available port. Check terminal output for the actual port.
 
-### `npm run build` fails to minify
+**Problem**: CORS errors when calling backend
+**Solution**: Ensure backend has CORS enabled and `VITE_API_BASE_URL` is correctly set in `.env`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Problem**: Token not persisting after refresh
+**Solution**: Verify Redux Persist is configured in `redux/store.js` and Redux DevTools shows persisted state
+
+## Build & Deployment
+
+To create a production build:
+```bash
+npm run build
+```
+
+The optimized build will be generated in the `dist/` directory. Deploy this folder to your hosting provider.
+
+```bash
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173` (or another port if 5173 is busy).
+
+## Navigation and Pages
+
+| Page | Path | Role | Description |
+| :--- | :--- | :--- | :--- |
+| **Login** | `/login` | Public | Secure login page. Unauthenticated users are redirected here. |
+| **Home** | `/` | Authenticated | Main landing page for logged-in users. Redirects to the dashboard. |
+| **About** | `/about` | Public | A public page with information about the project. |
+| **User Dashboard** | `/dashboard` | User | A personal dashboard for users after they log in. |
+| **Admin Dashboard** | `/admin/dashboard` | Admin | A protected dashboard for administrators. |
+| **Analyst Dashboard**| `/analyst/dashboard`| Analyst | A protected dashboard for analysts. |
+

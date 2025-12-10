@@ -1,34 +1,26 @@
-echo node_modules/ > .gitignore
-echo .env >> .gitignore
-echo build/ >> .gitignore
-echo dist/ >> .gitignore
-```
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-Or manually create a `.gitignore` file in the root directory with this content:
-```
-# Dependencies
-node_modules/
-frontend/node_modules/
-backend/node_modules/
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Production builds
-build/
-dist/
-*.log
+# testing
+/coverage
+/public/images
 
-# Environment variables
+# production
+/build
+
+# misc
+.DS_Store
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/node_modules/

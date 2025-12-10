@@ -1,108 +1,70 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
-  username: {
+  firstName: {
     type: String,
-    required: [true, 'Username is required'],
-    unique: true,
+    required: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters'],
-    maxlength: [30, 'Username cannot exceed 30 characters']
+  },
+  lastName: {
+    type: String,
+    required: true,
+    trim: true,
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false // Don't return password by default
+    required: true,
   },
   role: {
     type: String,
-    enum: ['user', 'analyst', 'admin'],
-    default: 'user'
+    enum: ["user", "admin", "analyst"],
+    default: "user",
   },
-  avatar: {
+  favoriteSport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Sport',
+    required: true,
+  },
+  photo: {
+    type: Buffer,
+  },
+  photoType: {
     type: String,
-    default: null
   },
-  bio: {
-    type: String,
-    maxlength: [500, 'Bio cannot exceed 500 characters']
-  },
-  preferences: {
-    theme: {
-      type: String,
-      enum: ['light', 'dark', 'auto'],
-      default: 'dark'
-    },
-    language: {
-      type: String,
-      default: 'en'
-    },
-    notifications: {
-      email: {
-        type: Boolean,
-        default: true
-      },
-      push: {
-        type: Boolean,
-        default: true
-      },
-      commentary: {
-        type: Boolean,
-        default: true
-      },
-      predictions: {
-        type: Boolean,
-        default: true
-      }
-    },
-    defaultSport: {
-      type: String,
-      enum: ['basketball', 'football', 'cricket'],
-      default: 'basketball'
-    },
-    autoGenerateInterval: {
-      type: Number,
-      default: 15000 // milliseconds
-    }
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-  lastLogin: {
-    type: Date
-  },
-  banReason: {
-    type: String
-  },
-  deletedAt: {
-    type: Date
-  }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-// Indexes for better query performance
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-userSchema.index({ role: 1 });
-
-// Virtual for user's full profile URL
-userSchema.virtual('profileUrl').get(function() {
-  return `/users/${this._id}`;
+// Virtual for user's photo URL
+userSchema.virtual('photoUrl').get(function() {
+  if (this.photo != null && this.photoType != null) {
+    return `data:${this.photoType};charset=utf-8;base64,${this.photo.toString('base64')}`;
+  }
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Method to compare passwords
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+export default mongoose.model("User", userSchema);
