@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
 const commentarySchema = new mongoose.Schema({
   comment: {
     type: String,
@@ -30,4 +29,5 @@ commentarySchema.index({ createdAt: -1 });
 commentarySchema.index({ userId: 1 });
 commentarySchema.index({ sport: 1 });
 
-module.exports = mongoose.model('Commentary', commentarySchema);
+
+export default mongoose.model('Commentary', commentarySchema);

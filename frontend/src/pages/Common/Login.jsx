@@ -70,16 +70,19 @@ export default function Login() {
 
       // Redirect based on role
       // Use the user object from the API response for redirection
-      switch (user.role) {
-        case "admin":
-          navigate("/admin/dashboard"); // Or another admin-specific page
-          break;
-        case "analyst":
-          navigate("/analyst/dashboard"); // Or another analyst-specific page
-          break;
-        default:
-          navigate("/dashboard"); // Redirect 'user' to their dashboard
-      }
+      // switch (user.role) {
+      //   case "admin":
+      //     navigate("/admin/dashboard"); // Or another admin-specific page
+      //     break;
+      //   case "analyst":
+      //     navigate("/analyst/dashboard"); // Or another analyst-specific page
+      //     break;
+      //   default:
+      //     navigate("/dashboard"); // Redirect 'user' to their dashboard
+      // }
+
+      // Navigate to commentary page for all users
+navigate("/commentary");
 
     } catch (err) {
       // This will show the full error object in the browser console

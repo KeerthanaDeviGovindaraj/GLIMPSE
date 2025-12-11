@@ -1,9 +1,6 @@
-import Sport from '../models/Sport.js';
+// Mock data controller for testing
 
-// @desc    Get all sports
-// @route   GET /api/sports
-// @access  Public
-export const getAllSports = async (req, res) => {
+export const getLiveCricketMatches = async (req, res) => {
   try {
     const sports = await Sport.find({}).sort({ name: 1 });
     res.json(sports);

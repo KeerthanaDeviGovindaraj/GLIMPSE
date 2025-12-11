@@ -1,14 +1,14 @@
-const Commentary = require('../models/Commentary');
+// backend/controllers/commentaryController.js - ES Module Version
+import Commentary from '../models/Commentary.js';
 
 // @desc    Get all commentaries
 // @route   GET /api/commentaries
 // @access  Private
-exports.getAllCommentaries = async (req, res) => {
+export const getAllCommentaries = async (req, res) => {
   try {
-    // Fetch all commentaries, sorted by newest first
     const commentaries = await Commentary.find()
       .sort({ createdAt: -1 })
-      .limit(100); // Limit to last 100 commentaries
+      .limit(100);
 
     res.status(200).json(commentaries);
   } catch (error) {
@@ -24,11 +24,10 @@ exports.getAllCommentaries = async (req, res) => {
 // @desc    Create new commentary
 // @route   POST /api/commentaries
 // @access  Private
-exports.createCommentary = async (req, res) => {
+export const createCommentary = async (req, res) => {
   try {
     const { comment } = req.body;
 
-    // Validate input
     if (!comment || !comment.trim()) {
       return res.status(400).json({
         success: false,
@@ -36,11 +35,9 @@ exports.createCommentary = async (req, res) => {
       });
     }
 
-    // Get user from auth middleware (req.user)
     const userId = req.user?.userId || req.user?._id;
     const username = req.user?.username || req.user?.name || 'Anonymous';
 
-    // Create new commentary
     const newCommentary = await Commentary.create({
       comment: comment.trim(),
       username: username,
@@ -66,7 +63,7 @@ exports.createCommentary = async (req, res) => {
 // @desc    Get commentaries by sport
 // @route   GET /api/commentaries/sport/:sport
 // @access  Private
-exports.getCommentariesBySport = async (req, res) => {
+export const getCommentariesBySport = async (req, res) => {
   try {
     const { sport } = req.params;
 
@@ -91,8 +88,8 @@ exports.getCommentariesBySport = async (req, res) => {
 
 // @desc    Delete commentary
 // @route   DELETE /api/commentaries/:id
-// @access  Private (own commentary only)
-exports.deleteCommentary = async (req, res) => {
+// @access  Private
+export const deleteCommentary = async (req, res) => {
   try {
     const commentary = await Commentary.findById(req.params.id);
 
@@ -103,7 +100,6 @@ exports.deleteCommentary = async (req, res) => {
       });
     }
 
-    // Check if user owns this commentary
     const userId = req.user?.userId || req.user?._id;
     if (commentary.userId.toString() !== userId.toString()) {
       return res.status(403).json({
