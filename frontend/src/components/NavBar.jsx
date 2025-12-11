@@ -21,7 +21,8 @@ import {
   Dashboard,
   Home,
   AdminPanelSettings,
-  Assessment
+  Assessment,
+  SportsScore  // Added for commentary icon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -55,7 +56,8 @@ const NavBar = () => {
   // Get navigation items based on user role
   const getNavigationItems = () => {
     const baseItems = [
-      { label: 'Home', path: '/', icon: <Home /> }
+      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
+      { label: 'Home', path: '/home', icon: <Home /> }
     ];
 
     const roleSpecificItems = {
@@ -94,17 +96,39 @@ const NavBar = () => {
   const navigationItems = getNavigationItems();
 
   return (
-    <AppBar position="static">
+    <AppBar 
+      position="static"
+      sx={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
+      }}
+    >
       <Toolbar>
-        {/* Logo/Brand */}
-        <Typography 
-          variant="h6" 
-          component="div" 
-          sx={{ cursor: 'pointer' }}
-          onClick={() => navigate('/')}
+        {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            cursor: 'pointer',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              transform: 'scale(1.05)'
+            }
+          }} 
+          onClick={() => navigate('/commentary')}
         >
-          Info Portal
-        </Typography>
+          <SportsScore sx={{ mr: 1, fontSize: '28px' }} />
+          <Typography 
+            variant="h6" 
+            component="div"
+            sx={{ fontWeight: 700, letterSpacing: '0.5px' }}
+          >
+            Commentary
+          </Typography>
+        </Box>
 
         {/* Role Badge */}
         {['admin', 'analyst'].includes(user?.role) && (
@@ -112,7 +136,16 @@ const NavBar = () => {
             label={getRoleDisplayName(user?.role)}
             color={getRoleColor(user?.role)}
             size="small"
-            sx={{ ml: 2, color: 'white' }}
+            sx={{ 
+              ml: 2, 
+              color: 'white',
+              fontWeight: 600,
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              '& .MuiChip-label': {
+                px: 2
+              }
+            }}
           />
         )}
 
@@ -124,7 +157,14 @@ const NavBar = () => {
               color="inherit"
               onClick={() => navigate(item.path)}
               startIcon={item.icon}
-              sx={{ ml: 1 }}
+              sx={{ 
+                ml: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-2px)',
+                  transition: 'all 0.3s ease'
+                }
+              }}
             >
               {item.label}
             </Button>
@@ -144,8 +184,22 @@ const NavBar = () => {
             aria-haspopup="true"
             onClick={handleMenu}
             color="inherit"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              }
+            }}
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }} src={user?.photoUrl} alt={user?.email}>
+            <Avatar 
+              sx={{ 
+                width: 32, 
+                height: 32, 
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                border: '2px solid rgba(255, 255, 255, 0.3)'
+              }} 
+              src={user?.photoUrl} 
+              alt={user?.email}
+            >
               <AccountCircle />
             </Avatar>
           </IconButton>

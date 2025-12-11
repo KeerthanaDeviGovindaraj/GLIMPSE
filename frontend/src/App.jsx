@@ -71,7 +71,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Protected Routes */}
+              {/* Protected Routes
               <Route
                 path="/"
                 element={
@@ -88,9 +88,17 @@ function App() {
                     <Profile />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
 
               {/* COMMENTARY ROUTE */}
+              <Route 
+              path='/'
+              element={
+                <ProtectedRoute>
+                  <Commentary />
+                </ProtectedRoute>
+              }
+              />
               <Route
                 path="/commentary"
                 element={
