@@ -23,6 +23,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
 import UserDashboard from './pages/User/UserDashboard';
 import Profile from './pages/User/Profile';
+import Commentary from './pages/User/Commentary';
 
 // Create theme
 const theme = createTheme({
@@ -79,7 +80,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
+              
               <Route
                 path="/profile"
                 element={
@@ -89,7 +90,17 @@ function App() {
                 }
               />
 
-              {/* Dashboard Routes - Protected */}
+              {/* COMMENTARY ROUTE */}
+              <Route
+                path="/commentary"
+                element={
+                  <ProtectedRoute>
+                    <Commentary />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Dashboard Routes */}
               <Route
                 path="/dashboard"
                 element={
@@ -121,6 +132,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>
+
           <Footer />
         </Box>
       </Router>

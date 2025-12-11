@@ -1,0 +1,925 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ==================== REFINED AESTHETIC PALETTE ==================== */
+:root {
+  --netflix-red: #E50914;
+  --netflix-bright-red: #FF0A16;
+  --netflix-dark-red: #B20710;
+  --netflix-primary-dark: #0f0f0f;
+  --netflix-secondary-dark: #1a1a1a;
+  --netflix-card-dark: #242424;
+  --netflix-grey: #2f2f2f;
+  --netflix-light-grey: #a0a0a0;
+  --netflix-text-grey: #d4d4d4;
+  --netflix-white: #FFFFFF;
+  --netflix-off-white: #fafafa;
+  --accent-gold: #fbbf24;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==================== REFINED ANIMATIONS ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes subtlePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ==================== ELEGANT CONTAINER ==================== */
+.commentary-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 50%, #1a1a1a 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.commentary-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: radial-gradient(ellipse at top center, 
+    rgba(229, 9, 20, 0.08) 0%, 
+    transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==================== SOPHISTICATED HEADER ==================== */
+.commentary-header {
+  background: rgba(15, 15, 15, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 28px 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.commentary-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: var(--netflix-off-white);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.commentary-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--netflix-red) 0%, transparent 100%);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: rgba(47, 47, 47, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.4s ease;
+}
+
+.user-info:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(47, 47, 47, 0.4);
+}
+
+.user-info span {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--netflix-text-grey);
+  letter-spacing: 0.5px;
+}
+
+.logout-btn {
+  padding: 12px 32px;
+  background: transparent;
+  color: var(--netflix-off-white);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.logout-btn:hover {
+  background: var(--netflix-off-white);
+  color: var(--netflix-primary-dark);
+  border-color: var(--netflix-off-white);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+}
+
+/* ==================== ELEGANT STATS BAR ==================== */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+  padding: 56px 64px;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-item {
+  background: linear-gradient(135deg, rgba(36, 36, 36, 0.6) 0%, rgba(47, 47, 47, 0.4) 100%);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-radius: 24px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 1s ease-out backwards;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.stat-item:nth-child(1) { animation-delay: 0.1s; }
+.stat-item:nth-child(2) { animation-delay: 0.2s; }
+.stat-item:nth-child(3) { animation-delay: 0.3s; }
+.stat-item:nth-child(4) { animation-delay: 0.4s; }
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    var(--netflix-red) 50%,
+    transparent 100%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.stat-item:hover::before {
+  opacity: 1;
+}
+
+.stat-item:hover {
+  transform: translateY(-12px);
+  border-color: rgba(229, 9, 20, 0.3);
+  box-shadow: 0 24px 64px rgba(229, 9, 20, 0.2);
+}
+
+.stat-icon {
+  font-size: 3rem;
+  opacity: 0.8;
+  filter: drop-shadow(0 4px 12px rgba(229, 9, 20, 0.3));
+  transition: all 0.5s ease;
+}
+
+.stat-item:hover .stat-icon {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.live-indicator {
+  animation: subtlePulse 2s infinite;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  font-weight: 400;
+  color: var(--netflix-off-white);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--netflix-light-grey);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 40px;
+  padding: 0 64px 64px;
+  max-width: 2000px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== REFINED SECTIONS ==================== */
+.scores-section,
+.commentary-section {
+  background: linear-gradient(135deg, rgba(36, 36, 36, 0.5) 0%, rgba(47, 47, 47, 0.3) 100%);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-radius: 28px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 1s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.scores-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.scores-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--netflix-red) 0%, transparent 100%);
+}
+
+.scores-header h2,
+.add-comment-section h3,
+.commentaries-list h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.25rem;
+  font-weight: 400;
+  color: var(--netflix-off-white);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.refresh-btn {
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--netflix-text-grey);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  transition: all 0.4s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--netflix-off-white);
+  transform: translateY(-2px);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ==================== ELEGANT TABS ==================== */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin: 32px 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab {
+  padding: 18px 0;
+  margin-right: 56px;
+  background: transparent;
+  color: var(--netflix-light-grey);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+}
+
+.tab::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--netflix-off-white);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab:hover {
+  color: var(--netflix-off-white);
+}
+
+.tab.active {
+  color: var(--netflix-off-white);
+}
+
+.tab.active::before {
+  transform: scaleX(1);
+}
+
+/* ==================== REFINED SCORE CARDS ==================== */
+.scores-container {
+  min-height: 450px;
+}
+
+.score-card {
+  background: rgba(36, 36, 36, 0.4);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInLeft 0.8s ease-out;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, 
+    rgba(229, 9, 20, 0.8) 0%,
+    rgba(229, 9, 20, 0.3) 100%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.score-card:hover::before {
+  opacity: 1;
+}
+
+.score-card:hover {
+  transform: translateX(8px);
+  border-color: rgba(229, 9, 20, 0.2);
+  box-shadow: 0 16px 48px rgba(229, 9, 20, 0.15);
+}
+
+.cricket-card::before {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.8) 0%, rgba(16, 185, 129, 0.3) 100%);
+}
+
+.football-card::before {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.3) 100%);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.match-header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.625rem;
+  font-weight: 500;
+  color: var(--netflix-off-white);
+  letter-spacing: 0.5px;
+}
+
+.match-status {
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  backdrop-filter: blur(10px);
+}
+
+.match-status.live {
+  background: linear-gradient(135deg, var(--netflix-red) 0%, var(--netflix-dark-red) 100%);
+  color: var(--netflix-white);
+  animation: subtlePulse 2s infinite;
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.4);
+}
+
+.match-status.completed {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--netflix-text-grey);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.match-status.upcoming {
+  background: transparent;
+  color: var(--netflix-light-grey);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.match-type,
+.venue {
+  font-size: 0.9375rem;
+  color: var(--netflix-light-grey);
+  margin-bottom: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.scores {
+  margin-top: 24px;
+  background: transparent;
+  border-radius: 0;
+  padding: 24px 0 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.team-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.3s ease;
+}
+
+.team-score:hover {
+  padding-left: 12px;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.team-score:last-child {
+  border-bottom: none;
+}
+
+.team-name {
+  font-weight: 600;
+  color: var(--netflix-text-grey);
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.score-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1.875rem;
+  color: var(--netflix-off-white);
+  letter-spacing: 1px;
+}
+
+.match-info {
+  text-align: center;
+  padding: 20px;
+  color: var(--netflix-light-grey);
+  font-size: 0.9rem;
+}
+
+/* ==================== FOOTBALL REFINED ==================== */
+.league-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.league-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.football-match {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 32px 0;
+  padding: 32px 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.team-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  opacity: 0.9;
+  transition: all 0.4s ease;
+}
+
+.team-logo:hover {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.team-score {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  font-weight: 400;
+  color: var(--netflix-off-white);
+  letter-spacing: 2px;
+}
+
+.vs {
+  font-size: 0.875rem;
+  color: var(--netflix-light-grey);
+  font-weight: 700;
+  letter-spacing: 3px;
+  opacity: 0.5;
+}
+
+.halftime-score {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--netflix-light-grey);
+  font-weight: 500;
+  margin-top: 16px;
+  letter-spacing: 1px;
+}
+
+/* ==================== REFINED EMPTY STATES ==================== */
+.empty-state {
+  text-align: center;
+  padding: 120px 40px;
+  animation: fadeInUp 1s ease;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 28px;
+  opacity: 0.3;
+  filter: grayscale(100%);
+  animation: gentleFloat 4s ease-in-out infinite;
+}
+
+.empty-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.875rem;
+  font-weight: 400;
+  color: var(--netflix-off-white);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.empty-subtitle {
+  font-size: 0.9375rem;
+  color: var(--netflix-light-grey);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.loading {
+  text-align: center;
+  padding: 80px;
+  color: var(--netflix-light-grey);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: subtlePulse 2s infinite;
+}
+
+/* ==================== REFINED COMMENTARY SECTION ==================== */
+.add-comment-section {
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.add-comment-section h3 {
+  margin-bottom: 28px;
+}
+
+.add-comment-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.add-comment-section textarea {
+  width: 100%;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(36, 36, 36, 0.4);
+  backdrop-filter: blur(12px);
+  color: var(--netflix-off-white);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.4s ease;
+  line-height: 1.7;
+  letter-spacing: 0.3px;
+}
+
+.add-comment-section textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(36, 36, 36, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.add-comment-section textarea::placeholder {
+  color: var(--netflix-light-grey);
+}
+
+.character-count {
+  text-align: right;
+  font-size: 0.8125rem;
+  color: var(--netflix-light-grey);
+  font-weight: 500;
+  margin-top: -12px;
+  letter-spacing: 0.5px;
+}
+
+.add-comment-section button {
+  padding: 14px 40px;
+  background: var(--netflix-off-white);
+  color: var(--netflix-primary-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  align-self: flex-start;
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+}
+
+.add-comment-section button:hover:not(:disabled) {
+  background: var(--netflix-white);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.25);
+}
+
+.add-comment-section button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Success Message */
+.success-message {
+  padding: 16px 28px;
+  background: transparent;
+  color: var(--netflix-off-white);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 50px;
+  text-align: center;
+  font-weight: 600;
+  animation: fadeInUp 0.6s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.8125rem;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+/* ==================== REFINED COMMENTARIES LIST ==================== */
+.commentaries-list {
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 12px;
+}
+
+.commentaries-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.commentaries-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.commentaries-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.commentaries-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.commentary-card {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 28px 0;
+  margin-bottom: 0;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease;
+}
+
+.commentary-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  padding-left: 20px;
+}
+
+.commentary-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.username {
+  font-weight: 600;
+  color: var(--netflix-off-white);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: var(--netflix-light-grey);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.commentary-text {
+  color: var(--netflix-text-grey);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 1400px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .commentary-header {
+    padding: 24px 32px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .commentary-header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-bar {
+    padding: 40px 32px;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main-content {
+    padding: 0 32px 48px;
+  }
+
+  .tab {
+    margin-right: 32px;
+  }
+
+  .football-match {
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .team {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
