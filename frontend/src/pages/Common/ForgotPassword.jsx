@@ -26,7 +26,7 @@ export default function ForgotPassword() {
 
     try {
       await api.post('/password/forgot', { email });
-      setMessage('Email sent! Check your console for the preview link (School Project Mode).');
+      setMessage('Email sent! Please check your inbox.');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to send email.');
     } finally {

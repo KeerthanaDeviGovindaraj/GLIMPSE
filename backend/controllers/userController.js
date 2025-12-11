@@ -1,6 +1,7 @@
 
 import { validationResult } from "express-validator";
 import User from "../models/User.js";
+import Sport from "../models/Sport.js";
 import path from "path";
 
 function handleValidation(req, res) {
@@ -67,6 +68,49 @@ export async function editUser(req, res) {
     return res.status(200).json({ message: "Profile updated successfully.", user: userObj });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
+  }
+}
+
+export async function getSystemAnalytics(req, res) {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalSports = await Sport.countDocuments();
+
+    // Group users by role
+    const usersByRole = await User.aggregate([
+      { $group: { _id: "$role", count: { $sum: 1 } } }
+    ]);
+
+    // Group users by favorite sport
+    const usersBySport = await User.aggregate([
+      {
+        $lookup: {
+          from: "sports",
+          localField: "favoriteSport",
+          foreignField: "_id",
+          as: "sportInfo"
+        }
+      },
+      { $unwind: "$sportInfo" },
+      { $group: { _id: "$sportInfo.name", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 } // Top 10 sports
+    ]);
+
+    const recentUsers = await User.find({}, 'firstName lastName email role createdAt')
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.status(200).json({
+      totalUsers,
+      totalSports,
+      usersByRole,
+      usersBySport,
+      recentUsers
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 }
 

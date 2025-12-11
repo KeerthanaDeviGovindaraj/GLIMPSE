@@ -10,4 +10,5 @@ const router = express.Router();
 router.get('/cricket/live', protect, getLiveCricketMatches);
 router.get('/football/live', protect, getLiveFootballMatches);
 
+router.route('/:id').delete(protect, authorize('admin'), deleteSport);
 export default router;
