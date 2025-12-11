@@ -322,7 +322,7 @@ const Commentary = () => {
   return (
     <div className="commentary-container">
       <header className="commentary-header">
-        <h1>🏏 Live Sports Commentary</h1>
+        <h1>Sports Commentary</h1>
 
         <div className="user-info">
           <span>Welcome, {user?.username || user?.email?.split('@')[0] || 'User'}</span>
