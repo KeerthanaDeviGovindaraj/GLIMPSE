@@ -13,6 +13,7 @@ import userRoutes from "./routes/userRoutes.js";
 import sportRoutes from "./routes/sportRoutes.js";
 import passwordRoutes from "./routes/passwordRoutes.js";
 import { protect, authorize } from "./middleware/authMiddleware.js";
+import commentaryRoutes from './routes/commentaryRoutes.js';
 
 
 const app = express();
@@ -39,6 +40,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/password", passwordRoutes);
 app.get("/health", (req, res) => res.json({ ok: true }));
+app.use('/api/commentaries', commentaryRoutes);
+
 
 app.get('/api/admin-panel', protect, authorize('admin'), (req, res) => {
   res.json({ message: 'Welcome to the Admin Panel!' });
