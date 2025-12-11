@@ -1,45 +1,40 @@
-import axios from 'axios';
+// Mock data controller for testing
 
-// ==================== CRICKET API ====================
 export const getLiveCricketMatches = async (req, res) => {
   try {
-    const response = await axios.get('https://api.cricapi.com/v1/currentMatches', {
-      params: {
-        apikey: process.env.CRICKET_API_KEY,
-        offset: 0
+    const mockMatches = [
+      {
+        id: '1',
+        name: 'India vs Australia',
+        matchType: 'ODI',
+        status: 'Live',
+        venue: 'Melbourne Cricket Ground',
+        teams: ['India', 'Australia'],
+        score: [
+          { inning: 'India', r: 245, w: 6, o: 50 },
+          { inning: 'Australia', r: 180, w: 4, o: 45 }
+        ]
+      },
+      {
+        id: '2',
+        name: 'England vs Pakistan',
+        matchType: 'T20',
+        status: 'Live',
+        venue: 'Lord\'s Cricket Ground',
+        teams: ['England', 'Pakistan'],
+        score: [
+          { inning: 'England', r: 165, w: 8, o: 20 },
+          { inning: 'Pakistan', r: 142, w: 5, o: 18 }
+        ]
       }
-    });
-
-    const matches = response.data.data.map(match => ({
-      id: match.id,
-      name: match.name,
-      matchType: match.matchType,
-      status: match.status,
-      venue: match.venue,
-      date: match.date,
-      teams: [match.teams[0], match.teams[1]],
-      score: match.score ? [
-        {
-          inning: match.teams[0],
-          r: match.score[0]?.r || 0,
-          w: match.score[0]?.w || 0,
-          o: match.score[0]?.o || 0
-        },
-        {
-          inning: match.teams[1],
-          r: match.score[1]?.r || 0,
-          w: match.score[1]?.w || 0,
-          o: match.score[1]?.o || 0
-        }
-      ] : []
-    }));
+    ];
 
     res.json({
       success: true,
-      data: matches
+      data: mockMatches
     });
   } catch (error) {
-    console.error('Cricket API Error:', error.response?.data || error.message);
+    console.error('Cricket API Error:', error.message);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch cricket matches'
@@ -47,87 +42,86 @@ export const getLiveCricketMatches = async (req, res) => {
   }
 };
 
-// ==================== FOOTBALL API ====================
 export const getLiveFootballMatches = async (req, res) => {
   try {
-    const response = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
-      params: {
-        live: 'all' // Get all live matches
-      },
-      headers: {
-        'X-RapidAPI-Key': process.env.FOOTBALL_API_KEY,
-        'X-RapidAPI-Host': process.env.RAPID_API_HOST
-      }
-    });
-
-    const matches = response.data.response.map(match => ({
-      id: match.fixture.id,
-      league: {
-        name: match.league.name,
-        logo: match.league.logo,
-        country: match.league.country
-      },
-      teams: {
-        home: {
-          name: match.teams.home.name,
-          logo: match.teams.home.logo
+    const mockMatches = [
+      {
+        id: '101',
+        league: {
+          name: 'Premier League',
+          logo: 'https://media.api-sports.io/football/leagues/39.png',
+          country: 'England'
         },
-        away: {
-          name: match.teams.away.name,
-          logo: match.teams.away.logo
+        teams: {
+          home: {
+            name: 'Manchester United',
+            logo: 'https://media.api-sports.io/football/teams/33.png'
+          },
+          away: {
+            name: 'Liverpool',
+            logo: 'https://media.api-sports.io/football/teams/40.png'
+          }
+        },
+        goals: {
+          home: 2,
+          away: 1
+        },
+        score: {
+          halftime: {
+            home: 1,
+            away: 0
+          }
+        },
+        status: {
+          short: 'LIVE',
+          long: 'In Play',
+          elapsed: 67
         }
       },
-      goals: {
-        home: match.goals.home,
-        away: match.goals.away
-      },
-      score: {
-        halftime: {
-          home: match.score.halftime.home,
-          away: match.score.halftime.away
+      {
+        id: '102',
+        league: {
+          name: 'La Liga',
+          logo: 'https://media.api-sports.io/football/leagues/140.png',
+          country: 'Spain'
+        },
+        teams: {
+          home: {
+            name: 'Real Madrid',
+            logo: 'https://media.api-sports.io/football/teams/541.png'
+          },
+          away: {
+            name: 'Barcelona',
+            logo: 'https://media.api-sports.io/football/teams/529.png'
+          }
+        },
+        goals: {
+          home: 3,
+          away: 3
+        },
+        score: {
+          halftime: {
+            home: 2,
+            away: 1
+          }
+        },
+        status: {
+          short: 'LIVE',
+          long: 'In Play',
+          elapsed: 82
         }
-      },
-      status: {
-        short: match.fixture.status.short,
-        long: match.fixture.status.long,
-        elapsed: match.fixture.status.elapsed
       }
-    }));
+    ];
 
     res.json({
       success: true,
-      data: matches
+      data: mockMatches
     });
   } catch (error) {
-    console.error('Football API Error:', error.response?.data || error.message);
+    console.error('Football API Error:', error.message);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch football matches'
-    });
-  }
-};
-
-// ==================== GET SPECIFIC MATCH DETAILS ====================
-export const getCricketMatchDetails = async (req, res) => {
-  try {
-    const { matchId } = req.params;
-    
-    const response = await axios.get(`https://api.cricapi.com/v1/match_info`, {
-      params: {
-        apikey: process.env.CRICKET_API_KEY,
-        id: matchId
-      }
-    });
-
-    res.json({
-      success: true,
-      data: response.data.data
-    });
-  } catch (error) {
-    console.error('Cricket Match Details Error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch match details'
     });
   }
 };

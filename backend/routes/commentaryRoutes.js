@@ -1,7 +1,14 @@
-const express = require('express');
+// backend/routes/commentaryRoutes.js - ES Module Version
+import express from 'express';
+import { 
+  getAllCommentaries, 
+  createCommentary, 
+  getCommentariesBySport, 
+  deleteCommentary 
+} from '../controllers/commentaryController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const commentaryController = require('../controllers/commentaryController');
-const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -15,7 +22,7 @@ const authMiddleware = require('../middleware/authMiddleware');
  *       200:
  *         description: List of commentaries
  */
-router.get('/', authMiddleware, commentaryController.getAllCommentaries);
+router.get('/', authMiddleware, getAllCommentaries);
 
 /**
  * @swagger
@@ -42,7 +49,7 @@ router.get('/', authMiddleware, commentaryController.getAllCommentaries);
  *       201:
  *         description: Commentary created
  */
-router.post('/', authMiddleware, commentaryController.createCommentary);
+router.post('/', authMiddleware, createCommentary);
 
 /**
  * @swagger
@@ -53,7 +60,7 @@ router.post('/', authMiddleware, commentaryController.createCommentary);
  *     security:
  *       - bearerAuth: []
  */
-router.get('/sport/:sport', authMiddleware, commentaryController.getCommentariesBySport);
+router.get('/sport/:sport', authMiddleware, getCommentariesBySport);
 
 /**
  * @swagger
@@ -64,6 +71,6 @@ router.get('/sport/:sport', authMiddleware, commentaryController.getCommentaries
  *     security:
  *       - bearerAuth: []
  */
-router.delete('/:id', authMiddleware, commentaryController.deleteCommentary);
+router.delete('/:id', authMiddleware, deleteCommentary);
 
-module.exports = router;
+export default router;
