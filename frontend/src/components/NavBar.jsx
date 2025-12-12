@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import React, { useState } from 'react';
 import {
   AppBar,
@@ -18,11 +17,10 @@ import {
 import {
   AccountCircle,
   Logout,
-  Dashboard,
   Home,
   AdminPanelSettings,
   Assessment,
-  SportsScore  // Added for commentary icon
+  SportsScore
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -45,7 +43,7 @@ const NavBar = () => {
   const handleLogout = () => {
     dispatch(logout());
     handleClose();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleNavigation = (path) => {
@@ -56,23 +54,21 @@ const NavBar = () => {
   // Get navigation items based on user role
   const getNavigationItems = () => {
     const baseItems = [
-      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
-      { label: 'Home', path: '/home', icon: <Home /> }
+      { label: 'Home', path: '/', icon: <Home /> },
+      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> }
     ];
 
     const roleSpecificItems = {
       admin: [
-        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> }
       ],
       analyst: [
-        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
+        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> }
       ],
-      user: [
-        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
-      ]
+      user: [] // No dashboard for regular users
     };
 
-    return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
+    return [...baseItems, ...(roleSpecificItems[user?.role] || [])];
   };
 
   const getRoleColor = (role) => {
@@ -101,14 +97,14 @@ const NavBar = () => {
       sx={{
         background: 'rgba(15, 15, 15, 0.95)',
         backdropFilter: 'blur(24px) saturate(180%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
         top: 0,
         zIndex: 100
       }}
     >
       <Toolbar>
-        {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
+        {/* Logo/Brand */}
         <Box 
           sx={{ 
             display: 'flex', 
@@ -118,19 +114,24 @@ const NavBar = () => {
             borderRadius: '8px',
             transition: 'all 0.3s ease',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              transform: 'scale(1.05)'
+              backgroundColor: 'rgba(255, 255, 255, 0.05)'
             }
           }} 
-          onClick={() => navigate('/commentary')}
+          onClick={() => navigate('/')}
         >
           <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
           <Typography 
             variant="h6" 
             component="div"
-            sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
+            sx={{ 
+              fontWeight: 400, 
+              letterSpacing: '3px', 
+              fontFamily: '"Cormorant Garamond", serif', 
+              textTransform: 'uppercase',
+              fontSize: '1.5rem'
+            }}
           >
-            Commentary
+            Glimpse
           </Typography>
         </Box>
 
@@ -142,29 +143,27 @@ const NavBar = () => {
             size="small"
             sx={{ 
               ml: 2, 
-              color: 'white',
               fontWeight: 600,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              '& .MuiChip-label': {
-                px: 2
-              }
+              fontSize: '0.75rem',
+              letterSpacing: '1px'
             }}
           />
         )}
 
         {/* Navigation Links - Desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
-          {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
+          {navigationItems.map((item) => (
             <Button
               key={item.path}
               color="inherit"
               onClick={() => navigate(item.path)}
               startIcon={item.icon}
               sx={{ 
-                ml: 1,
+                ml: 2,
+                fontWeight: 600,
+                letterSpacing: '1px',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
                   transform: 'translateY(-2px)',
                   transition: 'all 0.3s ease'
                 }
@@ -177,32 +176,38 @@ const NavBar = () => {
 
         {/* User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
-            {user?.firstName || user?.email?.split('@')[0] || 'User'}
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mr: 2, 
+              display: { xs: 'none', sm: 'block' }, 
+              textTransform: 'capitalize',
+              color: '#d4d4d4'
+            }}
+          >
+            {user?.firstName || user?.username || user?.email?.split('@')[0] || 'User'}
           </Typography>
           
           <IconButton
             size="large"
-            aria-label="account of current user"
+            aria-label="account menu"
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenu}
             color="inherit"
             sx={{
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
               }
             }}
           >
             <Avatar 
               sx={{ 
-                width: 32, 
-                height: 32, 
-                bgcolor: 'rgba(255, 255, 255, 0.2)',
-                border: '2px solid rgba(255, 255, 255, 0.3)'
-              }} 
-              src={user?.photoUrl} 
-              alt={user?.email}
+                width: 36, 
+                height: 36, 
+                bgcolor: 'rgba(229, 9, 20, 0.2)',
+                border: '2px solid rgba(229, 9, 20, 0.3)'
+              }}
             >
               <AccountCircle />
             </Avatar>
@@ -223,45 +228,57 @@ const NavBar = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: { mt: 1, minWidth: 200 }
+              sx: { 
+                mt: 1.5, 
+                minWidth: 220,
+                backgroundColor: '#1a1a1a',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }
             }}
           >
             {/* User Info */}
-            <MenuItem disabled>
+            <MenuItem disabled sx={{ opacity: 1 }}>
               <Box>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight="bold" color="white">
                   {user?.email}
                 </Typography>
-                <Typography variant="caption" color="textSecondary">
+                <Typography variant="caption" sx={{ color: '#a0a0a0' }}>
                   {getRoleDisplayName(user?.role)}
                 </Typography>
               </Box>
             </MenuItem>
             
-            <Divider />
+            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
 
             {/* Mobile Navigation Items */}
             <Box sx={{ display: { xs: 'block', md: 'none' } }}>
               {navigationItems.map((item) => (
-                <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
-                  <ListItemIcon>
+                <MenuItem 
+                  key={item.path} 
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{ color: 'white' }}
+                >
+                  <ListItemIcon sx={{ color: '#E50914' }}>
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText>{item.label}</ListItemText>
                 </MenuItem>
               ))}
-              <Divider />
+              <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
             </Box>
 
             {/* Profile */}
-            <MenuItem onClick={() => handleNavigation('/profile')}>
-              <ListItemIcon>
+            <MenuItem 
+              onClick={() => handleNavigation('/profile')}
+              sx={{ color: 'white' }}
+            >
+              <ListItemIcon sx={{ color: '#E50914' }}>
                 <AccountCircle fontSize="small" />
               </ListItemIcon>
               <ListItemText>Profile</ListItemText>
             </MenuItem>
 
-            <Divider />
+            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
 
             {/* Logout */}
             <MenuItem onClick={handleLogout}>
