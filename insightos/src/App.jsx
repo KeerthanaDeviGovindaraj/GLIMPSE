@@ -5,10 +5,11 @@ import ChatMessage from "./components/ChatMessage";
 
 const App = () => {
   const [chatHistory, setChatHistory] = useState([]);
-  const chatEndRef = useRef(null); // Reference to scroll to the bottom
-  const chatBodyRef = useRef(null); // Reference to check if user is scrolling manually
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Function to check if the user is at the bottom of the chat
+  const chatEndRef = useRef(null);
+  const chatBodyRef = useRef(null);
+
   const isUserAtBottom = () => {
     const chatBody = chatBodyRef.current;
     return chatBody.scrollHeight === chatBody.scrollTop + chatBody.clientHeight;
@@ -20,8 +21,16 @@ const App = () => {
 
     if (!API_KEY) {
       setChatHistory(prev => {
-        const filtered = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
-        return [...filtered, { role: "model", parts: [{ text: "Error: API key not configured. Please add VITE_API_KEY to your .env file." }] }];
+        const filtered = prev.filter(
+          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+        );
+        return [
+          ...filtered,
+          {
+            role: "model",
+            parts: [{ text: "Error: API key not configured. Please add VITE_API_KEY to your .env file." }]
+          }
+        ];
       });
       return;
     }
@@ -34,28 +43,30 @@ const App = () => {
     };
 
     try {
-      const response = await fetch(fullURL, requestOptions); 
+      const response = await fetch(fullURL, requestOptions);
       const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Something went wrong");
-      }
-      
+
+      if (!response.ok) throw new Error(data.error?.message || "Something went wrong");
+
       const apiResponse = data.candidates[0].content.parts[0].text;
+
       setChatHistory(prev => {
-        const filteredHistory = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
+        const filteredHistory = prev.filter(
+          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+        );
         return [...filteredHistory, { role: "model", parts: [{ text: apiResponse }] }];
       });
-      
+
     } catch (error) {
       setChatHistory(prev => {
-        const filteredHistory = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
+        const filteredHistory = prev.filter(
+          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+        );
         return [...filteredHistory, { role: "model", parts: [{ text: `Error: ${error.message}. Please try again.` }] }];
       });
     }
   };
 
-  // Scroll to the bottom only if the user is already at the bottom
   useEffect(() => {
     if (isUserAtBottom()) {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,22 +75,35 @@ const App = () => {
 
   return (
     <div className="container">
-      <div className="chatbot-popup">
+
+      {/* TOGGLER BUTTON */}
+      <button 
+        className="chat-toggler"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        💬
+      </button>
+
+      {/* POPUP */}
+      <div className={`chatbot-popup ${isOpen ? "open" : ""}`}>
         <div className="chat-header">
           <div className="header-info">
             <ChatbotIcon />
             <h2 className="logo-text">Chatbot</h2>
           </div>
-          <button className="material-symbols-rounded">
+
+          <button 
+            className={`material-symbols-rounded toggle-arrow ${isOpen ? "rotate" : ""}`}
+            onClick={() => setIsOpen(false)}
+          >
             keyboard_arrow_down
           </button>
         </div>
 
         <div
           className="chat-body"
-          ref={chatBodyRef} // Add the ref here
+          ref={chatBodyRef}
           onScroll={() => {
-            // If the user scrolls up manually, hide the auto-scroll hint
             if (!isUserAtBottom()) {
               chatEndRef.current.style.visibility = "hidden";
             } else {
@@ -98,7 +122,6 @@ const App = () => {
             <ChatMessage key={index} chat={chat} />
           ))}
 
-          {/* This div helps to auto-scroll to the bottom */}
           <div ref={chatEndRef} style={{ visibility: "visible" }} />
         </div>
 
