@@ -53,13 +53,10 @@ const Profile = () => {
   }, []);
 
   const fetchProfile = useCallback(async () => {
-    // No need to fetch if we already have the user in Redux state,
-    // but fetching ensures we have the latest data.
     if (token) {
       setLoading(true);
       setError('');
       try {
-        // For axios, the response data is in the `data` property.
         const { data } = await api.get('/users/profile', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -68,7 +65,6 @@ const Profile = () => {
 
         setProfile(data);
         dispatch(setCredentials({ user: data, token }));
-        // Ensure favoriteSport is an ID for the form
         setFormData({
           ...data, favoriteSport: data.favoriteSport?._id || ''
         });
@@ -77,8 +73,7 @@ const Profile = () => {
       } finally {
         setLoading(false);
       }
-    };
-
+    }
   }, [token, dispatch]);
 
   useEffect(() => {
@@ -128,22 +123,15 @@ const Profile = () => {
     setError('');
     setSuccess('');
     try {
-      // Construct a payload with only the fields that should be updated.
-      // This prevents sending the large photo buffer back to the server.
       const updatePayload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         favoriteSport: formData.favoriteSport,
       };
 
-      // Use correct axios syntax: api.put(url, data). The interceptor handles headers.
       const { data } = await api.put('/users/profile', updatePayload);
-
-      // Update profile data and Redux state
-      // The 'data' object from the API response contains { message, user }
       setProfile(data.user);
       dispatch(setCredentials({ user: data.user, token }));
-
       setSuccess('Profile updated successfully!');
       setEditMode(false);
     } catch (err) {
@@ -175,17 +163,13 @@ const Profile = () => {
     setSuccess('');
 
     try {
-      // The api service is an axios instance. The second argument is the data.
       await api.post('/users/profile/photo', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
-
-      // Refetch profile to get the latest user data with the new photo
       await fetchProfile();
       setSuccess('Profile photo updated successfully!');
-
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to upload photo.');
     } finally {
@@ -193,22 +177,36 @@ const Profile = () => {
     }
   };
 
-  // Only show the full-page loader on the initial fetch
   if (loading && !profile) {
     return (
-      <Container sx={{ mt: 8, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>Loading Profile...</Typography>
-      </Container>
+      <Box sx={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white'
+      }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress sx={{ color: '#E50914' }} />
+          <Typography variant="h6" sx={{ mt: 2, color: '#d4d4d4' }}>Loading Profile...</Typography>
+        </Box>
+      </Box>
     );
   }
 
-  // Only show a full-page error if the initial profile fetch failed
   if (error && !profile) {
     return (
-      <Container sx={{ mt: 8 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <Box sx={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 4
+      }}>
+        <Alert severity="error" sx={{ maxWidth: 600 }}>{error}</Alert>
+      </Box>
     );
   }
 
@@ -217,187 +215,658 @@ const Profile = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Card elevation={3}>
-        <CardContent>
-          <Grid container spacing={3} alignItems="flex-start">
-            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-              <Box
-                position="relative"
-                display="inline-block"
-                mb={2} // Move margin-bottom here
-                sx={{
-                  ...(!editMode && { '&:hover .upload-overlay': { opacity: 1 } })
-                }}
-              >
-                <Avatar
-                  src={profile.photoUrl}
-                  alt={`${profile.firstName} ${profile.lastName}`}
-                  sx={{ width: 150, height: 150, margin: 'auto', fontSize: '4rem' }}
-                >
-                  {profile.firstName?.charAt(0)}
-                </Avatar>
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 50%, #1a1a1a 100%)',
+      py: 6,
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '100%',
+        background: 'radial-gradient(ellipse at top center, rgba(229, 9, 20, 0.08) 0%, transparent 60%)',
+        pointerEvents: 'none',
+        zIndex: 0
+      }
+    }}>
+      <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            fontFamily: "'Cormorant Garamond', serif",
+            fontWeight: 400,
+            letterSpacing: '4px',
+            textTransform: 'uppercase',
+            color: '#fafafa',
+            mb: 4,
+            textAlign: 'center'
+          }}
+        >
+          My Profile
+        </Typography>
+
+        <Card 
+          elevation={0}
+          sx={{
+            background: 'linear-gradient(135deg, rgba(36, 36, 36, 0.5) 0%, rgba(47, 47, 47, 0.3) 100%)',
+            backdropFilter: 'blur(20px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+            borderRadius: '28px',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            boxShadow: '0 16px 48px rgba(0, 0, 0, 0.5)'
+          }}
+        >
+          <CardContent sx={{ p: 5 }}>
+            <Grid container spacing={4} alignItems="flex-start">
+              {/* Left Side - Avatar */}
+              <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
                 <Box
-                  className="upload-overlay"
-                  position="absolute"
-                  top={0}
-                  left={0}
-                  width="100%"
-                  height="100%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  bgcolor="rgba(0, 0, 0, 0.5)"
-                  borderRadius="50%"
+                  position="relative"
+                  display="inline-block"
+                  mb={3}
                   sx={{
-                    opacity: editMode ? 1 : 0, // Always visible in edit mode
-                    transition: 'opacity 0.3s',
-                    cursor: 'pointer',
+                    ...(!editMode && { '&:hover .upload-overlay': { opacity: 1 } })
                   }}
-                  onClick={() => fileInputRef.current.click()}
                 >
-                  {uploading ? <CircularProgress color="inherit" /> : <PhotoCamera sx={{ color: 'white', fontSize: 40 }} />}
-                </Box>
-                <input type="file" ref={fileInputRef} hidden accept="image/png, image/jpeg, image/gif" onChange={handlePhotoUpload} />
-              </Box>
-              <Typography variant="h5" component="h1">
-                {profile.firstName} {profile.lastName}
-              </Typography>
-              <Chip
-                icon={<AdminPanelSettings />}
-                label={profile.role}
-                color={profile.role === 'admin' ? 'secondary' : 'primary'}
-                variant="outlined"
-                sx={{ mt: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6" gutterBottom>
-                  Account Details
-                </Typography>
-                {!editMode && (
-                  <Button startIcon={<Edit />} onClick={() => setEditMode(true)}>
-                    Edit
-                  </Button>
-                )}
-              </Box>
-              <Divider sx={{ mb: 2 }} />
-              {editMode ? (
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Autocomplete
-                      fullWidth
-                      options={sports}
-                      getOptionLabel={(option) => option.name}
-                      value={sports.find((s) => s._id === formData.favoriteSport) || null}
-                      onChange={(event, newValue) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          favoriteSport: newValue ? newValue._id : '',
-                        }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label="Favorite Sport" />}
-                      isOptionEqualToValue={(option, value) => option._id === value._id}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField fullWidth disabled label="Email" value={formData.email} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField fullWidth disabled label="Role" value={formData.role} />
-                  </Grid>
-                  <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <Button variant="outlined" startIcon={<Cancel />} onClick={handleCancel} disabled={loading}>
-                      Cancel
-                    </Button>
-                    <Button variant="contained" startIcon={<Save />} onClick={handleSave} disabled={loading}>
-                      {loading ? <CircularProgress size={24} /> : 'Save'}
-                    </Button>
-                  </Grid>
-                </Grid>
-              ) : (
-                <List>
-                  <ListItem>
-                    <ListItemIcon><Person /></ListItemIcon>
-                    <ListItemText primary="Full Name" secondary={`${profile.firstName} ${profile.lastName}`} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><Email /></ListItemIcon>
-                    <ListItemText primary="Email Address" secondary={profile.email} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><SportsSoccer /></ListItemIcon>
-                    <ListItemText primary="Favorite Sport" secondary={profile.favoriteSport?.name || 'None'} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><CalendarToday /></ListItemIcon>
-                    <ListItemText primary="Member Since" secondary={new Date(profile.createdAt).toLocaleDateString()} />
-                  </ListItem>
-                </List>
-              )}
-
-              {profile.role === 'admin' && !editMode && (
-                <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Admin Functionality
-                  </Typography>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Add New Sport
-                  </Typography>
-                  <Box display="flex" gap={2}>
-                    <TextField
-                      label="Sport Name"
-                      value={newSport}
-                      onChange={(e) => setNewSport(e.target.value)}
-                      size="small"
-                      fullWidth
-                    />
-                    <Button variant="contained" onClick={handleAddSport} disabled={loading || !newSport.trim()}>
-                      Add
-                    </Button>
+                  <Avatar
+                    src={profile.photoUrl}
+                    alt={`${profile.firstName} ${profile.lastName}`}
+                    sx={{ 
+                      width: 160, 
+                      height: 160, 
+                      margin: 'auto', 
+                      fontSize: '4rem',
+                      border: '3px solid rgba(229, 9, 20, 0.3)',
+                      boxShadow: '0 8px 32px rgba(229, 9, 20, 0.2)'
+                    }}
+                  >
+                    {profile.firstName?.charAt(0)}
+                  </Avatar>
+                  <Box
+                    className="upload-overlay"
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    width="100%"
+                    height="100%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    bgcolor="rgba(0, 0, 0, 0.7)"
+                    borderRadius="50%"
+                    sx={{
+                      opacity: editMode ? 1 : 0,
+                      transition: 'opacity 0.3s',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    {uploading ? (
+                      <CircularProgress sx={{ color: 'white' }} />
+                    ) : (
+                      <PhotoCamera sx={{ color: 'white', fontSize: 40 }} />
+                    )}
                   </Box>
-
-                  <Typography variant="subtitle1" gutterBottom sx={{ mt: 3 }}>
-                    Manage Existing Sports
-                  </Typography>
-                  <List dense sx={{ maxHeight: 200, overflow: 'auto', bgcolor: 'background.paper', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
-                    {sports.map((sport) => (
-                      <ListItem
-                        key={sport._id}
-                        secondaryAction={
-                          <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteSport(sport._id)} disabled={loading}>
-                            <Delete />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText primary={sport.name} />
-                      </ListItem>
-                    ))}
-                  </List>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    hidden 
+                    accept="image/png, image/jpeg, image/gif" 
+                    onChange={handlePhotoUpload} 
+                  />
                 </Box>
-              )}
+
+                <Typography 
+                  variant="h5" 
+                  component="h1"
+                  sx={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontWeight: 500,
+                    color: '#fafafa',
+                    letterSpacing: '1px',
+                    mb: 2
+                  }}
+                >
+                  {profile.firstName} {profile.lastName}
+                </Typography>
+
+                <Chip
+                  icon={<AdminPanelSettings />}
+                  label={profile.role.toUpperCase()}
+                  sx={{ 
+                    mt: 1,
+                    background: profile.role === 'admin' 
+                      ? 'linear-gradient(135deg, #E50914 0%, #B20710 100%)'
+                      : 'rgba(255, 255, 255, 0.1)',
+                    color: 'white',
+                    fontWeight: 700,
+                    letterSpacing: '1.5px',
+                    fontSize: '0.75rem',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    '& .MuiChip-icon': {
+                      color: 'white'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Right Side - Details */}
+              <Grid item xs={12} md={8}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontWeight: 400,
+                      fontSize: '2rem',
+                      color: '#fafafa',
+                      letterSpacing: '2px',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    Account Details
+                  </Typography>
+                  {!editMode && (
+                    <Button 
+                      startIcon={<Edit />} 
+                      onClick={() => setEditMode(true)}
+                      sx={{
+                        color: '#fafafa',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '50px',
+                        px: 3,
+                        fontWeight: 600,
+                        letterSpacing: '1px',
+                        textTransform: 'uppercase',
+                        fontSize: '0.8125rem',
+                        '&:hover': {
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          borderColor: 'rgba(255, 255, 255, 0.3)'
+                        }
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                </Box>
+
+                <Divider sx={{ mb: 3, borderColor: 'rgba(255, 255, 255, 0.08)' }} />
+
+                {editMode ? (
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField 
+                        fullWidth 
+                        label="First Name" 
+                        name="firstName" 
+                        value={formData.firstName} 
+                        onChange={handleInputChange}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fafafa',
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#a0a0a0',
+                            fontSize: '0.875rem',
+                            letterSpacing: '1px'
+                          },
+                          '& .MuiInputLabel-root.Mui-focused': {
+                            color: '#fafafa'
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField 
+                        fullWidth 
+                        label="Last Name" 
+                        name="lastName" 
+                        value={formData.lastName} 
+                        onChange={handleInputChange}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fafafa',
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#a0a0a0',
+                            fontSize: '0.875rem',
+                            letterSpacing: '1px'
+                          },
+                          '& .MuiInputLabel-root.Mui-focused': {
+                            color: '#fafafa'
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Autocomplete
+                        fullWidth
+                        options={sports}
+                        getOptionLabel={(option) => option.name}
+                        value={sports.find((s) => s._id === formData.favoriteSport) || null}
+                        onChange={(event, newValue) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            favoriteSport: newValue ? newValue._id : '',
+                          }));
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Favorite Sport" />}
+                        isOptionEqualToValue={(option, value) => option._id === value._id}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fafafa',
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#a0a0a0',
+                            fontSize: '0.875rem',
+                            letterSpacing: '1px'
+                          },
+                          '& .MuiAutocomplete-popupIndicator': {
+                            color: '#a0a0a0'
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField 
+                        fullWidth 
+                        disabled 
+                        label="Email" 
+                        value={formData.email}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#a0a0a0',
+                            background: 'rgba(0, 0, 0, 0.2)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.05)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#666'
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField 
+                        fullWidth 
+                        disabled 
+                        label="Role" 
+                        value={formData.role}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#a0a0a0',
+                            background: 'rgba(0, 0, 0, 0.2)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.05)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#666'
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                      <Button 
+                        variant="outlined" 
+                        startIcon={<Cancel />} 
+                        onClick={handleCancel} 
+                        disabled={loading}
+                        sx={{
+                          color: '#fafafa',
+                          borderColor: 'rgba(255, 255, 255, 0.2)',
+                          borderRadius: '50px',
+                          px: 3,
+                          fontWeight: 600,
+                          letterSpacing: '1px',
+                          '&:hover': {
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            background: 'rgba(255, 255, 255, 0.05)'
+                          }
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        variant="contained" 
+                        startIcon={<Save />} 
+                        onClick={handleSave} 
+                        disabled={loading}
+                        sx={{
+                          background: '#fafafa',
+                          color: '#0f0f0f',
+                          borderRadius: '50px',
+                          px: 3,
+                          fontWeight: 700,
+                          letterSpacing: '1px',
+                          boxShadow: '0 8px 24px rgba(255, 255, 255, 0.15)',
+                          '&:hover': {
+                            background: '#ffffff',
+                            boxShadow: '0 12px 32px rgba(255, 255, 255, 0.25)'
+                          }
+                        }}
+                      >
+                        {loading ? <CircularProgress size={24} sx={{ color: '#0f0f0f' }} /> : 'Save'}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                ) : (
+                  <List sx={{ color: '#fafafa' }}>
+                    <ListItem sx={{ py: 2 }}>
+                      <ListItemIcon><Person sx={{ color: '#E50914' }} /></ListItemIcon>
+                      <ListItemText 
+                        primary={
+                          <Typography sx={{ fontSize: '0.875rem', color: '#a0a0a0', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                            Full Name
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{ fontSize: '1.125rem', color: '#fafafa', mt: 0.5 }}>
+                            {`${profile.firstName} ${profile.lastName}`}
+                          </Typography>
+                        } 
+                      />
+                    </ListItem>
+                    <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />
+                    
+                    <ListItem sx={{ py: 2 }}>
+                      <ListItemIcon><Email sx={{ color: '#E50914' }} /></ListItemIcon>
+                      <ListItemText 
+                        primary={
+                          <Typography sx={{ fontSize: '0.875rem', color: '#a0a0a0', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                            Email Address
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{ fontSize: '1.125rem', color: '#fafafa', mt: 0.5 }}>
+                            {profile.email}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                    <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />
+                    
+                    <ListItem sx={{ py: 2 }}>
+                      <ListItemIcon><SportsSoccer sx={{ color: '#E50914' }} /></ListItemIcon>
+                      <ListItemText 
+                        primary={
+                          <Typography sx={{ fontSize: '0.875rem', color: '#a0a0a0', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                            Favorite Sport
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{ fontSize: '1.125rem', color: '#fafafa', mt: 0.5 }}>
+                            {profile.favoriteSport?.name || 'None'}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                    <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />
+                    
+                    <ListItem sx={{ py: 2 }}>
+                      <ListItemIcon><CalendarToday sx={{ color: '#E50914' }} /></ListItemIcon>
+                      <ListItemText 
+                        primary={
+                          <Typography sx={{ fontSize: '0.875rem', color: '#a0a0a0', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                            Member Since
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{ fontSize: '1.125rem', color: '#fafafa', mt: 0.5 }}>
+                            {new Date(profile.createdAt).toLocaleDateString()}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  </List>
+                )}
+
+                {/* Admin Section */}
+                {profile.role === 'admin' && !editMode && (
+                  <Box sx={{ 
+                    mt: 4, 
+                    pt: 4, 
+                    borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+                  }}>
+                    <Typography 
+                      variant="h6" 
+                      sx={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontWeight: 400,
+                        fontSize: '1.75rem',
+                        color: '#fafafa',
+                        letterSpacing: '2px',
+                        textTransform: 'uppercase',
+                        mb: 3
+                      }}
+                    >
+                      Admin Tools
+                    </Typography>
+
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
+                        color: '#d4d4d4', 
+                        mb: 2,
+                        fontSize: '0.9375rem',
+                        letterSpacing: '0.5px'
+                      }}
+                    >
+                      Add New Sport
+                    </Typography>
+                    <Box display="flex" gap={2} mb={4}>
+                      <TextField
+                        label="Sport Name"
+                        value={newSport}
+                        onChange={(e) => setNewSport(e.target.value)}
+                        size="small"
+                        fullWidth
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fafafa',
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            borderRadius: '12px',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)'
+                            }
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#a0a0a0'
+                          }
+                        }}
+                      />
+                      <Button 
+                        variant="contained" 
+                        onClick={handleAddSport} 
+                        disabled={loading || !newSport.trim()}
+                        sx={{
+                          background: '#fafafa',
+                          color: '#0f0f0f',
+                          borderRadius: '50px',
+                          px: 3,
+                          fontWeight: 700,
+                          letterSpacing: '1px',
+                          '&:hover': {
+                            background: '#ffffff'
+                          },
+                          '&:disabled': {
+                            opacity: 0.5
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Box>
+
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
+                        color: '#d4d4d4', 
+                        mb: 2,
+                        fontSize: '0.9375rem',
+                        letterSpacing: '0.5px'
+                      }}
+                    >
+                      Manage Existing Sports
+                    </Typography>
+                    <List 
+                      dense 
+                      sx={{ 
+                        maxHeight: 250, 
+                        overflow: 'auto', 
+                        bgcolor: 'rgba(0, 0, 0, 0.3)', 
+                        border: '1px solid rgba(255, 255, 255, 0.1)', 
+                        borderRadius: '12px',
+                        '&::-webkit-scrollbar': {
+                          width: '6px'
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          background: 'transparent'
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          background: 'rgba(255, 255, 255, 0.2)',
+                          borderRadius: '10px'
+                        }
+                      }}
+                    >
+                      {sports.map((sport) => (
+                        <ListItem
+                          key={sport._id}
+                          secondaryAction={
+                            <IconButton 
+                              edge="end" 
+                              aria-label="delete" 
+                              onClick={() => handleDeleteSport(sport._id)} 
+                              disabled={loading}
+                              sx={{ 
+                                color: '#E50914',
+                                '&:hover': {
+                                  background: 'rgba(229, 9, 20, 0.1)'
+                                }
+                              }}
+                            >
+                              <Delete />
+                            </IconButton>
+                          }
+                          sx={{
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                            '&:last-child': {
+                              borderBottom: 'none'
+                            }
+                          }}
+                        >
+                          <ListItemText 
+                            primary={sport.name} 
+                            sx={{ 
+                              '& .MuiListItemText-primary': {
+                                color: '#fafafa',
+                                fontWeight: 500
+                              }
+                            }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          </CardContent>
+        </Card>
+      </Container>
+
+      {/* Snackbars */}
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity="error" 
+          sx={{ 
+            width: '100%',
+            background: 'rgba(220, 38, 38, 0.2)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(220, 38, 38, 0.4)',
+            color: '#fca5a5'
+          }}
+        >
           {error}
         </Alert>
       </Snackbar>
-      <Snackbar open={!!success} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+
+      <Snackbar 
+        open={!!success} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity="success" 
+          sx={{ 
+            width: '100%',
+            background: 'rgba(16, 185, 129, 0.2)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(16, 185, 129, 0.4)',
+            color: '#6ee7b7'
+          }}
+        >
           {success}
         </Alert>
       </Snackbar>
-    </Container>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+      `}</style>
+    </Box>
   );
 };
 
