@@ -53,6 +53,10 @@
   z-index: 1;
 }
 
+.register-card {
+  max-width: 650px;
+}
+
 .auth-header {
   text-align: center;
   margin-bottom: 48px;
