@@ -1,3 +1,4 @@
+// src/components/NavBar.jsx
 import React, { useState } from 'react';
 import {
   AppBar,
@@ -17,60 +18,63 @@ import {
 import {
   AccountCircle,
   Logout,
+  Dashboard,
   Home,
   AdminPanelSettings,
   Assessment,
-  SportsScore
+  SportsScore  // Added for commentary icon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
-
+ 
 const NavBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [anchorEl, setAnchorEl] = useState(null);
-
+ 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+ 
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+ 
   const handleLogout = () => {
     dispatch(logout());
     handleClose();
-    navigate('/');
+    navigate('/login');
   };
-
+ 
   const handleNavigation = (path) => {
     navigate(path);
     handleClose();
   };
-
+ 
   // Get navigation items based on user role
   const getNavigationItems = () => {
     const baseItems = [
-      { label: 'Home', path: '/', icon: <Home /> },
-      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> }
+      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
+      { label: 'Home', path: '/home', icon: <Home /> }
     ];
-
+ 
     const roleSpecificItems = {
       admin: [
-        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> }
+        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
       ],
       analyst: [
-        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> }
+        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
       ],
-      user: [] // No dashboard for regular users
+      user: [
+        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
+      ]
     };
-
-    return [...baseItems, ...(roleSpecificItems[user?.role] || [])];
+ 
+    return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
   };
-
+ 
   const getRoleColor = (role) => {
     switch (role) {
       case 'admin': return 'error';
@@ -79,7 +83,7 @@ const NavBar = () => {
       default: return 'default';
     }
   };
-
+ 
   const getRoleDisplayName = (role) => {
     switch (role) {
       case 'admin': return 'Administrator';
@@ -88,84 +92,85 @@ const NavBar = () => {
       default: return 'User';
     }
   };
-
+ 
   const navigationItems = getNavigationItems();
-
+ 
   return (
-    <AppBar 
+    <AppBar
       position="sticky"
       sx={{
         background: 'rgba(15, 15, 15, 0.95)',
         backdropFilter: 'blur(24px) saturate(180%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
         top: 0,
         zIndex: 100
       }}
     >
       <Toolbar>
-        {/* Logo/Brand */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+        {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
             cursor: 'pointer',
             padding: '8px 16px',
             borderRadius: '8px',
             transition: 'all 0.3s ease',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)'
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              transform: 'scale(1.05)'
             }
-          }} 
-          onClick={() => navigate('/')}
+          }}
+          onClick={() => navigate('/commentary')}
         >
           <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="div"
-            sx={{ 
-              fontWeight: 400, 
-              letterSpacing: '3px', 
-              fontFamily: '"Cormorant Garamond", serif', 
-              textTransform: 'uppercase',
-              fontSize: '1.5rem'
-            }}
+            sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
           >
-            Glimpse
+            Commentary
           </Typography>
         </Box>
-
+ 
         {/* Role Badge */}
         {['admin', 'analyst'].includes(user?.role) && (
           <Chip
             label={getRoleDisplayName(user?.role)}
             color={getRoleColor(user?.role)}
             size="small"
-            sx={{ 
-              ml: 2, 
+            sx={{
+              ml: 2,
+              color: 'white',
               fontWeight: 600,
-              fontSize: '0.75rem',
-              letterSpacing: '1px'
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              '& .MuiChip-label': {
+                px: 2
+              }
             }}
           />
         )}
-
+ 
         {/* Navigation Links - Desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
-          {navigationItems.map((item) => (
+          {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
             <Button
               key={item.path}
               color="inherit"
               onClick={() => navigate(item.path)}
               startIcon={item.icon}
-              sx={{ 
-                ml: 2,
-                fontWeight: 600,
-                letterSpacing: '1px',
+              sx={{
+                ml: 1,
+                color: '#E5E5E5',
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  transform: 'translateY(-2px)',
-                  transition: 'all 0.3s ease'
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#FFFFFF',
+                  transform: 'translateY(-1px)'
                 }
               }}
             >
@@ -173,41 +178,35 @@ const NavBar = () => {
             </Button>
           ))}
         </Box>
-
+ 
         {/* User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              mr: 2, 
-              display: { xs: 'none', sm: 'block' }, 
-              textTransform: 'capitalize',
-              color: '#d4d4d4'
-            }}
-          >
-            {user?.firstName || user?.username || user?.email?.split('@')[0] || 'User'}
+          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
+            {user?.firstName || user?.email?.split('@')[0] || 'User'}
           </Typography>
           
           <IconButton
             size="large"
-            aria-label="account menu"
+            aria-label="account of current user"
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenu}
             color="inherit"
             sx={{
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
               }
             }}
           >
-            <Avatar 
-              sx={{ 
-                width: 36, 
-                height: 36, 
-                bgcolor: 'rgba(229, 9, 20, 0.2)',
-                border: '2px solid rgba(229, 9, 20, 0.3)'
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                border: '2px solid rgba(255, 255, 255, 0.3)'
               }}
+              src={user?.photoUrl}
+              alt={user?.email}
             >
               <AccountCircle />
             </Avatar>
@@ -228,58 +227,70 @@ const NavBar = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: { 
-                mt: 1.5, 
-                minWidth: 220,
-                backgroundColor: '#1a1a1a',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+              sx: {
+                mt: 1.5,
+                minWidth: 240,
+                backgroundColor: 'rgba(31, 31, 31, 0.95)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '16px',
+                color: '#FFFFFF',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                '& .MuiMenuItem-root': {
+                  padding: '12px 24px',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                  }
+                },
+                '& .MuiDivider-root': {
+                  borderColor: 'rgba(255, 255, 255, 0.12)',
+                  my: 1
+                },
+                '& .MuiListItemIcon-root': {
+                  color: '#B3B3B3',
+                  minWidth: '40px'
+                }
               }
             }}
           >
             {/* User Info */}
-            <MenuItem disabled sx={{ opacity: 1 }}>
+            <MenuItem disabled sx={{ opacity: '1 !important' }}>
               <Box>
-                <Typography variant="body2" fontWeight="bold" color="white">
+                <Typography variant="body2" fontWeight="bold">
                   {user?.email}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#a0a0a0' }}>
+                <Typography variant="caption" sx={{ color: '#B3B3B3' }}>
                   {getRoleDisplayName(user?.role)}
                 </Typography>
               </Box>
             </MenuItem>
             
-            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-
+            <Divider />
+ 
             {/* Mobile Navigation Items */}
             <Box sx={{ display: { xs: 'block', md: 'none' } }}>
               {navigationItems.map((item) => (
-                <MenuItem 
-                  key={item.path} 
-                  onClick={() => handleNavigation(item.path)}
-                  sx={{ color: 'white' }}
-                >
-                  <ListItemIcon sx={{ color: '#E50914' }}>
+                <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
+                  <ListItemIcon>
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText>{item.label}</ListItemText>
                 </MenuItem>
               ))}
-              <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+              <Divider />
             </Box>
-
+ 
             {/* Profile */}
-            <MenuItem 
-              onClick={() => handleNavigation('/profile')}
-              sx={{ color: 'white' }}
-            >
-              <ListItemIcon sx={{ color: '#E50914' }}>
+            <MenuItem onClick={() => handleNavigation('/profile')}>
+              <ListItemIcon>
                 <AccountCircle fontSize="small" />
               </ListItemIcon>
               <ListItemText>Profile</ListItemText>
             </MenuItem>
-
-            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-
+ 
+            <Divider />
+ 
             {/* Logout */}
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
@@ -295,5 +306,5 @@ const NavBar = () => {
     </AppBar>
   );
 };
-
+ 
 export default NavBar;
