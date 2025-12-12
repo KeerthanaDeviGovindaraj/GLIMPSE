@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* ==================== REFINED AESTHETIC PALETTE ==================== */
+/* ==================== IMPROVED COLOR PALETTE ==================== */
 :root {
   --netflix-red: #E50914;
   --netflix-bright-red: #FF0A16;
@@ -14,6 +14,12 @@
   --netflix-white: #FFFFFF;
   --netflix-off-white: #fafafa;
   --accent-gold: #fbbf24;
+  
+  /* Improved contrast colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E5E5E5;
+  --text-tertiary: #B3B3B3;
+  --text-muted: #808080;
 }
 
 * {
@@ -67,7 +73,7 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.85;
+    opacity: 0.7;
   }
 }
 
@@ -76,7 +82,7 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-10px);
   }
 }
 
@@ -86,6 +92,33 @@ body {
   }
   100% {
     background-position: 1000px 0;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.5);
+  }
+  50% { 
+    opacity: 0.85;
+    box-shadow: 0 0 30px rgba(255, 23, 68, 0.8);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -113,10 +146,10 @@ body {
 
 /* ==================== SOPHISTICATED HEADER ==================== */
 .commentary-header {
-  background: rgba(15, 15, 15, 0.92);
+  background: rgba(15, 15, 15, 0.95);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 28px 64px;
   display: flex;
   justify-content: space-between;
@@ -132,13 +165,14 @@ body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 2.5rem;
   font-weight: 400;
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
   letter-spacing: 4px;
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 16px;
   position: relative;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .commentary-header h1::after {
@@ -155,32 +189,33 @@ body {
   display: flex;
   align-items: center;
   gap: 24px;
-  background: rgba(47, 47, 47, 0.3);
+  background: rgba(47, 47, 47, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 14px 32px;
   border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.4s ease;
 }
 
 .user-info:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(47, 47, 47, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(47, 47, 47, 0.5);
 }
 
 .user-info span {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--netflix-text-grey);
+  color: var(--text-secondary);
   letter-spacing: 0.5px;
 }
 
+.user-info button,
 .logout-btn {
   padding: 12px 32px;
   background: transparent;
-  color: var(--netflix-off-white);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
   cursor: pointer;
   font-weight: 600;
@@ -190,12 +225,13 @@ body {
   letter-spacing: 2px;
 }
 
+.user-info button:hover,
 .logout-btn:hover {
-  background: var(--netflix-off-white);
+  background: var(--text-primary);
   color: var(--netflix-primary-dark);
-  border-color: var(--netflix-off-white);
+  border-color: var(--text-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
 }
 
 /* ==================== ELEGANT STATS BAR ==================== */
@@ -209,16 +245,16 @@ body {
 }
 
 .stat-item {
-  background: linear-gradient(135deg, rgba(36, 36, 36, 0.6) 0%, rgba(47, 47, 47, 0.4) 100%);
+  background: linear-gradient(135deg, rgba(36, 36, 36, 0.8) 0%, rgba(47, 47, 47, 0.6) 100%);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 24px;
-  padding: 40px 32px;
+  padding: 36px 28px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -229,7 +265,6 @@ body {
 .stat-item:nth-child(1) { animation-delay: 0.1s; }
 .stat-item:nth-child(2) { animation-delay: 0.2s; }
 .stat-item:nth-child(3) { animation-delay: 0.3s; }
-.stat-item:nth-child(4) { animation-delay: 0.4s; }
 
 .stat-item::before {
   content: '';
@@ -252,19 +287,19 @@ body {
 
 .stat-item:hover {
   transform: translateY(-12px);
-  border-color: rgba(229, 9, 20, 0.3);
-  box-shadow: 0 24px 64px rgba(229, 9, 20, 0.2);
+  border-color: rgba(229, 9, 20, 0.4);
+  box-shadow: 0 24px 64px rgba(229, 9, 20, 0.25);
 }
 
 .stat-icon {
-  font-size: 3rem;
-  opacity: 0.8;
+  font-size: 2.8rem;
+  opacity: 0.9;
   filter: drop-shadow(0 4px 12px rgba(229, 9, 20, 0.3));
   transition: all 0.5s ease;
 }
 
 .stat-item:hover .stat-icon {
-  transform: scale(1.1);
+  transform: scale(1.15);
   opacity: 1;
 }
 
@@ -275,26 +310,26 @@ body {
 .stat-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
+  align-items: flex-start;
+  gap: 6px;
 }
 
 .stat-value {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 3.5rem;
-  font-weight: 400;
-  color: var(--netflix-off-white);
+  font-size: 3.2rem;
+  font-weight: 500;
+  color: var(--text-primary);
   line-height: 1;
   letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .stat-label {
-  font-size: 0.8125rem;
-  color: var(--netflix-light-grey);
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
 /* ==================== MAIN CONTENT ==================== */
@@ -312,76 +347,16 @@ body {
 /* ==================== REFINED SECTIONS ==================== */
 .scores-section,
 .commentary-section {
-  background: linear-gradient(135deg, rgba(36, 36, 36, 0.5) 0%, rgba(47, 47, 47, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(31, 31, 31, 0.8) 0%, rgba(42, 42, 42, 0.7) 100%);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 28px;
   padding: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   animation: scaleIn 1s ease-out;
   position: relative;
   overflow: hidden;
-}
-
-.scores-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 36px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  position: relative;
-}
-
-.scores-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 80px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--netflix-red) 0%, transparent 100%);
-}
-
-.scores-header h2,
-.add-comment-section h3,
-.commentaries-list h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.25rem;
-  font-weight: 400;
-  color: var(--netflix-off-white);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.refresh-btn {
-  padding: 12px 28px;
-  background: transparent;
-  color: var(--netflix-text-grey);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.8125rem;
-  transition: all 0.4s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.refresh-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: var(--netflix-off-white);
-  transform: translateY(-2px);
-}
-
-.refresh-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
 }
 
 /* ==================== ELEGANT TABS ==================== */
@@ -393,14 +368,14 @@ body {
   background: transparent;
   border: none;
   border-radius: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .tab {
   padding: 18px 0;
   margin-right: 56px;
   background: transparent;
-  color: var(--netflix-light-grey);
+  color: var(--text-tertiary);
   border: none;
   border-radius: 0;
   cursor: pointer;
@@ -423,18 +398,19 @@ body {
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--netflix-off-white);
+  background: var(--text-primary);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab:hover {
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
 }
 
 .tab.active {
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .tab.active::before {
@@ -447,18 +423,19 @@ body {
 }
 
 .score-card {
-  background: rgba(36, 36, 36, 0.4);
+  background: rgba(31, 31, 31, 0.6);
   backdrop-filter: blur(16px) saturate(150%);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   border-radius: 24px;
   padding: 32px;
   margin-bottom: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeInLeft 0.8s ease-out;
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
 }
 
 .score-card::before {
@@ -466,11 +443,11 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 3px;
+  width: 4px;
   height: 100%;
   background: linear-gradient(180deg, 
-    rgba(229, 9, 20, 0.8) 0%,
-    rgba(229, 9, 20, 0.3) 100%);
+    rgba(229, 9, 20, 0.9) 0%,
+    rgba(229, 9, 20, 0.4) 100%);
   opacity: 0;
   transition: opacity 0.5s ease;
 }
@@ -481,16 +458,29 @@ body {
 
 .score-card:hover {
   transform: translateX(8px);
-  border-color: rgba(229, 9, 20, 0.2);
-  box-shadow: 0 16px 48px rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.3);
+  box-shadow: 0 16px 48px rgba(229, 9, 20, 0.2);
+  background: rgba(31, 31, 31, 0.8);
+}
+
+.score-card.active {
+  border-color: rgba(229, 9, 20, 0.7) !important;
+  box-shadow: 0 12px 48px rgba(229, 9, 20, 0.5) !important;
+  transform: translateX(12px) scale(1.02);
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(31, 31, 31, 0.9) 100%);
+}
+
+.score-card.active::before {
+  opacity: 1;
+  width: 5px;
 }
 
 .cricket-card::before {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.8) 0%, rgba(16, 185, 129, 0.3) 100%);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.4) 100%);
 }
 
 .football-card::before {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.3) 100%);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.9) 0%, rgba(245, 158, 11, 0.4) 100%);
 }
 
 .match-header {
@@ -504,14 +494,15 @@ body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.625rem;
   font-weight: 500;
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
   letter-spacing: 0.5px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 .match-status {
   padding: 8px 20px;
   border-radius: 50px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -519,41 +510,22 @@ body {
 }
 
 .match-status.live {
-  background: #ff4757;
-  color: white;
+  background: #ff1744;
+  color: #ffffff;
   animation: pulse 2s infinite;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.6);
 }
 
 .match-status.finished {
   background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.match-date {
-  text-align: center;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.match-status.upcoming {
-  background: transparent;
-  color: var(--netflix-light-grey);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .match-type,
 .venue {
   font-size: 0.9375rem;
-  color: var(--netflix-light-grey);
+  color: var(--text-tertiary);
   margin-bottom: 12px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -565,7 +537,7 @@ body {
   border-radius: 0;
   padding: 24px 0 0;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .team-score {
@@ -573,13 +545,13 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.3s ease;
 }
 
 .team-score:hover {
   padding-left: 12px;
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
 .team-score:last-child {
@@ -588,7 +560,7 @@ body {
 
 .team-name {
   font-weight: 600;
-  color: var(--netflix-text-grey);
+  color: var(--text-secondary);
   font-size: 1rem;
   letter-spacing: 0.3px;
 }
@@ -597,15 +569,15 @@ body {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 500;
   font-size: 1.875rem;
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
   letter-spacing: 1px;
 }
 
 .match-info {
   text-align: center;
   padding: 20px;
-  color: var(--netflix-light-grey);
-  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-size: 0.95rem;
 }
 
 /* ==================== FOOTBALL REFINED ==================== */
@@ -615,11 +587,9 @@ body {
   gap: 12px;
 }
 
-.league-logo {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  opacity: 0.9;
+.league-info span {
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .football-match {
@@ -631,8 +601,8 @@ body {
   background: transparent;
   border-radius: 0;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .team {
@@ -643,42 +613,28 @@ body {
   flex: 1;
 }
 
-.team-logo {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  opacity: 0.9;
-  transition: all 0.4s ease;
+.team .team-name {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
-.team-logo:hover {
-  opacity: 1;
-  transform: scale(1.08);
-}
-
-.team-score {
+.team .team-score {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3.5rem;
   font-weight: 400;
-  color: var(--netflix-off-white);
+  color: var(--text-primary);
   letter-spacing: 2px;
+  padding: 0;
+  border: none;
 }
 
 .vs {
   font-size: 0.875rem;
-  color: var(--netflix-light-grey);
+  color: var(--text-muted);
   font-weight: 700;
   letter-spacing: 3px;
-  opacity: 0.5;
-}
-
-.halftime-score {
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--netflix-light-grey);
-  font-weight: 500;
-  margin-top: 16px;
-  letter-spacing: 1px;
+  opacity: 0.6;
 }
 
 /* ==================== REFINED EMPTY STATES ==================== */
@@ -689,67 +645,141 @@ body {
 }
 
 .empty-icon {
-  font-size: 4rem;
-  margin-bottom: 28px;
-  opacity: 0.3;
+  font-size: 6rem;
+  margin-bottom: 32px;
+  opacity: 0.4;
   filter: grayscale(100%);
   animation: gentleFloat 4s ease-in-out infinite;
 }
 
 .empty-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.875rem;
+  font-size: 2.25rem;
   font-weight: 400;
-  color: var(--netflix-off-white);
-  margin-bottom: 12px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
 }
 
 .empty-subtitle {
-  font-size: 0.9375rem;
-  color: var(--netflix-light-grey);
+  font-size: 1.05rem;
+  color: var(--text-tertiary);
   font-weight: 400;
   letter-spacing: 0.5px;
+  line-height: 1.6;
 }
 
 .loading {
   text-align: center;
-  padding: 80px;
-  color: var(--netflix-light-grey);
-  font-size: 0.9375rem;
+  padding: 80px 40px;
+  color: var(--text-secondary);
+  font-size: 1rem;
   font-weight: 500;
   letter-spacing: 1px;
   text-transform: uppercase;
   animation: subtlePulse 2s infinite;
 }
 
-/* ==================== REFINED COMMENTARY SECTION ==================== */
+/* ==================== AI COMMENTARY SECTION ==================== */
+.ai-commentary {
+  background: linear-gradient(135deg, rgba(31, 31, 31, 0.9) 0%, rgba(42, 42, 42, 0.8) 100%);
+  backdrop-filter: blur(20px) saturate(150%);
+  border-radius: 24px;
+  padding: 36px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-height: 220px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.ai-commentary h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.ai-commentary p,
+.commentary-content p {
+  color: var(--text-secondary) !important;
+  font-size: 1.075rem !important;
+  line-height: 1.9 !important;
+  letter-spacing: 0.3px;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+.placeholder-text {
+  color: var(--text-tertiary) !important;
+  font-style: italic;
+  text-align: center;
+  padding: 50px 24px;
+  font-size: 1.05rem !important;
+}
+
+.loading-commentary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 60px 20px;
+}
+
+.loading-commentary p {
+  color: var(--text-secondary) !important;
+  font-size: 1rem !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.9;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #E50914;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ==================== FAN COMMENTARY SECTION ==================== */
 .add-comment-section {
   margin-bottom: 40px;
   padding-bottom: 40px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .add-comment-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: var(--text-primary);
   margin-bottom: 28px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .add-comment-section form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .add-comment-section textarea {
   width: 100%;
   padding: 20px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(36, 36, 36, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(31, 31, 31, 0.8);
   backdrop-filter: blur(12px);
-  color: var(--netflix-off-white);
-  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   min-height: 120px;
@@ -760,27 +790,27 @@ body {
 
 .add-comment-section textarea:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(36, 36, 36, 0.6);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(31, 31, 31, 0.95);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
 }
 
 .add-comment-section textarea::placeholder {
-  color: var(--netflix-light-grey);
+  color: var(--text-muted);
 }
 
 .character-count {
   text-align: right;
   font-size: 0.8125rem;
-  color: var(--netflix-light-grey);
+  color: var(--text-tertiary);
   font-weight: 500;
-  margin-top: -12px;
+  margin-top: -8px;
   letter-spacing: 0.5px;
 }
 
 .add-comment-section button {
   padding: 14px 40px;
-  background: var(--netflix-off-white);
+  background: var(--text-primary);
   color: var(--netflix-primary-dark);
   border: none;
   border-radius: 50px;
@@ -791,37 +821,21 @@ body {
   text-transform: uppercase;
   letter-spacing: 2px;
   align-self: flex-start;
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
 }
 
 .add-comment-section button:hover:not(:disabled) {
   background: var(--netflix-white);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3);
 }
 
 .add-comment-section button:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Success Message */
-.success-message {
-  padding: 16px 28px;
-  background: transparent;
-  color: var(--netflix-off-white);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  border-radius: 50px;
-  text-align: center;
-  font-weight: 600;
-  animation: fadeInUp 0.6s ease;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 0.8125rem;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
-}
-
-/* ==================== REFINED COMMENTARIES LIST ==================== */
+/* ==================== COMMENTARIES LIST ==================== */
 .commentaries-list {
   max-height: 700px;
   overflow-y: auto;
@@ -837,12 +851,12 @@ body {
 }
 
 .commentaries-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
 }
 
 .commentaries-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .commentary-card {
@@ -852,13 +866,13 @@ body {
   padding: 28px 0;
   margin-bottom: 0;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.4s ease;
   animation: fadeInUp 0.8s ease;
 }
 
 .commentary-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
   padding-left: 20px;
 }
 
@@ -870,69 +884,95 @@ body {
 }
 
 .username {
-  font-weight: 600;
-  color: var(--netflix-off-white);
-  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .timestamp {
   font-size: 0.75rem;
-  color: var(--netflix-light-grey);
+  color: var(--text-muted);
   font-weight: 500;
   letter-spacing: 0.5px;
 }
 
 .commentary-text {
-  color: var(--netflix-text-grey);
-  font-size: 0.9375rem;
-  line-height: 1.8;
+  color: var(--text-secondary) !important;
+  font-size: 1rem !important;
+  line-height: 1.75 !important;
   margin: 0;
   font-weight: 400;
   letter-spacing: 0.3px;
 }
 
-/* ==================== RESPONSIVE DESIGN ==================== */
-@media (max-width: 1400px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
+/* ==================== ERROR/SUCCESS MESSAGES ==================== */
+.error-banner {
+background: rgba(229, 9, 20, 0.2);
+border: 1px solid rgba(229, 9, 20, 0.5);
+color: var(--text-primary);
+padding: 16px 32px;
+margin: 0 64px 32px;
+border-radius: 12px;
+text-align: center;
+font-weight: 600;
+animation: slideDown 0.4s ease;
+font-size: 0.95rem;
+box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
 }
 
+.success-message {
+background: rgba(16, 185, 129, 0.2);
+border: 1px solid rgba(16, 185, 129, 0.5);
+color: var(--text-primary);
+padding: 16px 32px;
+margin: 0 64px 32px;
+border-radius: 12px;
+text-align: center;
+font-weight: 600;
+animation: slideDown 0.4s ease;
+font-size: 0.95rem;
+box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 1400px) {
+.main-content {
+grid-template-columns: 1fr;
+}
+}
 @media (max-width: 768px) {
-  .commentary-header {
-    padding: 24px 32px;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .commentary-header h1 {
-    font-size: 2rem;
-  }
-
-  .stats-bar {
-    padding: 40px 32px;
-    gap: 20px;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .main-content {
-    padding: 0 32px 48px;
-  }
-
-  .tab {
-    margin-right: 32px;
-  }
-
-  .football-match {
-    flex-direction: column;
-    gap: 28px;
-  }
-
-  .team {
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-between;
-  }
+.commentary-header {
+padding: 24px 32px;
+flex-direction: column;
+gap: 20px;
+}
+.commentary-header h1 {
+font-size: 2rem;
+}
+.stats-bar {
+padding: 40px 32px;
+gap: 20px;
+grid-template-columns: repeat(2, 1fr);
+}
+.main-content {
+padding: 0 32px 48px;
+}
+.tab {
+margin-right: 32px;
+}
+.football-match {
+flex-direction: column;
+gap: 28px;
+}
+.team {
+flex-direction: row;
+width: 100%;
+justify-content: space-between;
+}
+.error-banner,
+.success-message {
+margin: 0 32px 24px;
+}
 }
