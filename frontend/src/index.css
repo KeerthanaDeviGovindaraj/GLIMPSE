@@ -3,6 +3,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==================== DARK COLOR PALETTE ==================== */
+:root {
+  /* Dark Theme Colors */
+  --bg: #0b0f1c;
+  --bg-elev: #0e1424;
+  --card: #0c1220;
+  --border: #1f2937;
+  --muted: #9aa4b2;
+  --text: #e5e7eb;
+  --accent: #ef4444;
+  --accent-600: #dc2626;
+  --accent-700: #b91c1c;
+  --accent-soft: rgba(239, 68, 68, 0.12);
+  --ring: #fca5a5;
+  
+  /* Light Theme Colors (for compatibility) */
+  --bg-light: #f9fafb;
+  --text-light: #111827;
+}
+
 /* Global Styles */
 * {
   margin: 0;
@@ -17,7 +37,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Light theme by default (can be changed to dark) */
   background-color: #f9fafb;
+  color: #111827;
+}
+
+/* Dark theme class */
+body.dark-theme {
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 code {
@@ -36,13 +65,25 @@ code {
   border-radius: 4px;
 }
 
+body.dark-theme ::-webkit-scrollbar-track {
+  background: var(--bg-elev);
+}
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
 
+body.dark-theme ::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
 /* Custom Utilities */
@@ -65,6 +106,43 @@ code {
 
   .animate-progress {
     animation: progress linear;
+  }
+
+  /* Dark theme utilities */
+  .bg-dark {
+    background-color: var(--bg);
+  }
+
+  .bg-dark-elevated {
+    background-color: var(--bg-elev);
+  }
+
+  .bg-dark-card {
+    background-color: var(--card);
+  }
+
+  .border-dark {
+    border-color: var(--border);
+  }
+
+  .text-dark {
+    color: var(--text);
+  }
+
+  .text-dark-muted {
+    color: var(--muted);
+  }
+
+  .accent-bg {
+    background-color: var(--accent);
+  }
+
+  .accent-text {
+    color: var(--accent);
+  }
+
+  .accent-border {
+    border-color: var(--accent);
   }
 }
 
@@ -129,12 +207,48 @@ code {
     @apply px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium;
   }
 
+  /* Dark theme button variants */
+  .dark-theme .btn-primary {
+    background-color: var(--accent);
+    color: var(--text);
+  }
+
+  .dark-theme .btn-primary:hover {
+    background-color: var(--accent-600);
+  }
+
+  .dark-theme .btn-secondary {
+    background-color: var(--card);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .dark-theme .btn-secondary:hover {
+    background-color: var(--bg-elev);
+  }
+
   .input-field {
     @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
   }
 
+  .dark-theme .input-field {
+    background-color: var(--card);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .dark-theme .input-field:focus {
+    border-color: var(--accent);
+    ring-color: var(--ring);
+  }
+
   .card {
     @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+
+  .dark-theme .card {
+    background-color: var(--card);
+    border-color: var(--border);
   }
 
   .badge {
@@ -151,6 +265,11 @@ code {
 
   .badge-danger {
     @apply bg-red-100 text-red-800;
+  }
+
+  .dark-theme .badge-danger {
+    background-color: var(--accent-soft);
+    color: var(--accent);
   }
 
   .badge-info {

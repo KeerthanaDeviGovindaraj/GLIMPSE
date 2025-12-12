@@ -5,9 +5,11 @@ import Sidebar from './components/Sidebar';
 import AdminDashboard from './pages/AdminDashboard';
 import DataUpload from './pages/DataUpload';
 import SportsManagement from './pages/SportsManagement';
+import UserManagement from './pages/UserManagement';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useToast, ToastContainer } from './components/Toast';
 import { getUserData, isAuthenticated, authAPI } from './service/api';
+import { Activity } from 'lucide-react';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -43,9 +45,14 @@ function App() {
     e.preventDefault();
     setLoading(true);
 
+    console.log('🔍 Auth Mode:', authMode);
+    console.log('🔍 Form Data:', authForm);
+
     try {
       const endpoint = authMode === 'login' ? authAPI.login : authAPI.register;
       const response = await endpoint(authForm);
+
+      console.log('✅ Auth Response:', response.data);
 
       if (response.data.success) {
         setCurrentUser(response.data.data.user);
@@ -55,7 +62,8 @@ function App() {
         showSuccess(`${authMode === 'login' ? 'Login' : 'Registration'} successful!`);
       }
     } catch (error) {
-      console.error('Auth error:', error);
+      console.error('❌ Auth error:', error);
+      console.error('❌ Error response:', error.response?.data);
       showError(error.response?.data?.message || 'Authentication failed');
     } finally {
       setLoading(false);
@@ -71,20 +79,32 @@ function App() {
     showInfo('Logged out successfully');
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleAuth(e);
+    }
+  };
+
   const renderPage = () => {
     const pageProps = {
-      showToast: showInfo
+      showToast: showInfo,
+      showSuccess,
+      showError,
+      showWarning,
+      currentUser
     };
 
     switch (activePage) {
       case 'dashboard':
-        return <AdminDashboard {...pageProps} />;
+        return <AdminDashboard {...pageProps} onPageChange={setActivePage} />;
       case 'sports':
         return <SportsManagement {...pageProps} />;
       case 'upload':
         return <DataUpload {...pageProps} />;
+      case 'users':
+        return <UserManagement {...pageProps} />;
       default:
-        return <AdminDashboard {...pageProps} />;
+        return <AdminDashboard {...pageProps} onPageChange={setActivePage} />;
     }
   };
 
@@ -93,32 +113,38 @@ function App() {
     return <LoadingSpinner fullScreen size="lg" text="Loading application..." />;
   }
 
-  // Login/Register Screen
+  // Login/Register Screen - RED/BLACK THEME
   if (showLogin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #0b0f1c 0%, #1a1f2e 100%)' }}>
+        <div className="w-full max-w-md p-8 rounded-lg" style={{ background: '#0c1220', border: '1px solid #1f2937' }}>
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-2xl">SM</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'rgba(239, 68, 68, 0.12)' }}>
+              <Activity size={32} style={{ color: '#ef4444' }} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-3xl font-bold mb-2" style={{ color: '#e5e7eb' }}>
               {authMode === 'login' ? 'Welcome Back!' : 'Create Account'}
             </h1>
-            <p className="text-gray-600">Sports Management System</p>
+            <p style={{ color: '#9aa4b2' }}>Sports Management System</p>
           </div>
 
           <div className="space-y-4">
             {authMode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                   Full Name
                 </label>
                 <input
                   type="text"
                   value={authForm.name}
                   onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-4 py-3 rounded-lg outline-none transition-all"
+                  style={{ 
+                    background: '#0e1424', 
+                    border: '1px solid #1f2937',
+                    color: '#e5e7eb'
+                  }}
                   placeholder="John Doe"
                   required
                 />
@@ -126,28 +152,40 @@ function App() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                 Email Address
               </label>
               <input
                 type="email"
                 value={authForm.email}
                 onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onKeyDown={handleKeyDown}
+                className="w-full px-4 py-3 rounded-lg outline-none transition-all"
+                style={{ 
+                  background: '#0e1424', 
+                  border: '1px solid #1f2937',
+                  color: '#e5e7eb'
+                }}
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                 Password
               </label>
               <input
                 type="password"
                 value={authForm.password}
                 onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onKeyDown={handleKeyDown}
+                className="w-full px-4 py-3 rounded-lg outline-none transition-all"
+                style={{ 
+                  background: '#0e1424', 
+                  border: '1px solid #1f2937',
+                  color: '#e5e7eb'
+                }}
                 placeholder="••••••••"
                 required
               />
@@ -156,7 +194,13 @@ function App() {
             <button
               onClick={handleAuth}
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+              className="w-full py-3 rounded-lg font-semibold transition-all hover:opacity-90"
+              style={{ 
+                background: '#ef4444',
+                color: '#fff',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.5 : 1
+              }}
             >
               {loading ? 'Processing...' : authMode === 'login' ? 'Sign In' : 'Sign Up'}
             </button>
@@ -165,7 +209,8 @@ function App() {
           <div className="mt-4 text-center">
             <button
               onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-              className="text-blue-600 hover:underline text-sm"
+              className="text-sm transition-all hover:opacity-80"
+              style={{ color: '#ef4444', cursor: 'pointer' }}
             >
               {authMode === 'login'
                 ? "Don't have an account? Sign Up"
@@ -173,15 +218,17 @@ function App() {
             </button>
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-xs font-semibold text-gray-700 mb-2">🧪 Test Accounts:</p>
-            <div className="space-y-1 text-xs text-gray-600">
-              <p>
-                <strong>Admin:</strong> admin@example.com / admin123
-              </p>
-              <p>
-                <strong>User:</strong> user@example.com / user123
-              </p>
+          <div className="mt-6 p-4 rounded-lg" style={{ background: '#0e1424', border: '1px solid #1f2937' }}>
+            <p className="text-sm font-semibold mb-3" style={{ color: '#ef4444' }}>🔑 Test Accounts:</p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 rounded" style={{ background: '#0c1220' }}>
+                <span className="text-xs font-medium" style={{ color: '#9aa4b2' }}>Admin:</span>
+                <span className="text-sm" style={{ color: '#e5e7eb' }}>admin@example.com / admin123</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded" style={{ background: '#0c1220' }}>
+                <span className="text-xs font-medium" style={{ color: '#9aa4b2' }}>User:</span>
+                <span className="text-sm" style={{ color: '#e5e7eb' }}>user@example.com / user123</span>
+              </div>
             </div>
           </div>
         </div>
@@ -191,9 +238,9 @@ function App() {
     );
   }
 
-  // Main Application
+  // Main Application - WITH NAVBAR AND SIDEBAR (RED/BLACK THEME)
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: '#0b0f1c' }}>
       <Navbar
         user={currentUser}
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
@@ -201,7 +248,7 @@ function App() {
         showSearch={false}
       />
 
-      <div className="flex">
+      <div className="flex" style={{ gap: 0 }}>
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -213,7 +260,7 @@ function App() {
           user={currentUser}
         />
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6" style={{ background: '#0b0f1c' }}>
           <div className="max-w-7xl mx-auto">
             {renderPage()}
           </div>
