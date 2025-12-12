@@ -13,11 +13,22 @@ const Commentary = () => {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [activeTab, setActiveTab] = useState("cricket");
   const [cricketScores, setCricketScores] = useState([]);
   const [footballScores, setFootballScores] = useState([]);
   const [scoresLoading, setScoresLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const [activeMatchId, setActiveMatchId] = useState(null);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+
+  // AI commentary state
+  const [aiCommentary, setAiCommentary] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const [cricketIsLive, setCricketIsLive] = useState(false);
+  const [footballIsLive, setFootballIsLive] = useState(false);
 
   const [stats, setStats] = useState({
     totalMatches: 0,
@@ -25,94 +36,133 @@ const Commentary = () => {
     totalComments: 0,
   });
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+  // Update stats
   useEffect(() => {
-    const liveCount = [...cricketScores, ...footballScores].filter(
-      (match) => match.status?.toLowerCase() === "live" || match.status?.short === "LIVE"
-    ).length;
-
+    const allMatches = [...cricketScores, ...footballScores];
+    const actuallyLiveCount = allMatches.filter(match => match.isLive === true).length;
     setStats({
-      totalMatches: cricketScores.length + footballScores.length,
-      liveMatches: liveCount,
+      totalMatches: allMatches.length,
+      liveMatches: actuallyLiveCount,
       totalComments: commentaries.length,
     });
   }, [cricketScores, footballScores, commentaries]);
 
+  // Initial fetch
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     fetchCommentaries();
     fetchSportsScores();
-
     const interval = setInterval(fetchSportsScores, 30000);
     return () => clearInterval(interval);
-  }, [token, navigate]);
+  }, []);
 
+  // Fetch fan commentaries
   const fetchCommentaries = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/commentaries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
+      if (!response.ok) throw new Error("Failed to fetch commentaries");
       const data = await response.json();
-      if (response.ok) setCommentaries(data);
+      setCommentaries(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching commentaries:", error);
+      setErrorMessage("Failed to load comments");
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
+  // Fetch cricket and football scores
   const fetchSportsScores = async () => {
     setScoresLoading(true);
+    setErrorMessage("");
     try {
       const cricketResponse = await fetch(`${API_BASE_URL}/api/sports/cricket/live`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const cricketData = await cricketResponse.json();
-      if (cricketData.success) setCricketScores(cricketData.data);
+      setCricketScores(cricketData.data || []);
+      setCricketIsLive(cricketData.isLive || false);
 
       const footballResponse = await fetch(`${API_BASE_URL}/api/sports/football/live`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const footballData = await footballResponse.json();
-      if (footballData.success) setFootballScores(footballData.data);
+      setFootballScores(footballData.data || []);
+      setFootballIsLive(footballData.isLive || false);
 
       setLastUpdated(new Date());
     } catch (error) {
       console.error("Error fetching sports scores:", error);
+      setErrorMessage("Failed to load scores");
     } finally {
       setScoresLoading(false);
     }
   };
 
+  // Fetch AI commentary for selected match
+  const fetchAiCommentary = async (sport, matchId) => {
+    if (!token || !matchId) return;
+
+    setAiLoading(true);
+    setAiCommentary(""); // Clear previous commentary
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai-commentary/${sport}/${matchId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch AI commentary");
+      }
+      
+      const data = await response.json();
+      setAiCommentary(data.commentary || "No commentary available.");
+    } catch (error) {
+      console.error("Error fetching AI commentary:", error);
+      setAiCommentary(
+        error.message.includes("authentication") 
+          ? "AI commentary service is not configured. Please contact support."
+          : error.message.includes("Rate limit")
+          ? "AI commentary service is busy. Please try again in a moment."
+          : "AI commentary unavailable at the moment. Please try again."
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Handle selecting a match for AI commentary
+  const handleMatchClick = (match) => {
+    const matchId = match.id || match.idEvent;
+    setActiveMatchId(matchId);
+    setSelectedMatch(match);
+    fetchAiCommentary(activeTab, matchId);
+  };
+
+  // Post fan comment
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-
     setLoading(true);
+    setErrorMessage("");
     try {
       const response = await fetch(`${API_BASE_URL}/api/commentaries`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ comment: newComment }),
       });
-
-      if (response.ok) {
-        setNewComment("");
-        fetchCommentaries();
-        setSuccessMessage("Comment posted successfully! 🎉");
-        setTimeout(() => setSuccessMessage(""), 3000);
-      }
+      if (!response.ok) throw new Error("Failed to post comment");
+      setNewComment("");
+      fetchCommentaries();
+      setSuccessMessage("Comment posted successfully! 🎉");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Error posting commentary:", error);
+      setErrorMessage("Failed to post comment.");
+      setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setLoading(false);
     }
@@ -123,220 +173,204 @@ const Commentary = () => {
     navigate("/login");
   };
 
+  // Render cricket scores
   const renderCricketScores = () => {
     if (cricketScores.length === 0) {
       return (
         <div className="empty-state">
           <div className="empty-icon">🏏</div>
-          <p className="empty-title">No Live Cricket Matches</p>
-          <p className="empty-subtitle">Check back soon for live updates!</p>
+          <div className="empty-title">No Cricket Matches</div>
+          <div className="empty-subtitle">Check back soon for live updates</div>
         </div>
       );
     }
 
     return cricketScores.map((match) => (
-      <div key={match.id} className="score-card cricket-card">
+      <div 
+        key={match.id} 
+        className={`score-card cricket-card ${activeMatchId === match.id ? 'active' : ''}`}
+        onClick={() => handleMatchClick(match)}
+      >
         <div className="match-header">
           <h3>{match.name}</h3>
-          <span className={`match-status ${match.status.toLowerCase()}`}>
-            {match.status}
+          <span className={`match-status ${match.isLive ? 'live' : 'finished'}`}>
+            {match.isLive ? '🔴 LIVE' : 'FT'}
           </span>
         </div>
-
-        <div className="match-type">{match.matchType}</div>
-        {match.venue && <div className="venue">📍 {match.venue}</div>}
-
         {match.score && match.score.length > 0 ? (
           <div className="scores">
             {match.score.map((teamScore, i) => (
               <div key={i} className="team-score">
                 <span className="team-name">{teamScore.inning}</span>
                 <span className="score-value">
-                  {teamScore.r}/{teamScore.w} ({teamScore.o} overs)
+                  {teamScore.r}/{teamScore.w} ({teamScore.o})
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="match-info">Match details updating soon</div>
+          <div className="match-info">Match details updating...</div>
         )}
       </div>
     ));
   };
 
+  // Render football scores
   const renderFootballScores = () => {
     if (footballScores.length === 0) {
       return (
         <div className="empty-state">
           <div className="empty-icon">⚽</div>
-          <p className="empty-title">No Live Football Matches</p>
-          <p className="empty-subtitle">Matches will appear here when they start</p>
+          <div className="empty-title">No Football Matches</div>
+          <div className="empty-subtitle">Check back soon for live updates</div>
         </div>
       );
     }
 
-    return footballScores.map((match) => (
-      <div key={match.id} className="score-card football-card">
-        <div className="match-header">
-          <div className="league-info">
-            <img src={match.league.logo} alt={match.league.name} className="league-logo" />
-            <span>{match.league.name}</span>
+    return footballScores.map((match) => {
+      const matchId = match.id || match.idEvent || Math.random();
+      const isLive = match.isLive === true;
+      return (
+        <div 
+          key={matchId} 
+          className={`score-card football-card ${activeMatchId === matchId ? 'active' : ''}`}
+          onClick={() => handleMatchClick(match)}
+        >
+          <div className="match-header">
+            <div className="league-info">
+              <span>{match.strLeague || 'Football Match'}</span>
+            </div>
+            <span className={`match-status ${isLive ? 'live' : 'finished'}`}>
+              {isLive ? '🔴 LIVE' : 'FT'}
+            </span>
           </div>
-          <span className={`match-status ${match.status.short.toLowerCase()}`}>
-            {match.status.short === "LIVE"
-              ? `${match.status.elapsed}'`
-              : match.status.long}
-          </span>
+          <div className="football-match">
+            <div className="team">
+              <span className="team-name">{match.strHomeTeam}</span>
+              <span className="team-score">{match.intHomeScore || 0}</span>
+            </div>
+            <div className="vs">VS</div>
+            <div className="team">
+              <span className="team-name">{match.strAwayTeam}</span>
+              <span className="team-score">{match.intAwayScore || 0}</span>
+            </div>
+          </div>
         </div>
-
-        <div className="football-match">
-          <div className="team">
-            <img src={match.teams.home.logo} alt={match.teams.home.name} className="team-logo" />
-            <span className="team-name">{match.teams.home.name}</span>
-            <span className="team-score">{match.goals.home ?? "-"}</span>
-          </div>
-
-          <div className="vs">VS</div>
-
-          <div className="team">
-            <span className="team-score">{match.goals.away ?? "-"}</span>
-            <span className="team-name">{match.teams.away.name}</span>
-            <img src={match.teams.away.logo} alt={match.teams.away.name} className="team-logo" />
-          </div>
-        </div>
-
-        {match.score && match.score.halftime && match.score.halftime.home !== null && (
-          <div className="halftime-score">
-            HT: {match.score.halftime.home} - {match.score.halftime.away}
-          </div>
-        )}
-      </div>
-    ));
+      );
+    });
   };
 
   return (
     <div className="commentary-container">
       <header className="commentary-header">
-        <h1>🏏 Live Sports Commentary</h1>
-
+        <h1>Sports Commentary</h1>
         <div className="user-info">
-          <span>Welcome, {user?.username}</span>
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
+          <span>Welcome, {user?.firstName || user?.email.split('@')[0]}</span>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
+      {errorMessage && <div className="error-banner">⚠️ {errorMessage}</div>}
+      {successMessage && <div className="success-message">✓ {successMessage}</div>}
+
       <div className="stats-bar">
         <div className="stat-item">
-          <div className="stat-icon">🏏</div>
+          <span className="stat-icon">🏆</span>
           <div className="stat-info">
             <div className="stat-value">{stats.totalMatches}</div>
-            <div className="stat-label">Total Matches</div>
+            <div className="stat-label">Matches</div>
           </div>
         </div>
-
         <div className="stat-item">
-          <div className="stat-icon live-indicator">🔴</div>
+          <span className="stat-icon live-indicator">🔴</span>
           <div className="stat-info">
             <div className="stat-value">{stats.liveMatches}</div>
-            <div className="stat-label">Live Now</div>
+            <div className="stat-label">Live</div>
           </div>
         </div>
-
         <div className="stat-item">
-          <div className="stat-icon">💬</div>
+          <span className="stat-icon">💬</span>
           <div className="stat-info">
             <div className="stat-value">{stats.totalComments}</div>
             <div className="stat-label">Comments</div>
-          </div>
-        </div>
-
-        <div className="stat-item">
-          <div className="stat-icon">⚡</div>
-          <div className="stat-info">
-            <div className="stat-value">Live</div>
-            <div className="stat-label">Auto-Refresh</div>
           </div>
         </div>
       </div>
 
       <div className="main-content">
         <div className="scores-section">
-          <div className="scores-header">
-            <h2>Live Scores</h2>
-            <button onClick={fetchSportsScores} className="refresh-btn" disabled={scoresLoading}>
-              🔄 {scoresLoading ? "Refreshing..." : "Refresh"}
-            </button>
-          </div>
-
-          <div style={{
-            fontSize: "0.85rem",
-            color: "rgba(255, 255, 255, 0.6)",
-            marginTop: "10px",
-            marginBottom: "15px",
-          }}>
-            Last updated: {lastUpdated.toLocaleTimeString()}
-          </div>
-
           <div className="tabs">
-            <button
+            <button 
               className={`tab ${activeTab === "cricket" ? "active" : ""}`}
               onClick={() => setActiveTab("cricket")}
             >
               🏏 Cricket
             </button>
-            <button
+            <button 
               className={`tab ${activeTab === "football" ? "active" : ""}`}
               onClick={() => setActiveTab("football")}
             >
               ⚽ Football
             </button>
           </div>
-
           <div className="scores-container">
-            {scoresLoading && <div className="loading">Loading scores...</div>}
-            {!scoresLoading && activeTab === "cricket" && renderCricketScores()}
-            {!scoresLoading && activeTab === "football" && renderFootballScores()}
+            {scoresLoading ? (
+              <div className="loading">Loading matches...</div>
+            ) : (
+              activeTab === "cricket" ? renderCricketScores() : renderFootballScores()
+            )}
           </div>
         </div>
 
         <div className="commentary-section">
+          <div className="ai-commentary">
+            <h3>🤖 AI Commentary</h3>
+            {!selectedMatch ? (
+              <p className="placeholder-text">
+                👆 Click on any match above to get AI-powered commentary
+              </p>
+            ) : aiLoading ? (
+              <div className="loading-commentary">
+                <div className="spinner"></div>
+                <p>Generating expert commentary...</p>
+              </div>
+            ) : (
+              <div className="commentary-content">
+                <p>{aiCommentary}</p>
+              </div>
+            )}
+          </div>
+
           <div className="add-comment-section">
-            <h3>Share Your Commentary</h3>
+            <h3>Fan Commentaries</h3>
             <form onSubmit={handleSubmit}>
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                rows="3"
-                placeholder="What's your take on the match?"
-                disabled={loading}
+                placeholder="Share your thoughts..."
                 maxLength={500}
+                rows={3}
               />
-              <div className="character-count">{newComment.length}/500 characters</div>
+              <div className="character-count">{newComment.length}/500</div>
               <button type="submit" disabled={loading || !newComment.trim()}>
-                {loading ? "Posting..." : "📝 Post Commentary"}
+                {loading ? "Posting..." : "Post"}
               </button>
             </form>
-
-            {successMessage && <div className="success-message">{successMessage}</div>}
           </div>
 
           <div className="commentaries-list">
-            <h3>Fan Commentaries</h3>
-
             {commentaries.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">💬</div>
-                <p className="empty-title">No Comments Yet</p>
-                <p className="empty-subtitle">Be the first to share your thoughts!</p>
-              </div>
+              <p>No comments yet. Be the first!</p>
             ) : (
-              commentaries.map((item) => (
-                <div key={item._id} className="commentary-card">
+              commentaries.map(c => (
+                <div key={c._id} className="commentary-card">
                   <div className="commentary-header-info">
-                    <span className="username">👤 {item.username}</span>
-                    <span className="timestamp">{new Date(item.createdAt).toLocaleString()}</span>
+                    <strong className="username">{c.username}</strong>
+                    <span className="timestamp">
+                      {new Date(c.createdAt).toLocaleString()}
+                    </span>
                   </div>
-                  <p className="commentary-text">{item.comment}</p>
+                  <p className="commentary-text">{c.comment}</p>
                 </div>
               ))
             )}

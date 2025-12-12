@@ -82,7 +82,7 @@ export default function Login() {
       // }
 
       // Navigate to commentary page for all users
-navigate("/commentary");
+navigate("/");
 
     } catch (err) {
       // This will show the full error object in the browser console
