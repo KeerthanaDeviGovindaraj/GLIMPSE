@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap%22");
+ 
 :root {
   --netflix-red: #e50914;
   --netflix-dark-red: #b20710;
@@ -9,7 +9,7 @@
   --text-tertiary: #b3b3b3;
   --text-muted: #808080;
 }
-
+ 
 .auth-container {
   min-height: 100vh;
   background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 50%, #1a1a1a 100%);
@@ -21,7 +21,7 @@
   overflow: hidden;
   font-family: "Inter", sans-serif;
 }
-
+ 
 .auth-container::before {
   content: "";
   position: absolute;
@@ -37,7 +37,7 @@
   pointer-events: none;
   z-index: 0;
 }
-
+ 
 .auth-card {
   background: rgba(31, 31, 31, 0.6);
   backdrop-filter: blur(24px) saturate(150%);
@@ -52,16 +52,21 @@
   position: relative;
   z-index: 1;
 }
-
+ 
 .register-card {
   max-width: 650px;
 }
-
+ 
+.profile-card {
+  max-width: 960px;
+  padding: 40px;
+}
+ 
 .auth-header {
   text-align: center;
   margin-bottom: 48px;
 }
-
+ 
 .auth-header h1 {
   font-family: "Cormorant Garamond", serif;
   font-size: 2.75rem;
@@ -72,18 +77,18 @@
   text-transform: uppercase;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
-
+ 
 .auth-subtitle {
   color: var(--text-tertiary);
   font-size: 1rem;
   letter-spacing: 0.5px;
   font-weight: 400;
 }
-
+ 
 .form-group {
   margin-bottom: 24px;
 }
-
+ 
 .form-label {
   display: block;
   color: var(--text-secondary);
@@ -93,7 +98,7 @@
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
+ 
 .form-input {
   width: 100%;
   padding: 18px 20px;
@@ -106,24 +111,24 @@
   font-family: "Inter", sans-serif;
   letter-spacing: 0.5px;
 }
-
+ 
 .form-input:focus {
   outline: none;
   border-color: rgba(229, 9, 20, 0.5);
   background: rgba(15, 15, 15, 0.9);
   box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
 }
-
+ 
 .form-input::placeholder {
   color: var(--text-muted);
 }
-
+ 
 .password-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
-
+ 
 .password-toggle-btn {
   position: absolute;
   right: 16px;
@@ -138,11 +143,11 @@
   transition: color 0.3s ease;
   z-index: 2;
 }
-
+ 
 .password-toggle-btn:hover {
   color: var(--text-primary);
 }
-
+ 
 .form-select {
   width: 100%;
   padding: 18px 20px;
@@ -161,24 +166,24 @@
   background-size: 16px;
   cursor: pointer;
 }
-
+ 
 .form-select:focus {
   outline: none;
   border-color: rgba(229, 9, 20, 0.5);
   background-color: rgba(15, 15, 15, 0.9);
   box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
 }
-
+ 
 .form-select option {
   background-color: #1a1a1a;
   color: var(--text-primary);
   padding: 12px;
 }
-
+ 
 .file-input-wrapper {
   margin-bottom: 24px;
 }
-
+ 
 .file-input {
   width: 100%;
   padding: 12px;
@@ -191,7 +196,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
+ 
 .file-input::file-selector-button {
   margin-right: 16px;
   padding: 8px 16px;
@@ -202,11 +207,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
+ 
 .file-input::file-selector-button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-
+ 
 .auth-btn {
   width: 100%;
   padding: 18px;
@@ -223,18 +228,18 @@
   margin-top: 16px;
   box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
 }
-
+ 
 .auth-btn:hover {
   background: var(--netflix-white);
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(255, 255, 255, 0.25);
 }
-
+ 
 .auth-options {
   text-align: right;
   margin-top: 16px;
 }
-
+ 
 .auth-footer {
   margin-top: 40px;
   text-align: center;
@@ -242,7 +247,7 @@
   font-size: 0.95rem;
   letter-spacing: 0.5px;
 }
-
+ 
 .auth-link {
   color: var(--text-primary);
   text-decoration: none;
@@ -250,16 +255,16 @@
   transition: color 0.3s ease;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
-
+ 
 .auth-link:hover {
   color: var(--netflix-red);
   border-color: var(--netflix-red);
 }
-
+ 
 .auth-footer .auth-link {
   margin-left: 8px;
 }
-
+ 
 .error-message {
   background: rgba(229, 9, 20, 0.15);
   border: 1px solid rgba(229, 9, 20, 0.3);
@@ -271,7 +276,188 @@
   font-size: 0.9rem;
   animation: scaleIn 0.4s ease;
 }
-
+ 
+/* Profile Page Specific Styles */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+ 
+@media (min-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 280px 1fr;
+    gap: 48px;
+  }
+}
+ 
+.profile-sidebar {
+  text-align: center;
+}
+ 
+.profile-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+ 
+.profile-avatar-wrapper:hover .upload-overlay {
+  opacity: 1;
+}
+ 
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+ 
+.profile-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+}
+ 
+.profile-main-header h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin: 0;
+}
+ 
+.profile-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+ 
+.profile-detail-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+ 
+.profile-detail-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+ 
+.profile-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+ 
+.profile-detail-icon-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--netflix-red);
+  transition: all 0.3s ease;
+}
+ 
+.profile-detail-card:hover .profile-detail-icon-wrapper {
+  background: var(--netflix-red);
+  color: white;
+  transform: scale(1.1) rotate(-5deg);
+}
+ 
+.profile-detail-label {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+ 
+.profile-detail-value {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-family: "Cormorant Garamond", serif;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+ 
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+ 
+.admin-section {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+ 
+.admin-section h3 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+ 
+.sport-management-list {
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+ 
+.sport-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+ 
+.sport-item:last-child {
+  border-bottom: none;
+}
+ 
+.delete-sport-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+ 
+.delete-sport-btn:hover {
+  color: var(--netflix-red);
+}
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -282,3 +468,5 @@
     transform: scale(1);
   }
 }
+ 
+ 
