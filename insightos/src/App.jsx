@@ -1,43 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ChatbotIcon from "./components/ChatbotIcon";
 import ChatForm from "./components/ChatForm";
 import ChatMessage from "./components/ChatMessage";
 
 const App = () => {
   const [chatHistory, setChatHistory] = useState([]);
+  const chatEndRef = useRef(null); // Reference to scroll to the bottom
+  const chatBodyRef = useRef(null); // Reference to check if user is scrolling manually
+
+  // Function to check if the user is at the bottom of the chat
+  const isUserAtBottom = () => {
+    const chatBody = chatBodyRef.current;
+    return chatBody.scrollHeight === chatBody.scrollTop + chatBody.clientHeight;
+  };
 
   const generateBotResponse = async (history) => {
-    // Get API key from environment - CHANGED to match your .env
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    
-    // Debug logging
-    console.log("✅ API Key exists:", !!API_KEY);
-    console.log("✅ API URL exists:", !!API_URL);
-    
+
     if (!API_KEY) {
-      console.error("❌ API Key is missing!");
       setChatHistory(prev => {
-        const filtered = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
-        );
-        return [...filtered, { 
-          role: "model", 
-          parts: [{ text: "Error: API key not configured. Please add VITE_API_KEY to your .env file." }] 
-        }];
+        const filtered = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
+        return [...filtered, { role: "model", parts: [{ text: "Error: API key not configured. Please add VITE_API_KEY to your .env file." }] }];
       });
       return;
     }
 
-    // Use the URL from .env and append the API key
     const fullURL = `${API_URL}?key=${API_KEY}`;
-    
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        contents: history
-      })
+      body: JSON.stringify({ contents: history })
     };
 
     try {
@@ -45,34 +38,29 @@ const App = () => {
       const data = await response.json();
       
       if (!response.ok) {
-        console.error("API Error:", data);
         throw new Error(data.error?.message || "Something went wrong");
       }
       
       const apiResponse = data.candidates[0].content.parts[0].text;
-      
-      // Remove "Thinking..." and add actual bot response
       setChatHistory(prev => {
-        const filteredHistory = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
-        );
+        const filteredHistory = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
         return [...filteredHistory, { role: "model", parts: [{ text: apiResponse }] }];
       });
       
     } catch (error) {
-      console.error("Error:", error);
-      
       setChatHistory(prev => {
-        const filteredHistory = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
-        );
-        return [...filteredHistory, { 
-          role: "model", 
-          parts: [{ text: `Error: ${error.message}. Please try again.` }] 
-        }];
+        const filteredHistory = prev.filter(msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking..."));
+        return [...filteredHistory, { role: "model", parts: [{ text: `Error: ${error.message}. Please try again.` }] }];
       });
     }
   };
+
+  // Scroll to the bottom only if the user is already at the bottom
+  useEffect(() => {
+    if (isUserAtBottom()) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatHistory]);
 
   return (
     <div className="container">
@@ -87,7 +75,18 @@ const App = () => {
           </button>
         </div>
 
-        <div className="chat-body">
+        <div
+          className="chat-body"
+          ref={chatBodyRef} // Add the ref here
+          onScroll={() => {
+            // If the user scrolls up manually, hide the auto-scroll hint
+            if (!isUserAtBottom()) {
+              chatEndRef.current.style.visibility = "hidden";
+            } else {
+              chatEndRef.current.style.visibility = "visible";
+            }
+          }}
+        >
           <div className="message bot-message">
             <ChatbotIcon />
             <p className="message-text">
@@ -98,6 +97,9 @@ const App = () => {
           {chatHistory.map((chat, index) => (
             <ChatMessage key={index} chat={chat} />
           ))}
+
+          {/* This div helps to auto-scroll to the bottom */}
+          <div ref={chatEndRef} style={{ visibility: "visible" }} />
         </div>
 
         <div className="chat-footer">

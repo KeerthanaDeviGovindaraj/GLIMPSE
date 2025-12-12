@@ -31,23 +31,27 @@ body {
   background: var(--bg);
 }
 
+/* FIXED LAYOUT ADDED */
 .chatbot-popup {
-  position: relative;
   width: 420px;
-  overflow: hidden;
+  height: 600px;                 /* FIXED HEIGHT */
   background: var(--card);
   border-radius: 15px;
   border: 1px solid var(--border);
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+
+  display: flex;                  /* NEW */
+  flex-direction: column;         /* NEW */
+  overflow: hidden;
 }
 
-/* Darker professional chat header */
+/* Header */
 .chatbot-popup .chat-header {
   display: flex;
   padding: 15px 22px;
   align-items: center;
   justify-content: space-between;
-  background: #c0392b; /* Slightly darker than --accent */
+  background: #c0392b;
 }
 
 .chat-header .header-info {
@@ -82,22 +86,23 @@ body {
   border-radius: 50%;
   margin-right: -10px;
   background: none;
-  transition: 0.2s ease;
+  transition: .2s ease;
 }
 
 .chat-header button:hover {
   background: var(--accent-600);
 }
 
+/* MESSAGE BODY — SCROLLABLE */
 .chat-body {
-  display: flex;
-  flex-direction: column;
-  height: 480px;
-  gap: 20px;
-  margin-bottom: auto;
-  overflow-y: auto;
+  flex: 1;                           /* NEW */
+  overflow-y: auto;                  /* NEW */
   padding: 25px 22px;
   background: var(--bg-elev);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .chat-body .message {
@@ -123,7 +128,7 @@ body {
   max-width: 75%;
   word-wrap: break-word;
   white-space: pre-line;
-  font-size: 0.9rem;
+  font-size: .9rem;
   color: var(--text);
 }
 
@@ -144,13 +149,15 @@ body {
   border-radius: 13px 13px 3px 13px;
 }
 
+/* FOOTER FIXED AT BOTTOM */
 .chat-footer {
-  position: absolute;
-  bottom: 0;
+  position: sticky;                  /* FIXED */
+  bottom: 0;                         /* FIXED */
   width: 100%;
   background: var(--card);
   padding: 15px 22px 20px;
   border-top: 1px solid var(--border);
+  z-index: 5;
 }
 
 .chat-footer .chat-form {
@@ -173,7 +180,7 @@ body {
   background: none;
   height: 47px;
   padding: 0 17px;
-  font-size: 0.95rem;
+  font-size: .95rem;
   color: var(--text);
 }
 
@@ -189,7 +196,7 @@ body {
   margin-right: 6px;
   border-radius: 50%;
   background: var(--accent);
-  transition: 0.2s ease;
+  transition: .2s ease;
   display: none;
 }
 
