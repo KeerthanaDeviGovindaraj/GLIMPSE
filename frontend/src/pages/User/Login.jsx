@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../redux/slices/authSlice';
+import { setCredentials } from '../../redux/slices/authSlice'; // Assuming this action exists
 import './Auth.css';
 
 const Login = () => {
@@ -38,6 +38,7 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
+      // Dispatch to Redux and navigate
       dispatch(setCredentials({ ...data }));
       navigate('/commentary');
       

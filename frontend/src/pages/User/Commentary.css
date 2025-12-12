@@ -1,24 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap");
 
 /* ==================== IMPROVED COLOR PALETTE ==================== */
 :root {
-  --netflix-red: #E50914;
-  --netflix-bright-red: #FF0A16;
-  --netflix-dark-red: #B20710;
+  --netflix-red: #e50914;
+  --netflix-bright-red: #ff0a16;
+  --netflix-dark-red: #b20710;
   --netflix-primary-dark: #0f0f0f;
   --netflix-secondary-dark: #1a1a1a;
   --netflix-card-dark: #242424;
   --netflix-grey: #2f2f2f;
   --netflix-light-grey: #a0a0a0;
   --netflix-text-grey: #d4d4d4;
-  --netflix-white: #FFFFFF;
+  --netflix-white: #ffffff;
   --netflix-off-white: #fafafa;
   --accent-gold: #fbbf24;
-  
+
   /* Improved contrast colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #E5E5E5;
-  --text-tertiary: #B3B3B3;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --text-tertiary: #b3b3b3;
   --text-muted: #808080;
 }
 
@@ -29,7 +29,8 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -69,7 +70,8 @@ body {
 }
 
 @keyframes subtlePulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -78,7 +80,8 @@ body {
 }
 
 @keyframes gentleFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -96,16 +99,21 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { 
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 20px rgba(255, 23, 68, 0.5);
   }
-  50% { 
+  50% {
     opacity: 0.85;
     box-shadow: 0 0 30px rgba(255, 23, 68, 0.8);
   }
@@ -131,15 +139,17 @@ body {
 }
 
 .commentary-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 100%;
-  background: radial-gradient(ellipse at top center, 
-    rgba(229, 9, 20, 0.08) 0%, 
-    transparent 60%);
+  background: radial-gradient(
+    ellipse at top center,
+    rgba(229, 9, 20, 0.08) 0%,
+    transparent 60%
+  );
   pointer-events: none;
   z-index: 0;
 }
@@ -162,7 +172,7 @@ body {
 }
 
 .commentary-header h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 2.5rem;
   font-weight: 400;
   color: var(--text-primary);
@@ -176,7 +186,7 @@ body {
 }
 
 .commentary-header h1::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -245,7 +255,11 @@ body {
 }
 
 .stat-item {
-  background: linear-gradient(135deg, rgba(36, 36, 36, 0.8) 0%, rgba(47, 47, 47, 0.6) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(36, 36, 36, 0.8) 0%,
+    rgba(47, 47, 47, 0.6) 100%
+  );
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 24px;
@@ -262,21 +276,29 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.stat-item:nth-child(1) { animation-delay: 0.1s; }
-.stat-item:nth-child(2) { animation-delay: 0.2s; }
-.stat-item:nth-child(3) { animation-delay: 0.3s; }
+.stat-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stat-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stat-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 .stat-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, 
+  background: linear-gradient(
+    90deg,
     transparent 0%,
     var(--netflix-red) 50%,
-    transparent 100%);
+    transparent 100%
+  );
   opacity: 0;
   transition: opacity 0.5s ease;
 }
@@ -315,7 +337,7 @@ body {
 }
 
 .stat-value {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 3.2rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -347,7 +369,11 @@ body {
 /* ==================== REFINED SECTIONS ==================== */
 .scores-section,
 .commentary-section {
-  background: linear-gradient(135deg, rgba(31, 31, 31, 0.8) 0%, rgba(42, 42, 42, 0.7) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 31, 31, 0.8) 0%,
+    rgba(42, 42, 42, 0.7) 100%
+  );
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-radius: 28px;
@@ -392,7 +418,7 @@ body {
 }
 
 .tab::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -439,15 +465,17 @@ body {
 }
 
 .score-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, 
+  background: linear-gradient(
+    180deg,
     rgba(229, 9, 20, 0.9) 0%,
-    rgba(229, 9, 20, 0.4) 100%);
+    rgba(229, 9, 20, 0.4) 100%
+  );
   opacity: 0;
   transition: opacity 0.5s ease;
 }
@@ -467,7 +495,11 @@ body {
   border-color: rgba(229, 9, 20, 0.7) !important;
   box-shadow: 0 12px 48px rgba(229, 9, 20, 0.5) !important;
   transform: translateX(12px) scale(1.02);
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(31, 31, 31, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(229, 9, 20, 0.12) 0%,
+    rgba(31, 31, 31, 0.9) 100%
+  );
 }
 
 .score-card.active::before {
@@ -476,11 +508,19 @@ body {
 }
 
 .cricket-card::before {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.4) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.9) 0%,
+    rgba(16, 185, 129, 0.4) 100%
+  );
 }
 
 .football-card::before {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.9) 0%, rgba(245, 158, 11, 0.4) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(245, 158, 11, 0.9) 0%,
+    rgba(245, 158, 11, 0.4) 100%
+  );
 }
 
 .match-header {
@@ -491,7 +531,7 @@ body {
 }
 
 .match-header h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.625rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -566,7 +606,7 @@ body {
 }
 
 .score-value {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-weight: 500;
   font-size: 1.875rem;
   color: var(--text-primary);
@@ -620,7 +660,7 @@ body {
 }
 
 .team .team-score {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 3.5rem;
   font-weight: 400;
   color: var(--text-primary);
@@ -653,7 +693,7 @@ body {
 }
 
 .empty-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 2.25rem;
   font-weight: 400;
   color: var(--text-primary);
@@ -683,7 +723,11 @@ body {
 
 /* ==================== AI COMMENTARY SECTION ==================== */
 .ai-commentary {
-  background: linear-gradient(135deg, rgba(31, 31, 31, 0.9) 0%, rgba(42, 42, 42, 0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 31, 31, 0.9) 0%,
+    rgba(42, 42, 42, 0.8) 100%
+  );
   backdrop-filter: blur(20px) saturate(150%);
   border-radius: 24px;
   padding: 36px;
@@ -694,7 +738,7 @@ body {
 }
 
 .ai-commentary h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.875rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -743,7 +787,7 @@ body {
   width: 50px;
   height: 50px;
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #E50914;
+  border-top: 4px solid #e50914;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -756,7 +800,7 @@ body {
 }
 
 .add-comment-section h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.75rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -909,70 +953,70 @@ body {
 
 /* ==================== ERROR/SUCCESS MESSAGES ==================== */
 .error-banner {
-background: rgba(229, 9, 20, 0.2);
-border: 1px solid rgba(229, 9, 20, 0.5);
-color: var(--text-primary);
-padding: 16px 32px;
-margin: 0 64px 32px;
-border-radius: 12px;
-text-align: center;
-font-weight: 600;
-animation: slideDown 0.4s ease;
-font-size: 0.95rem;
-box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+  background: rgba(229, 9, 20, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.5);
+  color: var(--text-primary);
+  padding: 16px 32px;
+  margin: 0 64px 32px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  animation: slideDown 0.4s ease;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
 }
 
 .success-message {
-background: rgba(16, 185, 129, 0.2);
-border: 1px solid rgba(16, 185, 129, 0.5);
-color: var(--text-primary);
-padding: 16px 32px;
-margin: 0 64px 32px;
-border-radius: 12px;
-text-align: center;
-font-weight: 600;
-animation: slideDown 0.4s ease;
-font-size: 0.95rem;
-box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: var(--text-primary);
+  padding: 16px 32px;
+  margin: 0 64px 32px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  animation: slideDown 0.4s ease;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
 }
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1400px) {
-.main-content {
-grid-template-columns: 1fr;
-}
+  .main-content {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 768px) {
-.commentary-header {
-padding: 24px 32px;
-flex-direction: column;
-gap: 20px;
-}
-.commentary-header h1 {
-font-size: 2rem;
-}
-.stats-bar {
-padding: 40px 32px;
-gap: 20px;
-grid-template-columns: repeat(2, 1fr);
-}
-.main-content {
-padding: 0 32px 48px;
-}
-.tab {
-margin-right: 32px;
-}
-.football-match {
-flex-direction: column;
-gap: 28px;
-}
-.team {
-flex-direction: row;
-width: 100%;
-justify-content: space-between;
-}
-.error-banner,
-.success-message {
-margin: 0 32px 24px;
-}
+  .commentary-header {
+    padding: 24px 32px;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .commentary-header h1 {
+    font-size: 2rem;
+  }
+  .stats-bar {
+    padding: 40px 32px;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .main-content {
+    padding: 0 32px 48px;
+  }
+  .tab {
+    margin-right: 32px;
+  }
+  .football-match {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .team {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .error-banner,
+  .success-message {
+    margin: 0 32px 24px;
+  }
 }
