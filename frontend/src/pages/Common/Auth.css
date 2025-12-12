@@ -57,6 +57,11 @@
   max-width: 650px;
 }
 
+.profile-card {
+  max-width: 960px;
+  padding: 40px;
+}
+
 .auth-header {
   text-align: center;
   margin-bottom: 48px;
@@ -272,6 +277,187 @@
   animation: scaleIn 0.4s ease;
 }
 
+/* Profile Page Specific Styles */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 280px 1fr;
+    gap: 48px;
+  }
+}
+
+.profile-sidebar {
+  text-align: center;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+
+.profile-avatar-wrapper:hover .upload-overlay {
+  opacity: 1;
+}
+
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+}
+
+.profile-main-header h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin: 0;
+}
+
+.profile-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.profile-detail-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-detail-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.profile-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.profile-detail-icon-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--netflix-red);
+  transition: all 0.3s ease;
+}
+
+.profile-detail-card:hover .profile-detail-icon-wrapper {
+  background: var(--netflix-red);
+  color: white;
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.profile-detail-label {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+.profile-detail-value {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-family: "Cormorant Garamond", serif;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.admin-section {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-section h3 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.sport-management-list {
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.sport-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sport-item:last-child {
+  border-bottom: none;
+}
+
+.delete-sport-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.delete-sport-btn:hover {
+  color: var(--netflix-red);
+}
 @keyframes scaleIn {
   from {
     opacity: 0;
