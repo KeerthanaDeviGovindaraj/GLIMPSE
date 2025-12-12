@@ -29,9 +29,10 @@ export async function register(req, res) {
     const newUser = { firstName, lastName, email, password, role, favoriteSport };
 
     if (req.file) {
-      newUser.photo = req.file.buffer;
-      newUser.photoType = req.file.mimetype;
-    }
+  newUser.photo = req.file.buffer;
+  newUser.photoType = req.file.mimetype;
+}
+
     await User.create(newUser);
 
     return res.status(201).json({ message: "User created successfully." });
