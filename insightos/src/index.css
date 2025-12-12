@@ -207,3 +207,52 @@ body {
 .chat-form .message-input:valid ~ button {
   display: block;
 }
+/* Floating Button */
+.chat-toggler {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 1.8rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.chat-toggler:hover {
+  background: var(--accent-600);
+}
+
+/* Chat Popup Defaults */
+.chatbot-popup {
+  position: fixed;
+  bottom: 100px;
+  right: 25px;
+
+  transform: translateY(30px);
+  opacity: 0;
+  pointer-events: none;
+
+  transition: all 0.3s ease;
+}
+
+/* Open State */
+.chatbot-popup.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Arrow Animation */
+.toggle-arrow.rotate {
+  transform: rotate(180deg);
+  transition: 0.3s ease;
+}
