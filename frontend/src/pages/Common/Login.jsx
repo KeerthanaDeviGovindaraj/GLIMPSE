@@ -155,7 +155,7 @@ navigate("/commentary");
             }}
           >
             <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
-              Welcome Back
+              Welcome
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Sign in to your account to continue exploring opportunities and companies.
