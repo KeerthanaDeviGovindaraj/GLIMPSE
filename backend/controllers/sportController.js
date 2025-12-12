@@ -1,5 +1,6 @@
 // backend/controllers/sportsController.js - Real Live Data
 import axios from 'axios';
+import Sport from '../models/Sport.js';
 
 // ==================== CRICKET - REAL LIVE DATA ====================
 export const getLiveCricketMatches = async (req, res) => {
@@ -308,6 +309,18 @@ export const getLiveFootballMatches = async (req, res) => {
   }
 };
 
+// @desc    Get all sports
+// @route   GET /api/sports
+// @access  Public
+export const getSports = async (req, res) => {
+  try {
+    const sports = await Sport.find({});
+    res.json(sports);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 // @desc    Create a sport
 // @route   POST /api/sports
 // @access  Admin
@@ -339,6 +352,18 @@ export const deleteSport = async (req, res) => {
     } else {
       res.status(404).json({ message: 'Sport not found' });
     }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Get all sports
+// @route   GET /api/sports
+// @access  Public
+export const getAllSports = async (req, res) => {
+  try {
+    const sports = await Sport.find({}).sort({ name: 1 });
+    res.json(sports);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
