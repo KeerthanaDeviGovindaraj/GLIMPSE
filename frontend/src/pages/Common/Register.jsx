@@ -39,11 +39,47 @@ const Register = () => {
   }, [API_BASE_URL]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear specific error when user types
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Real-time validation
+    let tempErrors = { ...errors };
+
+    switch (name) {
+      case 'firstName':
+        tempErrors.firstName = value.trim() ? "" : "First name is required";
+        break;
+      case 'lastName':
+        tempErrors.lastName = value.trim() ? "" : "Last name is required";
+        break;
+      case 'email':
+        if (!value.trim()) {
+          tempErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          tempErrors.email = "Email is invalid";
+        } else {
+          tempErrors.email = "";
+        }
+        break;
+      case 'password':
+        if (!value) {
+          tempErrors.password = "Password is required";
+        } else if (value.length < 6) {
+          tempErrors.password = "Password must be at least 6 characters";
+        } else {
+          tempErrors.password = "";
+        }
+        if (formData.confirmPassword) {
+          tempErrors.confirmPassword = value === formData.confirmPassword ? "" : "Passwords do not match";
+        }
+        break;
+      case 'confirmPassword':
+        tempErrors.confirmPassword = value === formData.password ? "" : "Passwords do not match";
+        break;
+      default:
+        break;
     }
+    setErrors(tempErrors);
   };
 
   const handleFileChange = (e) => {
@@ -121,7 +157,7 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <div className="auth-card register-card">
         <div className="auth-header">
           <h1>Create Account</h1>
           <p className="auth-subtitle">Join the community today</p>
