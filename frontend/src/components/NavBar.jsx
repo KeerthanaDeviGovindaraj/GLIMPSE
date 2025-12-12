@@ -39,7 +39,7 @@ export default function NavBar() {
         onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
         onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
       >
-        <span style={{ fontSize: '1.5rem' }}></span>
+        <span style={{ fontSize: '1.5rem' }}>🏏</span>
         <span style={{
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: '1.75rem',
@@ -54,7 +54,7 @@ export default function NavBar() {
 
       {/* Navigation Links */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-        <a
+        <a 
           onClick={() => navigate('/commentary')}
           style={{
             color: '#d4d4d4',
@@ -75,7 +75,7 @@ export default function NavBar() {
           <span></span> Commentary
         </a>
 
-        <a
+        <a 
           onClick={() => navigate('/')}
           style={{
             color: '#d4d4d4',
@@ -96,7 +96,7 @@ export default function NavBar() {
           <span></span> Home
         </a>
 
-        {/* <a
+        {/* <a 
           onClick={() => navigate('/dashboard')}
           style={{
             color: '#d4d4d4',

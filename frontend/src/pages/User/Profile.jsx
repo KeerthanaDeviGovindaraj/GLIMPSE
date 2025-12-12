@@ -15,7 +15,7 @@ import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, S
 import { setCredentials } from '../../redux/slices/authSlice';
 import api from '../../services/api';
 import '../Common/Auth.css';
- 
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -29,7 +29,7 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const [sports, setSports] = useState([]);
   const [newSport, setNewSport] = useState('');
- 
+
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -41,7 +41,7 @@ const Profile = () => {
     };
     fetchSports();
   }, []);
- 
+
   const fetchProfile = useCallback(async () => {
     // No need to fetch if we already have the user in Redux state,
     // but fetching ensures we have the latest data.
@@ -58,11 +58,11 @@ const Profile = () => {
       setLoading(false);
     }
   }, [token, dispatch]);
- 
+
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
- 
+
   const handleAddSport = async () => {
     if (!newSport.trim()) return;
     setLoading(true);
@@ -79,7 +79,7 @@ const Profile = () => {
       setLoading(false);
     }
   };
- 
+
   const handleDeleteSport = async (id) => {
     if (!window.confirm('Are you sure you want to delete this sport?')) return;
     setLoading(true);
@@ -95,12 +95,12 @@ const Profile = () => {
       setLoading(false);
     }
   };
- 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
- 
+
   const handleSave = async () => {
     setLoading(true);
     setError('');
@@ -111,12 +111,12 @@ const Profile = () => {
         lastName: formData.lastName,
         favoriteSport: formData.favoriteSport,
       };
- 
+
       const { data } = await api.put('/users/profile', updatePayload);
- 
+
       setProfile(data.user);
       dispatch(setCredentials({ user: data.user, token }));
- 
+
       setSuccess('Profile updated successfully!');
       setEditMode(false);
     } catch (err) {
@@ -125,42 +125,42 @@ const Profile = () => {
       setLoading(false);
     }
   };
- 
+
   const handleCancel = () => {
     setFormData(profile);
     setEditMode(false);
   };
- 
+
   const handleCloseSnackbar = () => {
     setError('');
     setSuccess('');
   };
- 
+
   const handlePhotoUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
- 
+
     const formData = new FormData();
     formData.append('photo', file);
- 
+
     setUploading(true);
     setError('');
     setSuccess('');
- 
+
     try {
       await api.post('/users/profile/photo', formData);
- 
+
       // Refetch profile to get the latest user data with the new photo
       await fetchProfile();
       setSuccess('Profile photo updated successfully!');
- 
+
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to upload photo.');
     } finally {
       setUploading(false);
     }
   };
- 
+
   // Only show the full-page loader on the initial fetch
   if (loading && !profile) {
     return (
@@ -170,7 +170,7 @@ const Profile = () => {
       </div>
     );
   }
- 
+
   // Only show a full-page error if the initial profile fetch failed
   if (error && !profile) {
     return (
@@ -179,11 +179,11 @@ const Profile = () => {
       </div>
     );
   }
- 
+
   if (!profile) {
     return null;
   }
- 
+
   return (
     <div className="auth-container" style={{ alignItems: 'flex-start', paddingTop: '60px', minHeight: 'calc(100vh - 70px)' }}>
       <div className="auth-card profile-card">
@@ -212,7 +212,7 @@ const Profile = () => {
               sx={{ mt: 1, color: 'var(--text-tertiary)', borderColor: 'rgba(255,255,255,0.2)' }}
             />
           </div>
- 
+
           <div className="profile-main">
             <div className="profile-main-header">
               <h2>Account Details</h2>
@@ -222,7 +222,7 @@ const Profile = () => {
                 </Button>
               )}
             </div>
- 
+
             {editMode ? (
               <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                 <div className="form-group">
@@ -277,7 +277,7 @@ const Profile = () => {
                   </div>
                   <div className="profile-detail-value">{profile.email}</div>
                 </div>
- 
+
                 <div className="profile-detail-card">
                   <div className="profile-detail-header">
                     <div className="profile-detail-icon-wrapper">
@@ -287,7 +287,7 @@ const Profile = () => {
                   </div>
                   <div className="profile-detail-value">{profile.favoriteSport?.name || 'None'}</div>
                 </div>
- 
+
                 <div className="profile-detail-card">
                   <div className="profile-detail-header">
                     <div className="profile-detail-icon-wrapper">
@@ -299,7 +299,7 @@ const Profile = () => {
                 </div>
               </div>
             )}
- 
+
             {profile.role === 'admin' && !editMode && (
               <div className="admin-section">
                 <h3>Admin Controls</h3>
@@ -346,5 +346,5 @@ const Profile = () => {
     </div>
   );
 };
- 
+
 export default Profile;

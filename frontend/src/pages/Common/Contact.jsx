@@ -1,31 +1,26 @@
-import * as React from "react";
-import {
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Stack,
-  Box,
-  Alert,
-} from "@mui/material";
-import PrimaryButton from '../../components/PrimaryButton';
-import heroImg from '../../assets/image2.jpg';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import './Auth.css';
 
-
-export default function Contact() {
-  const [formState, setFormState] = React.useState({
+const Contact = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [formState, setFormState] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
-  const [error, setError] = React.useState("");
-  const [success, setSuccess] = React.useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
+    setError("");
+    setSuccess("");
   };
 
   const handleSubmit = (e) => {
@@ -37,107 +32,115 @@ export default function Contact() {
       setError("All fields are required.");
       return;
     }
-    setSuccess("Your message has been sent successfully!");
-    setFormState({ name: "", email: "", subject: "", message: "" });
+
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setSuccess("Your message has been sent successfully!");
+      setFormState({ name: "", email: "", subject: "", message: "" });
+      setLoading(false);
+    }, 1500);
   };
 
   return (
-    <>
-      <Container maxWidth="lg" sx={{ display: "flex", justifyContent: "center" }}>
-        <Card
-          variant="outlined"
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            borderRadius: 3,
-            overflow: "hidden",
-            width: "100%",
-            maxWidth: "1100px", 
-          }}
-          component="form"
-          onSubmit={handleSubmit}
-        >
-          {/* Left: Image */}
-          <Box
-            component="img"
-            src={heroImg}
-            alt="Contact illustration"
-            sx={{
-              width: { xs: "100%", md: "55%" },
-              height: { xs: 240, md: "auto" },
-              objectFit: "contain", 
-              bgcolor: "#ffffff",
-              p: 2, 
-            }}
-          />
+    <div className="auth-container">
+      <div className="auth-card" style={{ maxWidth: '600px' }}>
+        <div className="auth-header">
+          <h1>Get in Touch</h1>
+          <p className="auth-subtitle">
+            Have questions? Reach out and we'll respond as soon as possible.
+          </p>
+        </div>
 
-          {/* Right: Form */}
-          <CardContent
-            sx={{
-              flex: 1,
-              p: { xs: 3, md: 6 },
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              bgcolor: "#fafafa",
+        {error && <div className="error-message">⚠️ {error}</div>}
+        {success && (
+          <div 
+            className="success-message" 
+            style={{
+              background: 'rgba(46, 204, 113, 0.15)', 
+              border: '1px solid rgba(46, 204, 113, 0.3)', 
+              color: '#2ecc71', 
+              padding: '12px', 
+              borderRadius: '8px', 
+              marginBottom: '24px', 
+              textAlign: 'center'
             }}
           >
-            <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-              Get in Touch
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Have questions about JobBest, jobs, or companies? Reach out and our
-              team will respond as soon as possible.
-            </Typography>
+            ✓ {success}
+          </div>
+        )}
 
-            <Stack spacing={2}>
-              <TextField
-                label="Your Name"
-                name="name"
-                value={formState.name}
-                onChange={handleChange}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Your Email"
-                name="email"
-                type="email"
-                value={formState.email}
-                onChange={handleChange}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Subject"
-                name="subject"
-                value={formState.subject}
-                onChange={handleChange}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Message"
-                name="message"
-                value={formState.message}
-                onChange={handleChange}
-                required
-                fullWidth
-                multiline
-                rows={4}
-              />
-              {error && <Alert severity="error">{error}</Alert>}
-              {success && <Alert severity="success">{success}</Alert>}
-              <PrimaryButton
-                type="submit"
-                sx={{ alignSelf: "flex-start", px: 4 }}
-              >
-                SEND
-              </PrimaryButton>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Container>
-    </>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Your Name</label>
+            <input
+              type="text"
+              name="name"
+              className="form-input"
+              placeholder="Enter your name"
+              value={formState.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Your Email</label>
+            <input
+              type="email"
+              name="email"
+              className="form-input"
+              placeholder="Enter your email"
+              value={formState.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Subject</label>
+            <input
+              type="text"
+              name="subject"
+              className="form-input"
+              placeholder="Enter subject"
+              value={formState.subject}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Message</label>
+            <textarea
+              name="message"
+              className="form-input"
+              placeholder="Enter your message"
+              value={formState.message}
+              onChange={handleChange}
+              required
+              rows="5"
+              style={{ resize: 'vertical', minHeight: '120px', fontFamily: 'inherit' }}
+            />
+          </div>
+
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Sending...' : 'Send Message'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <button
+            onClick={() => navigate(isAuthenticated ? '/' : '/login')}
+            className="auth-link"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit', padding: 0 }}
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default Contact;
