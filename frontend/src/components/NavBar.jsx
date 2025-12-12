@@ -27,39 +27,39 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
- 
+
 const NavBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [anchorEl, setAnchorEl] = useState(null);
- 
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
- 
+
   const handleClose = () => {
     setAnchorEl(null);
   };
- 
+
   const handleLogout = () => {
     dispatch(logout());
     handleClose();
     navigate('/login');
   };
- 
+
   const handleNavigation = (path) => {
     navigate(path);
     handleClose();
   };
- 
+
   // Get navigation items based on user role
   const getNavigationItems = () => {
     const baseItems = [
       { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
       { label: 'Home', path: '/home', icon: <Home /> }
     ];
- 
+
     const roleSpecificItems = {
       admin: [
         { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
@@ -71,10 +71,10 @@ const NavBar = () => {
         { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
       ]
     };
- 
+
     return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
   };
- 
+
   const getRoleColor = (role) => {
     switch (role) {
       case 'admin': return 'error';
@@ -83,7 +83,7 @@ const NavBar = () => {
       default: return 'default';
     }
   };
- 
+
   const getRoleDisplayName = (role) => {
     switch (role) {
       case 'admin': return 'Administrator';
@@ -92,11 +92,11 @@ const NavBar = () => {
       default: return 'User';
     }
   };
- 
+
   const navigationItems = getNavigationItems();
- 
+
   return (
-    <AppBar
+    <AppBar 
       position="sticky"
       sx={{
         background: 'rgba(15, 15, 15, 0.95)',
@@ -109,10 +109,10 @@ const NavBar = () => {
     >
       <Toolbar>
         {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
             cursor: 'pointer',
             padding: '8px 16px',
             borderRadius: '8px',
@@ -121,27 +121,27 @@ const NavBar = () => {
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
               transform: 'scale(1.05)'
             }
-          }}
+          }} 
           onClick={() => navigate('/commentary')}
         >
           <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
-          <Typography
-            variant="h6"
+          <Typography 
+            variant="h6" 
             component="div"
             sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
           >
             Commentary
           </Typography>
         </Box>
- 
+
         {/* Role Badge */}
         {['admin', 'analyst'].includes(user?.role) && (
           <Chip
             label={getRoleDisplayName(user?.role)}
             color={getRoleColor(user?.role)}
             size="small"
-            sx={{
-              ml: 2,
+            sx={{ 
+              ml: 2, 
               color: 'white',
               fontWeight: 600,
               backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -152,7 +152,7 @@ const NavBar = () => {
             }}
           />
         )}
- 
+
         {/* Navigation Links - Desktop */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
           {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
@@ -161,7 +161,7 @@ const NavBar = () => {
               color="inherit"
               onClick={() => navigate(item.path)}
               startIcon={item.icon}
-              sx={{
+              sx={{ 
                 ml: 1,
                 color: '#E5E5E5',
                 textTransform: 'none',
@@ -178,7 +178,7 @@ const NavBar = () => {
             </Button>
           ))}
         </Box>
- 
+
         {/* User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
@@ -198,14 +198,14 @@ const NavBar = () => {
               }
             }}
           >
-            <Avatar
-              sx={{
-                width: 32,
-                height: 32,
+            <Avatar 
+              sx={{ 
+                width: 32, 
+                height: 32, 
                 bgcolor: 'rgba(255, 255, 255, 0.2)',
                 border: '2px solid rgba(255, 255, 255, 0.3)'
-              }}
-              src={user?.photoUrl}
+              }} 
+              src={user?.photoUrl} 
               alt={user?.email}
             >
               <AccountCircle />
@@ -227,8 +227,8 @@ const NavBar = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: {
-                mt: 1.5,
+              sx: { 
+                mt: 1.5, 
                 minWidth: 240,
                 backgroundColor: 'rgba(31, 31, 31, 0.95)',
                 backdropFilter: 'blur(16px)',
@@ -267,7 +267,7 @@ const NavBar = () => {
             </MenuItem>
             
             <Divider />
- 
+
             {/* Mobile Navigation Items */}
             <Box sx={{ display: { xs: 'block', md: 'none' } }}>
               {navigationItems.map((item) => (
@@ -280,7 +280,7 @@ const NavBar = () => {
               ))}
               <Divider />
             </Box>
- 
+
             {/* Profile */}
             <MenuItem onClick={() => handleNavigation('/profile')}>
               <ListItemIcon>
@@ -288,9 +288,9 @@ const NavBar = () => {
               </ListItemIcon>
               <ListItemText>Profile</ListItemText>
             </MenuItem>
- 
+
             <Divider />
- 
+
             {/* Logout */}
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
@@ -306,5 +306,5 @@ const NavBar = () => {
     </AppBar>
   );
 };
- 
+
 export default NavBar;
