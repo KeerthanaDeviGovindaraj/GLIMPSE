@@ -5,15 +5,99 @@ import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 /**
+ * @route   GET /api/ai-commentary/test/:sport
+ * @desc    Test AI commentary with mock data using Gemini
+ * @access  Private
+ */
+router.get('/test/:sport', protect, async (req, res) => {
+  try {
+    const { sport } = req.params;
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        error: 'Configuration error',
+        commentary: 'AI commentary service is not configured.' 
+      });
+    }
+
+    let prompt = '';
+    
+    if (sport === 'cricket') {
+      prompt = `You are a professional cricket commentator. Generate exciting commentary for this thrilling match scenario:
+
+India vs Australia - T20 International
+Status: 🔴 LIVE NOW
+Current Scores:
+India: 156/4 (18.3 overs)
+Australia: Yet to bat
+
+The match is at a crucial stage. India is building a competitive total with some aggressive batting in the death overs. Provide 3-4 sentences of exciting commentary about this situation.`;
+    } else {
+      prompt = `You are a professional football commentator. Generate exciting commentary for this intense match scenario:
+
+Manchester United vs Liverpool - Premier League
+Status: 🔴 LIVE (78')
+Score: Manchester United 2 - 2 Liverpool
+
+It's a thrilling encounter with both teams level. The tension is palpable as we head into the final minutes. Provide 3-4 sentences of exciting commentary about this situation.`;
+    }
+
+    // Use Gemini 2.5 Flash - same as your friend's chatbot
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        })
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json().catch(() => ({}));
+      console.error('Gemini API error:', errorData);
+      return res.status(500).json({ 
+        error: 'AI service error',
+        commentary: 'AI commentary is temporarily unavailable.' 
+      });
+    }
+
+    const data = await geminiResponse.json();
+    const commentary = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No commentary available.';
+
+    res.json({ 
+      success: true,
+      commentary,
+      sport,
+      mode: 'test',
+      aiProvider: 'gemini-2.5-flash'
+    });
+
+  } catch (error) {
+    console.error('Test commentary error:', error);
+    res.status(500).json({ 
+      error: 'Server error',
+      commentary: 'Unable to generate commentary.' 
+    });
+  }
+});
+
+/**
  * @route   GET /api/ai-commentary/:sport/:matchId
- * @desc    Generate AI commentary for a specific match
+ * @desc    Generate AI commentary for a specific match using Gemini
  * @access  Private
  */
 router.get('/:sport/:matchId', protect, async (req, res) => {
   try {
     const { sport, matchId } = req.params;
-    
-    // Validate sport type
+
     if (!['cricket', 'football'].includes(sport)) {
       return res.status(400).json({ 
         error: 'Invalid sport type',
@@ -21,27 +105,24 @@ router.get('/:sport/:matchId', protect, async (req, res) => {
       });
     }
 
-    // Fetch match details from your existing sports endpoints
     let match;
     let prompt = "";
     const baseUrl = process.env.API_BASE_URL || 'http://localhost:4000';
-    
+
     if (sport === 'cricket') {
       try {
         const cricketResponse = await fetch(`${baseUrl}/api/sports/cricket/live`, {
-          headers: { 
-            Authorization: req.headers.authorization 
-          }
+          headers: { Authorization: req.headers.authorization }
         });
-        
+
         if (!cricketResponse.ok) {
           throw new Error('Failed to fetch cricket matches');
         }
-        
+
         const cricketData = await cricketResponse.json();
         const matches = cricketData.data || [];
         match = matches.find(m => String(m.id) === String(matchId));
-        
+
         if (!match) {
           return res.status(404).json({ 
             error: 'Match not found',
@@ -51,7 +132,7 @@ router.get('/:sport/:matchId', protect, async (req, res) => {
 
         const team1Score = match.score?.[0] || {};
         const team2Score = match.score?.[1] || {};
-        
+
         prompt = `You are a professional cricket commentator with years of experience. Provide exciting, engaging commentary for this match:
 
 Match: ${match.name || 'Cricket Match'}
@@ -80,19 +161,17 @@ Keep it exciting, conversational, and engaging - like a real sports commentator 
     } else if (sport === 'football') {
       try {
         const footballResponse = await fetch(`${baseUrl}/api/sports/football/live`, {
-          headers: { 
-            Authorization: req.headers.authorization 
-          }
+          headers: { Authorization: req.headers.authorization }
         });
-        
+
         if (!footballResponse.ok) {
           throw new Error('Failed to fetch football matches');
         }
-        
+
         const footballData = await footballResponse.json();
         const matches = footballData.data || [];
         match = matches.find(m => String(m.id || m.idEvent) === String(matchId));
-        
+
         if (!match) {
           return res.status(404).json({ 
             error: 'Match not found',
@@ -123,68 +202,66 @@ Keep it exciting, conversational, and engaging - like a real sports commentator 
       }
     }
 
-    // Validate Claude API key
-    if (!process.env.CLAUDE_API_KEY) {
-      console.error('CLAUDE_API_KEY is not configured');
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not configured');
       return res.status(500).json({ 
         error: 'Configuration error',
         commentary: 'AI commentary service is not configured. Please contact the administrator.' 
       });
     }
 
-    // Call Claude API to generate commentary
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-    });
+    // Use Gemini 2.5 Flash - same as your friend's chatbot
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        })
+      }
+    );
 
-    if (!claudeResponse.ok) {
-      const errorData = await claudeResponse.json().catch(() => ({}));
-      console.error('Claude API error:', errorData);
-      
-      // Check for specific error types
-      if (claudeResponse.status === 401) {
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json().catch(() => ({}));
+      console.error('Gemini API error:', errorData);
+
+      if (geminiResponse.status === 401) {
         return res.status(500).json({ 
           error: 'API authentication failed',
           commentary: 'AI commentary service authentication error. Please contact the administrator.' 
         });
       }
-      
-      if (claudeResponse.status === 429) {
+
+      if (geminiResponse.status === 429) {
         return res.status(429).json({ 
           error: 'Rate limit exceeded',
           commentary: 'AI commentary service is busy. Please try again in a moment.' 
         });
       }
-      
+
       return res.status(500).json({ 
         error: 'AI service error',
         commentary: 'AI commentary is temporarily unavailable. Please try again later.' 
       });
     }
 
-    const data = await claudeResponse.json();
-    const commentary = data.content?.[0]?.text || 'No commentary available at this moment.';
+    const data = await geminiResponse.json();
+    const commentary = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No commentary available at this moment.';
 
-    // Success response
     res.json({ 
       success: true,
       commentary,
       matchId,
       sport,
-      isLive: match.isLive || false
+      isLive: match.isLive || false,
+      aiProvider: 'gemini-2.5-flash'
     });
 
   } catch (error) {
