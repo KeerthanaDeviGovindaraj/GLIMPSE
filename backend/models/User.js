@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema({
   favoriteSport: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sport',
-    required: false,
   },
   favoriteSportName: {
     type: String,
