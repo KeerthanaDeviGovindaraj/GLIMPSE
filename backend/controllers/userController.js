@@ -49,7 +49,15 @@ export async function editUser(req, res) {
     // Update fields if they are provided
     user.firstName = firstName || user.firstName;
     user.lastName = lastName || user.lastName;
-    user.favoriteSport = favoriteSport || user.favoriteSport;
+
+    // If favoriteSport is being updated, also update the denormalized name
+    if (favoriteSport && (!user.favoriteSport || user.favoriteSport.toString() !== favoriteSport)) {
+      const sportDoc = await Sport.findById(favoriteSport);
+      if (sportDoc) {
+        user.favoriteSport = favoriteSport;
+        user.favoriteSportName = sportDoc.name;
+      }
+    }
 
     // If a new password is provided, the 'pre-save' hook will hash it
     if (password) {
@@ -83,16 +91,7 @@ export async function getSystemAnalytics(req, res) {
 
     // Group users by favorite sport
     const usersBySport = await User.aggregate([
-      {
-        $lookup: {
-          from: "sports",
-          localField: "favoriteSport",
-          foreignField: "_id",
-          as: "sportInfo"
-        }
-      },
-      { $unwind: "$sportInfo" },
-      { $group: { _id: "$sportInfo.name", count: { $sum: 1 } } },
+      { $group: { _id: "$favoriteSportName", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 10 } // Top 10 sports
     ]);
