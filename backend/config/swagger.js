@@ -2,13 +2,16 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+// Get port from environment or default to 4000 (changed from 5000)
+const PORT = process.env.PORT || 4000;
+
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
       title: 'Sports Management API',
       version: '1.0.0',
-      description: 'Complete API documentation for Sports Management System',
+      description: 'Complete API documentation for Sports Management System - Vite Version',
       contact: {
         name: 'Gayatri',
         email: 'gayatri@example.com'
@@ -16,8 +19,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:5000',
+        url: `http://localhost:${PORT}`,  // ✅ Dynamic port (4000)
         description: 'Development server'
+      },
+      {
+        url: 'http://localhost:5173',     // ✅ Added Vite frontend server
+        description: 'Vite frontend server'
       }
     ],
     components: {
@@ -161,7 +168,7 @@ const setupSwagger = (app) => {
   // Swagger UI
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Sports Management API'
+    customSiteTitle: 'Sports Management API - Vite Version'
   }));
 
   // JSON endpoint
@@ -170,7 +177,11 @@ const setupSwagger = (app) => {
     res.send(swaggerSpec);
   });
 
-  console.log('📚 Swagger docs available at http://localhost:5000/api-docs');
+  // ✅ Updated console log for port 4000
+  console.log(`📚 Swagger docs available at http://localhost:${PORT}/api-docs`);
 };
 
+// ✅ Export both swaggerUi and swaggerDocs for compatibility with your server.js
 module.exports = setupSwagger;
+module.exports.swaggerUi = swaggerUi;
+module.exports.swaggerDocs = swaggerSpec;

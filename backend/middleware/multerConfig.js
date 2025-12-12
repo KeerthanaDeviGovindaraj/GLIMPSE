@@ -67,7 +67,7 @@ const upload = multer({
 });
 
 // Error handling middleware for multer
-const handleMulterError = (err, req, res, next) => {
+const multerErrorHandler = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     // Multer-specific errors
     if (err.code === 'LIMIT_FILE_SIZE') {
@@ -112,5 +112,7 @@ const handleMulterError = (err, req, res, next) => {
   next(err);
 };
 
-module.exports = upload;
-module.exports.handleMulterError = handleMulterError;
+module.exports = {
+  upload,
+  multerErrorHandler
+};

@@ -34,18 +34,18 @@ exports.uploadFile = async (req, res) => {
 
     // Create upload record in database
     const upload = new Upload({
-      filename: req.file.filename,
+      fileName: req.file.filename,
       originalName: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      path: req.file.path,
-      uploadedBy: req.user?.name || req.body.uploadedBy || 'Anonymous',
+      fileType: req.file.mimetype,
+      fileSize: req.file.size,
+      filePath: req.file.path,
+      uploadedBy: req.user?._id || req.user?.userId,
       status: 'pending'
     });
 
     await upload.save();
 
-    console.log(`✅ File uploaded: ${req.file.originalname} by ${upload.uploadedBy}`);
+    console.log(`✅ File uploaded: ${req.file.originalname} by ${req.user?.name || 'User'}`);
 
     res.status(201).json({
       success: true,
@@ -53,10 +53,10 @@ exports.uploadFile = async (req, res) => {
       data: {
         id: upload._id,
         filename: upload.originalName,
-        size: upload.size,
-        mimetype: upload.mimetype,
+        size: upload.fileSize,
+        mimetype: upload.fileType,
         uploadedBy: upload.uploadedBy,
-        uploadedAt: upload.createdAt,
+        uploadedAt: upload.uploadDate,
         status: upload.status
       }
     });
@@ -83,13 +83,13 @@ exports.uploadFile = async (req, res) => {
 };
 
 /**
- * @desc    Get all uploads with filtering
- * @route   GET /api/upload
+ * @desc    Get upload history
+ * @route   GET /api/upload/history
  * @access  Private (authenticated users)
  */
-exports.getAllUploads = async (req, res) => {
+exports.getUploadHistory = async (req, res) => {
   try {
-    const { status, uploadedBy, sort = '-createdAt', limit, page = 1, search } = req.query;
+    const { status, uploadedBy, sort = '-uploadDate', limit, page = 1, search } = req.query;
     
     // Build filter object
     const filter = {};
@@ -99,36 +99,35 @@ exports.getAllUploads = async (req, res) => {
     }
     
     if (uploadedBy) {
-      filter.uploadedBy = { $regex: uploadedBy, $options: 'i' };
+      filter.uploadedBy = uploadedBy;
     }
 
     if (search) {
       filter.$or = [
         { originalName: { $regex: search, $options: 'i' } },
-        { filename: { $regex: search, $options: 'i' } }
+        { fileName: { $regex: search, $options: 'i' } }
       ];
     }
 
     // Pagination
     const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10) || 0;
+    const limitNumber = parseInt(limit, 10) || 20;
     const skip = (pageNumber - 1) * limitNumber;
 
     // Execute query
-    let query = Upload.find(filter).sort(sort);
-    
-    if (limitNumber > 0) {
-      query = query.skip(skip).limit(limitNumber);
-    }
+    const uploads = await Upload.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate('uploadedBy', 'name email');
 
-    const uploads = await query;
     const total = await Upload.countDocuments(filter);
 
     // Format response with readable file sizes
     const formattedUploads = uploads.map(upload => ({
       ...upload.toObject(),
-      sizeFormatted: formatFileSize(upload.size),
-      uploadedAtFormatted: formatDate(upload.createdAt)
+      sizeFormatted: formatFileSize(upload.fileSize),
+      uploadedAtFormatted: formatDate(upload.uploadDate)
     }));
 
     res.json({
@@ -136,62 +135,15 @@ exports.getAllUploads = async (req, res) => {
       count: uploads.length,
       total: total,
       page: pageNumber,
-      pages: limitNumber > 0 ? Math.ceil(total / limitNumber) : 1,
+      pages: Math.ceil(total / limitNumber),
       data: formattedUploads
     });
     
   } catch (error) {
-    console.error('Get uploads error:', error);
+    console.error('Get upload history error:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Error fetching uploads', 
-      error: error.message 
-    });
-  }
-};
-
-/**
- * @desc    Get single upload by ID
- * @route   GET /api/upload/:id
- * @access  Private (authenticated users)
- */
-exports.getUploadById = async (req, res) => {
-  try {
-    const upload = await Upload.findById(req.params.id);
-    
-    if (!upload) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found' 
-      });
-    }
-
-    // Check if file still exists on disk
-    const fileExists = fs.existsSync(upload.path);
-
-    res.json({
-      success: true,
-      data: {
-        ...upload.toObject(),
-        sizeFormatted: formatFileSize(upload.size),
-        uploadedAtFormatted: formatDate(upload.createdAt),
-        fileExists: fileExists
-      }
-    });
-    
-  } catch (error) {
-    console.error('Get upload error:', error);
-    
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found - Invalid ID format' 
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false,
-      message: 'Error fetching upload', 
+      message: 'Error fetching upload history', 
       error: error.message 
     });
   }
@@ -214,16 +166,16 @@ exports.deleteUpload = async (req, res) => {
     }
 
     // Delete physical file from disk
-    if (fs.existsSync(upload.path)) {
+    if (fs.existsSync(upload.filePath)) {
       try {
-        fs.unlinkSync(upload.path);
-        console.log(`🗑️  Deleted file: ${upload.path}`);
+        fs.unlinkSync(upload.filePath);
+        console.log(`🗑️  Deleted file: ${upload.filePath}`);
       } catch (fileError) {
         console.error('Error deleting file from disk:', fileError);
         // Continue with database deletion even if file deletion fails
       }
     } else {
-      console.log(`⚠️  File not found on disk: ${upload.path}`);
+      console.log(`⚠️  File not found on disk: ${upload.filePath}`);
     }
 
     // Delete database record
@@ -259,130 +211,11 @@ exports.deleteUpload = async (req, res) => {
 };
 
 /**
- * @desc    Download file
- * @route   GET /api/upload/:id/download
+ * @desc    Preview upload data
+ * @route   GET /api/upload/preview/:id
  * @access  Private (authenticated users)
  */
-exports.downloadFile = async (req, res) => {
-  try {
-    const upload = await Upload.findById(req.params.id);
-    
-    if (!upload) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found' 
-      });
-    }
-
-    // Check if file exists on disk
-    if (!fs.existsSync(upload.path)) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'File not found on server. It may have been deleted.' 
-      });
-    }
-
-    // Set headers for download
-    res.setHeader('Content-Type', upload.mimetype);
-    res.setHeader('Content-Disposition', `attachment; filename="${upload.originalName}"`);
-    res.setHeader('Content-Length', upload.size);
-
-    // Stream file to response
-    const fileStream = fs.createReadStream(upload.path);
-    fileStream.pipe(res);
-
-    console.log(`📥 File downloaded: ${upload.originalName} by ${req.user?.name || 'User'}`);
-    
-  } catch (error) {
-    console.error('Download file error:', error);
-    
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found - Invalid ID format' 
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false,
-      message: 'Error downloading file', 
-      error: error.message 
-    });
-  }
-};
-
-/**
- * @desc    Update upload status and metadata
- * @route   PUT /api/upload/:id/status
- * @access  Private (authenticated users)
- */
-exports.updateUploadStatus = async (req, res) => {
-  try {
-    const { status, recordsCount, errorMessage } = req.body;
-    
-    const upload = await Upload.findById(req.params.id);
-    
-    if (!upload) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found' 
-      });
-    }
-
-    // Validate status if provided
-    if (status) {
-      const validStatuses = ['pending', 'processed', 'failed'];
-      if (!validStatuses.includes(status)) {
-        return res.status(400).json({ 
-          success: false,
-          message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
-        });
-      }
-      upload.status = status;
-    }
-
-    if (recordsCount !== undefined) {
-      upload.recordsCount = parseInt(recordsCount, 10);
-    }
-
-    if (errorMessage !== undefined) {
-      upload.errorMessage = errorMessage;
-    }
-
-    await upload.save();
-
-    console.log(`✅ Upload status updated: ${upload.originalName} -> ${upload.status}`);
-
-    res.json({
-      success: true,
-      message: 'Upload status updated successfully',
-      data: upload
-    });
-    
-  } catch (error) {
-    console.error('Update status error:', error);
-    
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Upload not found - Invalid ID format' 
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false,
-      message: 'Error updating upload status', 
-      error: error.message 
-    });
-  }
-};
-
-/**
- * @desc    Preview CSV file contents
- * @route   GET /api/upload/:id/preview
- * @access  Private (authenticated users)
- */
-exports.previewFile = async (req, res) => {
+exports.previewUpload = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
     const upload = await Upload.findById(req.params.id);
@@ -395,7 +228,7 @@ exports.previewFile = async (req, res) => {
     }
 
     // Check if file exists
-    if (!fs.existsSync(upload.path)) {
+    if (!fs.existsSync(upload.filePath)) {
       return res.status(404).json({ 
         success: false,
         message: 'File not found on server' 
@@ -403,7 +236,7 @@ exports.previewFile = async (req, res) => {
     }
 
     // Only support preview for CSV files
-    if (!upload.mimetype.includes('csv') && !upload.originalName.toLowerCase().endsWith('.csv')) {
+    if (!upload.fileType.includes('csv') && !upload.originalName.toLowerCase().endsWith('.csv')) {
       return res.status(400).json({ 
         success: false,
         message: 'Preview is only available for CSV files' 
@@ -414,7 +247,7 @@ exports.previewFile = async (req, res) => {
     const results = [];
     const limitNumber = parseInt(limit, 10);
 
-    fs.createReadStream(upload.path)
+    fs.createReadStream(upload.filePath)
       .pipe(csv())
       .on('data', (data) => {
         if (results.length < limitNumber) {
@@ -427,7 +260,7 @@ exports.previewFile = async (req, res) => {
           data: {
             filename: upload.originalName,
             previewRows: results.length,
-            totalSize: formatFileSize(upload.size),
+            totalSize: formatFileSize(upload.fileSize),
             rows: results
           }
         });
@@ -452,147 +285,103 @@ exports.previewFile = async (req, res) => {
 };
 
 /**
- * @desc    Bulk delete uploads
- * @route   POST /api/upload/bulk-delete
+ * @desc    Process uploaded data
+ * @route   POST /api/upload/process
  * @access  Private (authenticated users)
  */
-exports.bulkDeleteUploads = async (req, res) => {
+exports.processUploadedData = async (req, res) => {
   try {
-    const { ids } = req.body;
+    const { uploadId } = req.body;
 
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ 
+    if (!uploadId) {
+      return res.status(400).json({
         success: false,
-        message: 'Please provide an array of upload IDs to delete' 
+        message: 'Upload ID is required'
       });
     }
 
-    // Find all uploads
-    const uploads = await Upload.find({ _id: { $in: ids } });
+    const upload = await Upload.findById(uploadId);
 
-    // Delete physical files
-    let filesDeleted = 0;
-    uploads.forEach(upload => {
-      if (fs.existsSync(upload.path)) {
+    if (!upload) {
+      return res.status(404).json({
+        success: false,
+        message: 'Upload not found'
+      });
+    }
+
+    // Check if file exists
+    if (!fs.existsSync(upload.filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'File not found on server'
+      });
+    }
+
+    // Update status to processing
+    upload.status = 'processing';
+    await upload.save();
+
+    // Process CSV file
+    const results = [];
+    
+    fs.createReadStream(upload.filePath)
+      .pipe(csv())
+      .on('data', (data) => {
+        results.push(data);
+      })
+      .on('end', async () => {
         try {
-          fs.unlinkSync(upload.path);
-          filesDeleted++;
-        } catch (error) {
-          console.error(`Error deleting file ${upload.path}:`, error);
+          // Update upload with processed data
+          upload.status = 'completed';
+          upload.recordCount = results.length;
+          upload.processedData = results;
+          await upload.save();
+
+          console.log(`✅ Processed ${results.length} records from ${upload.originalName}`);
+
+          res.json({
+            success: true,
+            message: 'Data processed successfully',
+            data: {
+              uploadId: upload._id,
+              recordCount: results.length,
+              status: upload.status,
+              preview: results.slice(0, 5) // Send first 5 records as preview
+            }
+          });
+        } catch (saveError) {
+          console.error('Error saving processed data:', saveError);
+          upload.status = 'failed';
+          upload.errorMessage = saveError.message;
+          await upload.save();
+
+          res.status(500).json({
+            success: false,
+            message: 'Error saving processed data',
+            error: saveError.message
+          });
         }
-      }
-    });
+      })
+      .on('error', async (error) => {
+        console.error('CSV processing error:', error);
+        
+        upload.status = 'failed';
+        upload.errorMessage = error.message;
+        await upload.save();
 
-    // Delete database records
-    const result = await Upload.deleteMany({ _id: { $in: ids } });
+        res.status(500).json({
+          success: false,
+          message: 'Error processing CSV file',
+          error: error.message
+        });
+      });
 
-    console.log(`✅ Bulk deleted ${result.deletedCount} uploads, ${filesDeleted} files by ${req.user?.name || 'User'}`);
-
-    res.json({
-      success: true,
-      message: `Successfully deleted ${result.deletedCount} upload(s)`,
-      data: {
-        deletedCount: result.deletedCount,
-        filesDeleted: filesDeleted
-      }
-    });
-    
   } catch (error) {
-    console.error('Bulk delete error:', error);
-    res.status(500).json({ 
+    console.error('Process uploaded data error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Error deleting uploads', 
-      error: error.message 
-    });
-  }
-};
-
-/**
- * @desc    Get upload statistics
- * @route   GET /api/upload/stats
- * @access  Private (authenticated users)
- */
-exports.getUploadStats = async (req, res) => {
-  try {
-    const totalUploads = await Upload.countDocuments();
-    const pendingUploads = await Upload.countDocuments({ status: 'pending' });
-    const processedUploads = await Upload.countDocuments({ status: 'processed' });
-    const failedUploads = await Upload.countDocuments({ status: 'failed' });
-
-    // Total storage used
-    const storageStats = await Upload.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalSize: { $sum: '$size' }
-        }
-      }
-    ]);
-
-    const totalStorage = storageStats.length > 0 ? storageStats[0].totalSize : 0;
-
-    // Uploads by user
-    const byUser = await Upload.aggregate([
-      {
-        $group: {
-          _id: '$uploadedBy',
-          count: { $sum: 1 },
-          totalSize: { $sum: '$size' }
-        }
-      },
-      { $sort: { count: -1 } }
-    ]);
-
-    // Uploads by file type
-    const byMimeType = await Upload.aggregate([
-      {
-        $group: {
-          _id: '$mimetype',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } }
-    ]);
-
-    // Recent uploads
-    const recentUploads = await Upload.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('originalName uploadedBy status createdAt size');
-
-    res.json({
-      success: true,
-      data: {
-        overview: {
-          totalUploads,
-          pendingUploads,
-          processedUploads,
-          failedUploads,
-          totalStorage: formatFileSize(totalStorage),
-          totalStorageBytes: totalStorage
-        },
-        byUser: byUser.map(u => ({
-          user: u._id,
-          count: u.count,
-          totalSize: formatFileSize(u.totalSize)
-        })),
-        byMimeType: byMimeType.map(m => ({
-          mimeType: m._id,
-          count: m.count
-        })),
-        recentUploads: recentUploads.map(u => ({
-          ...u.toObject(),
-          sizeFormatted: formatFileSize(u.size)
-        }))
-      }
-    });
-    
-  } catch (error) {
-    console.error('Get upload stats error:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Error fetching upload statistics', 
-      error: error.message 
+      message: 'Error processing uploaded data',
+      error: error.message
     });
   }
 };

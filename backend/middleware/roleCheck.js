@@ -2,10 +2,10 @@
 
 /**
  * Middleware to check if user has required role(s)
- * @param {string|string[]} roles - Single role or array of allowed roles
+ * @param {...string} roles - Variable number of allowed roles
  * @returns {Function} Express middleware function
  */
-const roleCheck = (roles) => {
+const roleCheck = (...roles) => {
   return (req, res, next) => {
     // Check if user is authenticated
     if (!req.user) {
@@ -15,8 +15,8 @@ const roleCheck = (roles) => {
       });
     }
 
-    // Convert single role to array for consistent handling
-    const allowedRoles = Array.isArray(roles) ? roles : [roles];
+    // Flatten roles array in case someone passes an array
+    const allowedRoles = roles.flat();
 
     // Check if user's role is in the allowed roles
     if (!allowedRoles.includes(req.user.role)) {
@@ -42,17 +42,17 @@ const roleCheck = (roles) => {
 
 // Admin only access
 const isAdmin = (req, res, next) => {
-  return roleCheck('admin')(req, res, next);
+  return roleCheck('Admin')(req, res, next);
 };
 
 // User only access
 const isUser = (req, res, next) => {
-  return roleCheck('user')(req, res, next);
+  return roleCheck('User')(req, res, next);
 };
 
 // Admin or User (any authenticated user)
 const isAdminOrUser = (req, res, next) => {
-  return roleCheck(['admin', 'user'])(req, res, next);
+  return roleCheck('Admin', 'User')(req, res, next);
 };
 
 /**
@@ -68,7 +68,7 @@ const isOwnerOrAdmin = (req, res, next) => {
   }
 
   // Admin can access everything
-  if (req.user.role === 'admin') {
+  if (req.user.role === 'Admin') {
     return next();
   }
 
@@ -99,7 +99,7 @@ const hasPermissions = (permissions) => {
     }
 
     // Admin has all permissions
-    if (req.user.role === 'admin') {
+    if (req.user.role === 'Admin') {
       return next();
     }
 
@@ -128,8 +128,9 @@ const hasPermissions = (permissions) => {
  * Different rate limits for different roles
  */
 const rateLimitByRole = {
-  admin: 1000,  // 1000 requests per hour
-  user: 100     // 100 requests per hour
+  Admin: 1000,  // 1000 requests per hour
+  User: 100,    // 100 requests per hour
+  Analyst: 500  // 500 requests per hour
 };
 
 // Export all middleware

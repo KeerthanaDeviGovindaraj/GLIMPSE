@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { upload, multerErrorHandler } = require('../middleware/multerConfig');
 const auth = require('../middleware/auth');
-const roleCheck = require('../middleware/roleCheck');
+const { roleCheck } = require('../middleware/roleCheck');
 const {
   uploadFile,
   getUploadHistory,
