@@ -97,10 +97,14 @@ const NavBar = () => {
 
   return (
     <AppBar 
-      position="static"
+      position="sticky"
       sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
+        background: 'rgba(15, 15, 15, 0.95)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
+        top: 0,
+        zIndex: 100
       }}
     >
       <Toolbar>
@@ -114,17 +118,17 @@ const NavBar = () => {
             borderRadius: '8px',
             transition: 'all 0.3s ease',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               transform: 'scale(1.05)'
             }
           }} 
           onClick={() => navigate('/commentary')}
         >
-          <SportsScore sx={{ mr: 1, fontSize: '28px' }} />
+          <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
           <Typography 
             variant="h6" 
             component="div"
-            sx={{ fontWeight: 700, letterSpacing: '0.5px' }}
+            sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
           >
             Commentary
           </Typography>
