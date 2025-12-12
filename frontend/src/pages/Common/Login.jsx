@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/slices/authSlice'; // Assuming this action exists
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { GoogleLogin } from '@react-oauth/google';
 import './Auth.css';
 
 const Login = () => {
@@ -49,6 +50,27 @@ const Login = () => {
       dispatch(setCredentials({ ...data }));
       navigate('/commentary');
       
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google login failed');
+
+      dispatch(setCredentials(data));
+      navigate('/commentary');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -106,6 +128,14 @@ const Login = () => {
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
+
+        <div className="google-login-container">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed. Please try again.')}
+            width="100%"
+          />
+        </div>
 
         <div className="auth-options">
           <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
