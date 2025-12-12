@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Sport from "../models/Sport.js";
 import { validationResult } from "express-validator";
 
 function handleValidation(req, res) {
@@ -26,13 +27,21 @@ export async function register(req, res) {
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ error: "User already exists." });
 
-    const newUser = { firstName, lastName, email, password, role, favoriteSport };
+    // Fetch sport name to denormalize
+    let favoriteSportName = '';
+    if (favoriteSport) {
+      const sportDoc = await Sport.findById(favoriteSport);
+      if (sportDoc) {
+        favoriteSportName = sportDoc.name;
+      }
+    }
+
+    const newUser = { firstName, lastName, email, password, role, favoriteSport, favoriteSportName };
 
     if (req.file) {
-  newUser.photo = req.file.buffer;
-  newUser.photoType = req.file.mimetype;
-}
-
+      newUser.photo = req.file.buffer;
+      newUser.photoType = req.file.mimetype;
+    }
     await User.create(newUser);
 
     return res.status(201).json({ message: "User created successfully." });
@@ -55,7 +64,7 @@ export async function login(req, res) {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "2h" }
     );
 
     const userProfile = await User.findById(user.id).select('-password');
