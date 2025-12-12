@@ -25,15 +25,11 @@ import UserDashboard from './pages/User/UserDashboard';
 import Profile from './pages/User/Profile';
 import Commentary from './pages/User/Commentary';
 
-// Create theme
+// Theme
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
+    primary: { main: '#1976d2' },
+    secondary: { main: '#dc004e' },
   },
 });
 
@@ -46,7 +42,7 @@ function App() {
       <Router>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           {isAuthenticated && <NavBar />}
-          
+
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
               {/* Public Routes */}
@@ -71,16 +67,15 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Protected Routes
+              {/* Protected Routes */}
               <Route
                 path="/"
                 element={
                   <ProtectedRoute>
-                    <Home />
+                    <Home /> {/* Home page after login */}
                   </ProtectedRoute>
                 }
               />
-              
               <Route
                 path="/profile"
                 element={
@@ -88,16 +83,6 @@ function App() {
                     <Profile />
                   </ProtectedRoute>
                 }
-              /> */}
-
-              {/* COMMENTARY ROUTE */}
-              <Route 
-              path='/'
-              element={
-                <ProtectedRoute>
-                  <Commentary />
-                </ProtectedRoute>
-              }
               />
               <Route
                 path="/commentary"
@@ -107,8 +92,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Dashboard Routes */}
               <Route
                 path="/dashboard"
                 element={
@@ -117,7 +100,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/admin/dashboard"
                 element={
@@ -126,7 +108,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/analyst/dashboard"
                 element={
@@ -136,7 +117,7 @@ function App() {
                 }
               />
 
-              {/* Catch all route */}
+              {/* Catch-all redirect */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>

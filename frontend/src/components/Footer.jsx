@@ -21,14 +21,14 @@ const Footer = () => {
           <Link component={RouterLink} to="/about" color="text.primary" underline="hover">
             About
           </Link>
-          <Link component={RouterLink} to="/contact" color="text.primary" underline="hover">
+          {/* <Link component={RouterLink} to="/contact" color="text.primary" underline="hover">
             Contact Us
-          </Link>
+          </Link> */}
         </Stack>
         <Typography variant="body2" color="text.secondary" align="center">
           {'Copyright © '}
           {new Date().getFullYear()}
-          {' Info Portal. All rights reserved.'}
+          {' Glimpse. All rights reserved.'}
         </Typography>
       </Container>
     </Box>

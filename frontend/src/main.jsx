@@ -4,9 +4,9 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { store, persistor } from "./redux/store";
-
 import './index.css'
 import App from './App.jsx'
 
