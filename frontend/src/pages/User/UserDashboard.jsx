@@ -11,24 +11,26 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider
+  Divider,
 } from '@mui/material';
 import {
   Work,
   BookmarkBorder,
   Notifications,
-  AccountCircle
+  AccountCircle,
 } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 
 const UserDashboard = () => {
   const { user } = useSelector((state) => state.auth);
+
   const [userStats, setUserStats] = useState({
     appliedJobs: 0,
     bookmarkedJobs: 0,
     messages: 0,
-    profile: 'Incomplete'
+    profile: 'Incomplete',
   });
+
   const [recentJobs, setRecentJobs] = useState([]);
 
   useEffect(() => {
@@ -37,12 +39,12 @@ const UserDashboard = () => {
   }, []);
 
   const fetchUserStats = async () => {
-    // Replace with your actual API call
+    // Replace with API call
     setUserStats({
       appliedJobs: 5,
       bookmarkedJobs: 12,
       messages: 3,
-      profile: 'Complete'
+      profile: 'Complete',
     });
   };
 
@@ -67,9 +69,7 @@ const UserDashboard = () => {
               {value}
             </Typography>
           </Box>
-          <Box sx={{ color: `${color}.main`, fontSize: 40 }}>
-            {icon}
-          </Box>
+          <Box sx={{ color: `${color}.main`, fontSize: 40 }}>{icon}</Box>
         </Box>
       </CardContent>
     </Card>
@@ -86,37 +86,17 @@ const UserDashboard = () => {
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Applied Jobs"
-            value={userStats.appliedJobs}
-            icon={<Work />}
-            color="primary"
-          />
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard title="Applied Jobs" value={userStats.appliedJobs} icon={<Work />} color="primary" />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Bookmarked"
-            value={userStats.bookmarkedJobs}
-            icon={<BookmarkBorder />}
-            color="warning"
-          />
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard title="Bookmarked" value={userStats.bookmarkedJobs} icon={<BookmarkBorder />} color="warning" />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Messages"
-            value={userStats.messages}
-            icon={<Notifications />}
-            color="info"
-          />
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard title="Messages" value={userStats.messages} icon={<Notifications />} color="info" />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Profile"
-            value={userStats.profile}
-            icon={<AccountCircle />}
-            color="success"
-          />
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard title="Profile" value={userStats.profile} icon={<AccountCircle />} color="success" />
         </Grid>
       </Grid>
 
@@ -135,13 +115,10 @@ const UserDashboard = () => {
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <ListItemText
-                  primary={job.title}
-                  secondary={job.company}
-                />
+                <ListItemText primary={job.title} secondary={job.company} />
                 <Box>
                   {job.applied ? (
                     <Chip label="Applied" color="success" size="small" />
