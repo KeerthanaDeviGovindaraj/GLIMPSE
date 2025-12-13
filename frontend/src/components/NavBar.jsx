@@ -22,7 +22,8 @@ import {
   Home,
   AdminPanelSettings,
   Assessment,
-  SportsScore
+  SportsScore,
+  SportsEsports
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -63,8 +64,8 @@ const NavBar = () => {
 
     const roleSpecificItems = {
       admin: [
-        { label: 'User Management', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
-        { label: 'Sports Management', path: '/admin/sports', icon: <SportsScore /> },
+        { label: 'User Management', path: '/admin/dashboard', icon: <Dashboard /> },
+        { label: 'Sports Management', path: '/admin/sports', icon: <SportsEsports /> },
       ],
       analyst: [
         { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
