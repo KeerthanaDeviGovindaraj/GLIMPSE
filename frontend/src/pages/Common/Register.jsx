@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../redux/slices/authSlice'; // Assuming this action exists
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { GoogleLogin } from '@react-oauth/google';
 import './Auth.css';
 import api from '../../services/api';
 
@@ -23,7 +20,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
   useEffect(() => {
@@ -139,6 +136,7 @@ const Register = () => {
       try {
         data = await response.json();
       } catch (e) {
+        console.error(e);
         throw new Error('Server error: Unable to connect to registration service');
       }
 
