@@ -22,7 +22,9 @@ import {
   Home,
   Assessment,
   SportsScore,
-  SportsEsports
+  SportsEsports,
+  Info,
+  ContactSupport
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -58,7 +60,9 @@ const NavBar = () => {
   const getNavigationItems = () => {
     const baseItems = [
       { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
-      { label: 'Home', path: '/home', icon: <Home /> }
+      { label: 'Home', path: '/', icon: <Home /> },
+      { label: 'About', path: '/about', icon: <Info /> },
+      { label: 'Contact Us', path: '/contact', icon: <ContactSupport /> }
     ];
 
     const roleSpecificItems = {
@@ -155,7 +159,7 @@ const NavBar = () => {
 
           {/* Navigation Links - Desktop */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
-            {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
+            {navigationItems.map((item) => (
                 <Button
                     key={item.path}
                     color="inherit"
@@ -287,6 +291,22 @@ const NavBar = () => {
                   <AccountCircle fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Profile</ListItemText>
+              </MenuItem>
+
+              {/* About */}
+              <MenuItem onClick={() => handleNavigation('/about')}>
+                <ListItemIcon>
+                  <Info fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>About</ListItemText>
+              </MenuItem>
+
+              {/* Contact Us */}
+              <MenuItem onClick={() => handleNavigation('/contact')}>
+                <ListItemIcon>
+                  <ContactSupport fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Contact Us</ListItemText>
               </MenuItem>
 
               <Divider />
