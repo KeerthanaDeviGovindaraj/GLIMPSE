@@ -163,10 +163,14 @@ const NavBar = () => {
               startIcon={item.icon}
               sx={{ 
                 ml: 1,
+                color: '#E5E5E5',
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  transform: 'translateY(-2px)',
-                  transition: 'all 0.3s ease'
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#FFFFFF',
+                  transform: 'translateY(-1px)'
                 }
               }}
             >
@@ -223,16 +227,40 @@ const NavBar = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: { mt: 1, minWidth: 200 }
+              sx: { 
+                mt: 1.5, 
+                minWidth: 240,
+                backgroundColor: 'rgba(31, 31, 31, 0.95)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '16px',
+                color: '#FFFFFF',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                '& .MuiMenuItem-root': {
+                  padding: '12px 24px',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                  }
+                },
+                '& .MuiDivider-root': {
+                  borderColor: 'rgba(255, 255, 255, 0.12)',
+                  my: 1
+                },
+                '& .MuiListItemIcon-root': {
+                  color: '#B3B3B3',
+                  minWidth: '40px'
+                }
+              }
             }}
           >
             {/* User Info */}
-            <MenuItem disabled>
+            <MenuItem disabled sx={{ opacity: '1 !important' }}>
               <Box>
                 <Typography variant="body2" fontWeight="bold">
                   {user?.email}
                 </Typography>
-                <Typography variant="caption" color="textSecondary">
+                <Typography variant="caption" sx={{ color: '#B3B3B3' }}>
                   {getRoleDisplayName(user?.role)}
                 </Typography>
               </Box>

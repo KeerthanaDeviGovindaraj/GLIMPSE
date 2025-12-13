@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/slices/authSlice';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { GoogleLogin } from '@react-oauth/google';
 import './Auth.css';
 // ✨ NEW: Chatbot imports
 import ChatbotIcon from '../../components/ChatbotIcon';
@@ -89,10 +90,10 @@ const Login = () => {
   // ✨ NEW: Auto-scroll chat
   useEffect(() => {
     if (chatBodyRef.current) {
-      const isAtBottom = 
-        chatBodyRef.current.scrollHeight === 
+      const isAtBottom =
+        chatBodyRef.current.scrollHeight ===
         chatBodyRef.current.scrollTop + chatBodyRef.current.clientHeight;
-      
+
       if (isAtBottom) {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
@@ -125,6 +126,27 @@ const Login = () => {
       dispatch(setCredentials({ ...data }));
       navigate('/commentary');
       
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google login failed');
+
+      dispatch(setCredentials(data));
+      navigate('/commentary');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -183,6 +205,14 @@ const Login = () => {
           </button>
         </form>
 
+        <div className="google-login-container">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed. Please try again.')}
+            width="100%"
+          />
+        </div>
+
         <div className="auth-options">
           <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
         </div>
@@ -194,7 +224,7 @@ const Login = () => {
       </div>
 
       {/* ✨ NEW: Chatbot Integration - Floating Button */}
-      <button 
+      <button
         className="chat-toggler"
         onClick={() => setIsChatOpen(!isChatOpen)}
       >
@@ -209,7 +239,7 @@ const Login = () => {
             <h2 className="logo-text">Chatbot</h2>
           </div>
 
-          <button 
+          <button
             className="material-symbols-rounded"
             onClick={() => setIsChatOpen(false)}
           >

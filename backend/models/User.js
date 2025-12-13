@@ -29,8 +29,12 @@ const userSchema = new mongoose.Schema({
     default: "user",
   },
   favoriteSport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Sport',
+  },
+  favoriteSportName: {
     type: String,
-    required: true,
+    trim: true,
   },
   photo: {
     type: Buffer,

@@ -1,8 +1,12 @@
 
 import {
-  Box, Typography, Grid, Paper, Stack, Avatar, Divider, Button
+  Box, Typography, Grid, Stack, Avatar, Button, Container
 } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import './Auth.css';
 
 function FounderCard({
   name = "Rushitaben Vachhani",
@@ -16,17 +20,7 @@ function FounderCard({
   linkedin = "https://www.linkedin.com/in/rushita-vachhani/"
 }) {
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 2.5, md: 4 },
-        borderRadius: 4,
-        bgcolor: "#f6f8fb",
-        border: "1px solid",
-        borderColor: "divider",
-        width: "100%",
-      }}
-    >
+    <div className="auth-card" style={{ padding: '40px', maxWidth: '100%' }}>
       {/* Header */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
@@ -35,12 +29,20 @@ function FounderCard({
         justifyContent="space-between"
       >
         <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar src={avatar} alt={name} sx={{ width: 72, height: 72 }} />
+          <Avatar 
+            src={avatar} 
+            alt={name} 
+            sx={{ 
+              width: 80, 
+              height: 80,
+              border: '2px solid rgba(255, 255, 255, 0.2)'
+            }} 
+          />
           <Box>
-            <Typography variant="h5" fontWeight={700}>
+            <Typography variant="h5" fontWeight={700} sx={{ color: 'var(--text-primary)', fontFamily: '"Cormorant Garamond", serif' }}>
               {name}
             </Typography>
-            <Typography color="text.secondary">{role}</Typography>
+            <Typography sx={{ color: 'var(--text-tertiary)' }}>{role}</Typography>
           </Box>
         </Stack>
 
@@ -51,13 +53,22 @@ function FounderCard({
           href={linkedin}
           target="_blank"
           rel="noreferrer"
-          sx={{ textTransform: "none", borderRadius: 2 }}
+          sx={{ 
+            textTransform: "none", 
+            borderRadius: 2,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            color: 'var(--text-primary)',
+            '&:hover': {
+              borderColor: 'var(--netflix-red)',
+              backgroundColor: 'rgba(229, 9, 20, 0.1)'
+            }
+          }}
         >
           LinkedIn
         </Button>
       </Stack>
 
-      <Divider sx={{ my: 3 }} />
+      <Box sx={{ my: 3, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }} />
 
       {/* Highlights */}
       <Grid container spacing={2}>
@@ -72,54 +83,71 @@ function FounderCard({
               alignItems: "stretch",
             }}
           >
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                borderRadius: 3,
-                bgcolor: "white",
-                border: "1px solid",
-                borderColor: "divider",
-                flexGrow: 1,
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                width: '100%',
                 display: "flex",
                 alignItems: "center",
               }}
             >
-              <Typography variant="body1">{h}</Typography>
-            </Paper>
+              <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>{h}</Typography>
+            </div>
           </Grid>
         ))}
       </Grid>
-    </Paper>
+    </div>
   );
 }
 
 export default function About() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
   return (
-    <>
-      {/* Our Mission */}
-      <Box sx={{ textAlign: "center", mb: { xs: 6, md: 0 } }}>
-        <Typography variant="h3" fontWeight={800} gutterBottom>
-          OUR MISSION
-        </Typography>
-        <Typography variant="h6" sx={{ maxWidth: 900, mx: "auto" }} color="text.secondary">
-          We empower you with equal opportunities to build your dream career.
-          Applying to numerous jobs without a clear strategy won’t land the ideal role.
-          With JobBest’s AI job copilot, you’ll be connected to the best opportunities
-          and guided at every step - so the offer you deserve comes sooner.
-        </Typography>
-      </Box>
+    <div className="auth-container" style={{ alignItems: 'flex-start', paddingTop: '40px', height: 'auto', minHeight: '100vh' }}>
+      <Container maxWidth="lg">
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(isAuthenticated ? '/' : '/login')}
+          sx={{ 
+            mb: 4, 
+            color: 'var(--text-primary)',
+            '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+          }}
+        >
+          Back
+        </Button>
 
-      {/* Founders */}
-      <Box sx={{ textAlign: "center", mb: 3, mt: 2 }}>
-        <Typography variant="h4" fontWeight={800}>FOUNDERS</Typography>
-        <Typography color="text.secondary" sx={{ mt: 1, mb: 3 }}>
-          We are a small and mighty team of AI pioneers.
-        </Typography>
-      </Box>
+        {/* Our Mission */}
+        <Box sx={{ textAlign: "center", mb: 8 }}>
+          <Typography variant="h3" fontWeight={800} gutterBottom sx={{ color: 'var(--text-primary)', fontFamily: '"Cormorant Garamond", serif' }}>
+            OUR MISSION
+          </Typography>
+          <Typography variant="h6" sx={{ maxWidth: 900, mx: "auto", color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            We empower you with equal opportunities to build your dream career.
+            Applying to numerous jobs without a clear strategy won’t land the ideal role.
+            With Glimpse's AI job copilot, you’ll be connected to the best opportunities
+            and guided at every step - so the offer you deserve comes sooner.
+          </Typography>
+        </Box>
 
-      {/* founder card*/}
-      <FounderCard />
-    </>
+        {/* Founders */}
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Typography variant="h4" fontWeight={800} sx={{ color: 'var(--text-primary)', fontFamily: '"Cormorant Garamond", serif' }}>
+            FOUNDERS
+          </Typography>
+          <Typography sx={{ mt: 1, mb: 3, color: 'var(--text-tertiary)' }}>
+            We are a small and mighty team of AI pioneers.
+          </Typography>
+        </Box>
+
+        {/* founder card*/}
+        <FounderCard />
+      </Container>
+    </div>
   );
 }
