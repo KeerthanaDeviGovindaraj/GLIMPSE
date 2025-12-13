@@ -146,8 +146,7 @@ const Register = () => {
         throw new Error(data.message || 'Registration failed');
       }
 
-      dispatch(setCredentials({ ...data }));
-      navigate('/commentary');
+      navigate('/login');
       
     } catch (err) {
       setErrors({ api: err.message });
