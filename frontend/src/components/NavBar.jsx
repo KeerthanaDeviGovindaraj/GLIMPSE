@@ -20,7 +20,6 @@ import {
   Logout,
   Dashboard,
   Home,
-  AdminPanelSettings,
   Assessment,
   SportsScore,
   SportsEsports
