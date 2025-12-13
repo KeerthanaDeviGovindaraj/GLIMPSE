@@ -19,11 +19,11 @@ export const protect = async (req, res, next) => {
     
     // ⭐ ADD THIS: Check if user is active
     if (req.user.status === 'inactive') {
-      return res.status(403).json({ 
-        message: 'Your account has been disabled. Please contact an administrator.' 
+      return res.status(403).json({
+        message: 'Your account has been disabled. Please contact an administrator.'
       });
     }
-    
+
     next();
   } catch (error) {
     console.error('Token verification failed:', error.message);

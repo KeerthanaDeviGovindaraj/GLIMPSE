@@ -40,7 +40,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/password", passwordRoutes);
 app.use('/api/commentaries', commentaryRoutes);
-app.use('/api/ai-commentary', aiCommentaryRoutes);
+app.use('/api/ai-commentary', aiCommentaryRoutes); // 👈 Add this line
 app.use('/api/admin', adminRoutes); // ⭐ ADD THIS LINE
 
 // Health check

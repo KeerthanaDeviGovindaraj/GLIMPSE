@@ -28,7 +28,7 @@ import Commentary from './pages/User/Commentary';
 // Theme
 const theme = createTheme({
   palette: {
-    primary: { main: '#1976d2' },
+    primary: { main: '#E50914' }, // Netflix Red
     secondary: { main: '#dc004e' },
   },
 });
@@ -45,7 +45,12 @@ function App() {
 
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
-              {/* Public Routes */}
+              {/* ===== PUBLIC ROUTES ===== */}
+
+              {/* Home - ALWAYS accessible, shows landing page */}
+              <Route path="/" element={<Home />} />
+
+              {/* Login */}
               <Route
                 path="/login"
                 element={
@@ -54,6 +59,8 @@ function App() {
                   </AuthRedirector>
                 }
               />
+
+              {/* Register */}
               <Route
                 path="/register"
                 element={
@@ -62,28 +69,18 @@ function App() {
                   </AuthRedirector>
                 }
               />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
+
+              {/* Password Management */}
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Protected Routes */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Home /> {/* Home page after login */}
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Info Pages */}
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+
+              {/* ===== PROTECTED ROUTES ===== */}
+
+              {/* Commentary - Main app */}
               <Route
                 path="/commentary"
                 element={
@@ -92,14 +89,18 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Profile */}
               <Route
-                path="/dashboard"
+                path="/profile"
                 element={
                   <ProtectedRoute>
-                    <UserDashboard />
+                    <Profile />
                   </ProtectedRoute>
                 }
               />
+
+              {/* Admin Dashboard */}
               <Route
                 path="/admin/dashboard"
                 element={
@@ -108,6 +109,8 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Analyst Dashboard */}
               <Route
                 path="/analyst/dashboard"
                 element={
@@ -117,12 +120,12 @@ function App() {
                 }
               />
 
-              {/* Catch-all redirect */}
+              {/* Catch-all - redirect to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>
 
-          <Footer />
+          {!isAuthenticated && <Footer />}
         </Box>
       </Router>
     </ThemeProvider>

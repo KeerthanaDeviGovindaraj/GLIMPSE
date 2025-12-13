@@ -1,30 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  Container,
   Box,
   Typography,
-  Card,
-  CardContent,
-  Grid,
   Avatar,
   CircularProgress,
   Alert,
-  Divider,
   Chip,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Button,
-  TextField,
   Snackbar,
   IconButton,
-  Autocomplete
 } from '@mui/material';
 import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera, Delete } from '@mui/icons-material';
 import { setCredentials } from '../../redux/slices/authSlice';
 import api from '../../services/api';
+import '../Common/Auth.css';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -55,30 +45,18 @@ const Profile = () => {
   const fetchProfile = useCallback(async () => {
     // No need to fetch if we already have the user in Redux state,
     // but fetching ensures we have the latest data.
-    if (token) {
-      setLoading(true);
-      setError('');
-      try {
-        // For axios, the response data is in the `data` property.
-        const { data } = await api.get('/users/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        setProfile(data);
-        dispatch(setCredentials({ user: data, token }));
-        // Ensure favoriteSport is an ID for the form
-        setFormData({
-          ...data, favoriteSport: data.favoriteSport?._id || ''
-        });
-      } catch (err) {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch profile data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await api.get('/users/profile');
+      setProfile(data);
+      dispatch(setCredentials({ user: data, token }));
+      setFormData({ ...data, favoriteSport: data.favoriteSport?._id || '' });
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to fetch profile data.');
+    } finally {
+      setLoading(false);
+    }
   }, [token, dispatch]);
 
   useEffect(() => {
@@ -128,19 +106,14 @@ const Profile = () => {
     setError('');
     setSuccess('');
     try {
-      // Construct a payload with only the fields that should be updated.
-      // This prevents sending the large photo buffer back to the server.
       const updatePayload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         favoriteSport: formData.favoriteSport,
       };
 
-      // Use correct axios syntax: api.put(url, data). The interceptor handles headers.
       const { data } = await api.put('/users/profile', updatePayload);
 
-      // Update profile data and Redux state
-      // The 'data' object from the API response contains { message, user }
       setProfile(data.user);
       dispatch(setCredentials({ user: data.user, token }));
 
@@ -175,12 +148,7 @@ const Profile = () => {
     setSuccess('');
 
     try {
-      // The api service is an axios instance. The second argument is the data.
-      await api.post('/users/profile/photo', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      await api.post('/users/profile/photo', formData);
 
       // Refetch profile to get the latest user data with the new photo
       await fetchProfile();
@@ -196,19 +164,19 @@ const Profile = () => {
   // Only show the full-page loader on the initial fetch
   if (loading && !profile) {
     return (
-      <Container sx={{ mt: 8, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>Loading Profile...</Typography>
-      </Container>
+      <div className="auth-container">
+        <CircularProgress sx={{ color: 'white' }} />
+        <Typography variant="h6" sx={{ mt: 2, color: 'white' }}>Loading Profile...</Typography>
+      </div>
     );
   }
 
   // Only show a full-page error if the initial profile fetch failed
   if (error && !profile) {
     return (
-      <Container sx={{ mt: 8 }}>
+      <div className="auth-container">
         <Alert severity="error">{error}</Alert>
-      </Container>
+      </div>
     );
   }
 
@@ -217,176 +185,154 @@ const Profile = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Card elevation={3}>
-        <CardContent>
-          <Grid container spacing={3} alignItems="flex-start">
-            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-              <Box
-                position="relative"
-                display="inline-block"
-                mb={2} // Move margin-bottom here
-                sx={{
-                  ...(!editMode && { '&:hover .upload-overlay': { opacity: 1 } })
-                }}
+    <div className="auth-container" style={{ alignItems: 'flex-start', paddingTop: '60px', minHeight: 'calc(100vh - 70px)' }}>
+      <div className="auth-card profile-card">
+        <div className="profile-grid">
+          <div className="profile-sidebar">
+            <div className="profile-avatar-wrapper" onClick={() => editMode && fileInputRef.current.click()}>
+              <Avatar
+                src={profile.photoUrl}
+                alt={`${profile.firstName} ${profile.lastName}`}
+                sx={{ width: 150, height: 150, margin: 'auto', fontSize: '4rem', border: '3px solid rgba(255,255,255,0.2)' }}
               >
-                <Avatar
-                  src={profile.photoUrl}
-                  alt={`${profile.firstName} ${profile.lastName}`}
-                  sx={{ width: 150, height: 150, margin: 'auto', fontSize: '4rem' }}
-                >
-                  {profile.firstName?.charAt(0)}
-                </Avatar>
-                <Box
-                  className="upload-overlay"
-                  position="absolute"
-                  top={0}
-                  left={0}
-                  width="100%"
-                  height="100%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  bgcolor="rgba(0, 0, 0, 0.5)"
-                  borderRadius="50%"
-                  sx={{
-                    opacity: editMode ? 1 : 0, // Always visible in edit mode
-                    transition: 'opacity 0.3s',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  {uploading ? <CircularProgress color="inherit" /> : <PhotoCamera sx={{ color: 'white', fontSize: 40 }} />}
-                </Box>
-                <input type="file" ref={fileInputRef} hidden accept="image/png, image/jpeg, image/gif" onChange={handlePhotoUpload} />
-              </Box>
-              <Typography variant="h5" component="h1">
-                {profile.firstName} {profile.lastName}
-              </Typography>
-              <Chip
-                icon={<AdminPanelSettings />}
-                label={profile.role}
-                color={profile.role === 'admin' ? 'secondary' : 'primary'}
-                variant="outlined"
-                sx={{ mt: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6" gutterBottom>
-                  Account Details
-                </Typography>
-                {!editMode && (
-                  <Button startIcon={<Edit />} onClick={() => setEditMode(true)}>
-                    Edit
-                  </Button>
-                )}
-              </Box>
-              <Divider sx={{ mb: 2 }} />
-              {editMode ? (
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Autocomplete
-                      fullWidth
-                      options={sports}
-                      getOptionLabel={(option) => option.name}
-                      value={sports.find((s) => s._id === formData.favoriteSport) || null}
-                      onChange={(event, newValue) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          favoriteSport: newValue ? newValue._id : '',
-                        }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label="Favorite Sport" />}
-                      isOptionEqualToValue={(option, value) => option._id === value._id}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField fullWidth disabled label="Email" value={formData.email} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField fullWidth disabled label="Role" value={formData.role} />
-                  </Grid>
-                  <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <Button variant="outlined" startIcon={<Cancel />} onClick={handleCancel} disabled={loading}>
-                      Cancel
-                    </Button>
-                    <Button variant="contained" startIcon={<Save />} onClick={handleSave} disabled={loading}>
-                      {loading ? <CircularProgress size={24} /> : 'Save'}
-                    </Button>
-                  </Grid>
-                </Grid>
-              ) : (
-                <List>
-                  <ListItem>
-                    <ListItemIcon><Person /></ListItemIcon>
-                    <ListItemText primary="Full Name" secondary={`${profile.firstName} ${profile.lastName}`} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><Email /></ListItemIcon>
-                    <ListItemText primary="Email Address" secondary={profile.email} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><SportsSoccer /></ListItemIcon>
-                    <ListItemText primary="Favorite Sport" secondary={profile.favoriteSport?.name || 'None'} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon><CalendarToday /></ListItemIcon>
-                    <ListItemText primary="Member Since" secondary={new Date(profile.createdAt).toLocaleDateString()} />
-                  </ListItem>
-                </List>
-              )}
+                {profile.firstName?.charAt(0)}
+              </Avatar>
+              <div className="upload-overlay" style={{ opacity: editMode ? 1 : 0 }}>
+                {uploading ? <CircularProgress color="inherit" size={30} /> : <PhotoCamera sx={{ color: 'white', fontSize: 40 }} />}
+              </div>
+              <input type="file" ref={fileInputRef} hidden accept="image/png, image/jpeg, image/gif" onChange={handlePhotoUpload} disabled={!editMode} />
+            </div>
+            <Typography variant="h5" component="h1" sx={{ color: 'var(--text-primary)' }}>
+              {profile.firstName} {profile.lastName}
+            </Typography>
+            <Chip
+              icon={<AdminPanelSettings />}
+              label={profile.role}
+              variant="outlined"
+              sx={{ mt: 1, color: 'var(--text-tertiary)', borderColor: 'rgba(255,255,255,0.2)' }}
+            />
+          </div>
 
-              {profile.role === 'admin' && !editMode && (
-                <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Admin Functionality
-                  </Typography>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Add New Sport
-                  </Typography>
+          <div className="profile-main">
+            <div className="profile-main-header">
+              <h2>Account Details</h2>
+              {!editMode && (
+                <Button startIcon={<Edit />} onClick={() => setEditMode(true)} sx={{ color: 'var(--text-secondary)' }}>
+                  Edit
+                </Button>
+              )}
+            </div>
+
+            {editMode ? (
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                <div className="form-group">
+                  <label className="form-label">First Name</label>
+                  <input className="form-input" name="firstName" value={formData.firstName} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Last Name</label>
+                  <input className="form-input" name="lastName" value={formData.lastName} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Favorite Sport</label>
+                  <select
+                    name="favoriteSport"
+                    className="form-select"
+                    value={formData.favoriteSport}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select a sport</option>
+                    {sports.map(sport => <option key={sport._id} value={sport._id}>{sport.name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" value={formData.email} disabled />
+                </div>
+                <div className="edit-actions">
+                  <button type="button" className="auth-btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
+                  <button type="submit" className="auth-btn" disabled={loading}>
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="profile-detail-grid">
+                <div className="profile-detail-card">
+                  <div className="profile-detail-header">
+                    <div className="profile-detail-icon-wrapper">
+                      <Person />
+                    </div>
+                    <div className="profile-detail-label">Full Name</div>
+                  </div>
+                  <div className="profile-detail-value">{`${profile.firstName} ${profile.lastName}`}</div>
+                </div>
+                
+                <div className="profile-detail-card">
+                  <div className="profile-detail-header">
+                    <div className="profile-detail-icon-wrapper">
+                      <Email />
+                    </div>
+                    <div className="profile-detail-label">Email Address</div>
+                  </div>
+                  <div className="profile-detail-value">{profile.email}</div>
+                </div>
+
+                <div className="profile-detail-card">
+                  <div className="profile-detail-header">
+                    <div className="profile-detail-icon-wrapper">
+                      <SportsSoccer />
+                    </div>
+                    <div className="profile-detail-label">Favorite Sport</div>
+                  </div>
+                  <div className="profile-detail-value">{profile.favoriteSport?.name || 'None'}</div>
+                </div>
+
+                <div className="profile-detail-card">
+                  <div className="profile-detail-header">
+                    <div className="profile-detail-icon-wrapper">
+                      <CalendarToday />
+                    </div>
+                    <div className="profile-detail-label">Member Since</div>
+                  </div>
+                  <div className="profile-detail-value">{new Date(profile.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+            )}
+
+            {profile.role === 'admin' && !editMode && (
+              <div className="admin-section">
+                <h3>Admin Controls</h3>
+                <div className="form-group">
+                  <label className="form-label">Add New Sport</label>
                   <Box display="flex" gap={2}>
-                    <TextField
-                      label="Sport Name"
+                    <input
+                      className="form-input"
+                      placeholder="New sport name"
                       value={newSport}
                       onChange={(e) => setNewSport(e.target.value)}
-                      size="small"
-                      fullWidth
                     />
-                    <Button variant="contained" onClick={handleAddSport} disabled={loading || !newSport.trim()}>
-                      Add
-                    </Button>
+                    <button className="auth-btn" onClick={handleAddSport} disabled={loading || !newSport.trim()}>Add</button>
                   </Box>
-
-                  <Typography variant="subtitle1" gutterBottom sx={{ mt: 3 }}>
-                    Manage Existing Sports
-                  </Typography>
-                  <List dense sx={{ maxHeight: 200, overflow: 'auto', bgcolor: 'background.paper', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 1 }}>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Manage Existing Sports</label>
+                  <div className="sport-management-list">
                     {sports.map((sport) => (
-                      <ListItem
-                        key={sport._id}
-                        secondaryAction={
-                          <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteSport(sport._id)} disabled={loading}>
-                            <Delete />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText primary={sport.name} />
-                      </ListItem>
+                      <div key={sport._id} className="sport-item">
+                        <span>{sport.name}</span>
+                        <IconButton className="delete-sport-btn" onClick={() => handleDeleteSport(sport._id)} disabled={loading}>
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </div>
                     ))}
-                  </List>
-                </Box>
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
           {error}
@@ -397,7 +343,7 @@ const Profile = () => {
           {success}
         </Alert>
       </Snackbar>
-    </Container>
+    </div>
   );
 };
 
