@@ -81,7 +81,17 @@ const Register = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, photo: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setErrors({ ...errors, photo: "File size should not exceed 5MB" });
+        e.target.value = null; // Reset input
+        setFormData({ ...formData, photo: null });
+      } else {
+        setErrors(prev => { const { photo, ...rest } = prev; return rest; });
+        setFormData({ ...formData, photo: file });
+      }
+    }
   };
 
   const validate = () => {
@@ -227,6 +237,7 @@ const Register = () => {
               className="file-input"
               onChange={handleFileChange}
             />
+            {errors.photo && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.photo}</span>}
           </div>
 
           <div className="form-group">

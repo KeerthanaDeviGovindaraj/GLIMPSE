@@ -96,7 +96,8 @@ export async function googleLogin(req, res) {
         email,
         password, // This will be hashed by the pre-save hook
         photo: photoBuffer,
-        photoType: photoType
+        photoType: photoType,
+        status: "active"
       });
     }
 

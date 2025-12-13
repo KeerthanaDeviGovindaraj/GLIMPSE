@@ -106,6 +106,12 @@ const Profile = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setError("File size should not exceed 5MB");
+      event.target.value = null;
+      return;
+    }
+
     const formData = new FormData();
     formData.append('photo', file);
 

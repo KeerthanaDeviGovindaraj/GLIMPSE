@@ -9,9 +9,9 @@ import {
   Visibility,
   VisibilityOff
 } from '@mui/icons-material';
-import axios from 'axios';
 import './AdminDashboard.css';
 import '../Common/Auth.css';
+import api from '../../services/api';
 
 const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState('users');
@@ -22,6 +22,7 @@ const AdminDashboard = () => {
     admins: 0,
     analysts: 0
   });
+  const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -40,19 +42,11 @@ const AdminDashboard = () => {
     favoriteSport: ''
   });
 
-  // API base URL
-  const API_URL = 'http://localhost:4000/api';
-
-  // Get token from localStorage
-  const getToken = () => localStorage.getItem('token');
-
   // Fetch users
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/admin/users`, {
-        headers: { Authorization: `Bearer ${getToken()}` }
-      });
+      const response = await api.get('/admin/users');
       setUsers(response.data);
       setError('');
     } catch (err) {
@@ -65,12 +59,19 @@ const AdminDashboard = () => {
   // Fetch statistics
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API_URL}/admin/stats`, {
-        headers: { Authorization: `Bearer ${getToken()}` }
-      });
+      const response = await api.get('/admin/stats');
       setStats(response.data);
     } catch (err) {
       console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  const fetchSports = async () => {
+    try {
+      const { data } = await api.get('/sports');
+      setSports(data.sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (error) {
+      console.error('Failed to fetch sports', error);
     }
   };
 
@@ -78,10 +79,9 @@ const AdminDashboard = () => {
   const toggleUserStatus = async (userId) => {
     try {
       setLoading(true);
-      const response = await axios.patch(
-        `${API_URL}/admin/users/${userId}/toggle-status`,
-        {},
-        { headers: { Authorization: `Bearer ${getToken()}` } }
+      const response = await api.patch(
+        `/admin/users/${userId}/toggle-status`,
+        {}
       );
       
       setSuccess(response.data.message);
@@ -97,15 +97,80 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+
+    // Real-time validation
+    let tempErrors = { ...errors };
+
+    switch (name) {
+      case 'firstName':
+        tempErrors.firstName = value.trim() ? "" : "First name is required";
+        break;
+      case 'lastName':
+        tempErrors.lastName = value.trim() ? "" : "Last name is required";
+        break;
+      case 'email':
+        if (!value.trim()) {
+          tempErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          tempErrors.email = "Email is invalid";
+        } else {
+          tempErrors.email = "";
+        }
+        break;
+      case 'password':
+        if (!value) {
+          tempErrors.password = "Password is required";
+        } else if (value.length < 6) {
+          tempErrors.password = "Password must be at least 6 characters";
+        } else {
+          tempErrors.password = "";
+        }
+        if (newUser.confirmPassword) {
+          tempErrors.confirmPassword = value === newUser.confirmPassword ? "" : "Passwords do not match";
+        }
+        break;
+      case 'confirmPassword':
+        tempErrors.confirmPassword = value === newUser.password ? "" : "Passwords do not match";
+        break;
+      default:
+        break;
+    }
+    setErrors(tempErrors);
+  };
+
+  const validate = () => {
+    let tempErrors = {};
+    if (!newUser.firstName.trim()) tempErrors.firstName = "First name is required";
+    if (!newUser.lastName.trim()) tempErrors.lastName = "Last name is required";
+    if (!newUser.email.trim()) {
+      tempErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
+      tempErrors.email = "Email is invalid";
+    }
+    if (!newUser.password) {
+      tempErrors.password = "Password is required";
+    } else if (newUser.password.length < 6) {
+      tempErrors.password = "Password must be at least 6 characters";
+    }
+    if (newUser.password !== newUser.confirmPassword) {
+      tempErrors.confirmPassword = "Passwords do not match";
+    }
+    if (!newUser.favoriteSport) {
+      tempErrors.favoriteSport = "Favorite sport is required";
+    }
+    
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
   // Add new user
   const handleAddUser = async (e) => {
     e.preventDefault();
     
-    if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.password || !newUser.favoriteSport) {
-      setError('All fields are required');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
+    if (!validate()) return;
 
     try {
       setLoading(true);
@@ -116,21 +181,17 @@ const AdminDashboard = () => {
       formData.append('lastName', newUser.lastName);
       formData.append('email', newUser.email);
       formData.append('password', newUser.password);
-      formData.append('role', newUser.role);
+      formData.append('role', newUser.role || 'user');
       formData.append('favoriteSport', newUser.favoriteSport);
       
-      const response = await axios.post(
-        `${API_URL}/auth/register`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }
+      const response = await api.post(
+        '/auth/register',
+        formData
       );
       
       setSuccess('User added successfully!');
       setShowAddUserModal(false);
+      setErrors({});
       setNewUser({
         firstName: '',
         lastName: '',
@@ -145,9 +206,14 @@ const AdminDashboard = () => {
       
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error('Registration error:', err.response?.data);
-      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to add user');
-      setTimeout(() => setError(''), 3000);
+      console.error('Registration error:', err);
+      const errorMessage = err.response?.data?.error || 
+                           err.response?.data?.message || 
+                           err.message || 
+                           'Failed to add user';
+      setError(errorMessage);
+      setErrors(prev => ({ ...prev, api: errorMessage }));
+      setTimeout(() => setError(''), 5000);
     } finally {
       setLoading(false);
     }
@@ -158,6 +224,7 @@ const AdminDashboard = () => {
       fetchUsers();
     }
     fetchStats();
+    fetchSports();
   }, [currentPage]);
 
   return (
@@ -223,49 +290,67 @@ const AdminDashboard = () => {
               </button>
             </div>
 
+            {errors.api && (
+              <div style={{
+                backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                border: '1px solid rgba(229, 9, 20, 0.3)',
+                color: '#ff6b6b',
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontSize: '14px'
+              }}>
+                ⚠️ {errors.api}
+              </div>
+            )}
+
             <form onSubmit={handleAddUser}>
               <div className="modal-form-grid">
               <div className="form-group">
                 <label className="form-label">First Name *</label>
                 <input
                   type="text"
+                  name="firstName"
                   value={newUser.firstName}
-                  onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                  onChange={handleChange}
                   className="form-input"
                   placeholder="Enter first name"
-                  required
                 />
+                {errors.firstName && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.firstName}</span>}
               </div>
 
               <div className="form-group">
                 <label className="form-label">Last Name *</label>
                 <input
                   type="text"
+                  name="lastName"
                   value={newUser.lastName}
-                  onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                  onChange={handleChange}
                   className="form-input"
                   placeholder="Enter last name"
-                  required
                 />
+                {errors.lastName && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.lastName}</span>}
               </div>
 
               <div className="form-group">
                 <label className="form-label">Email *</label>
                 <input
                   type="email"
+                  name="email"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  onChange={handleChange}
                   className="form-input"
                   placeholder="Enter email address"
-                  required
                 />
+                {errors.email && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.email}</span>}
               </div>
 
               <div className="form-group">
                 <label className="form-label">Role *</label>
                 <select
+                  name="role"
                   value={newUser.role}
-                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                  onChange={handleChange}
                   className="form-select"
                   required
                 >
@@ -280,11 +365,11 @@ const AdminDashboard = () => {
                 <div className="password-input-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
+                    name="password"
                     value={newUser.password}
-                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                    onChange={handleChange}
                     className="form-input"
                     placeholder="Enter password"
-                    required
                   />
                   <button
                     type="button"
@@ -294,6 +379,7 @@ const AdminDashboard = () => {
                     {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                   </button>
                 </div>
+                {errors.password && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.password}</span>}
               </div>
 
               <div className="form-group">
@@ -301,11 +387,11 @@ const AdminDashboard = () => {
                 <div className="password-input-wrapper">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
                     value={newUser.confirmPassword}
-                    onChange={(e) => setNewUser({...newUser, confirmPassword: e.target.value})}
+                    onChange={handleChange}
                     className="form-input"
                     placeholder="Confirm password"
-                    required
                   />
                   <button
                     type="button"
@@ -315,20 +401,23 @@ const AdminDashboard = () => {
                     {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                   </button>
                 </div>
+                {errors.confirmPassword && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.confirmPassword}</span>}
               </div>
 
               <div className="form-group">
                 <label className="form-label">Favorite Sport *</label>
                 <select
+                  name="favoriteSport"
                   value={newUser.favoriteSport}
-                  onChange={(e) => setNewUser({...newUser, favoriteSport: e.target.value})}
+                  onChange={handleChange}
                   className="form-select"
-                  required
                 >
                   <option value="">Select a sport</option>
-                  <option value="Cricket">Cricket</option>
-                  <option value="Football">Football</option>
+                  {sports.map((sport) => (
+                    <option key={sport._id} value={sport._id}>{sport.name}</option>
+                  ))}
                 </select>
+                {errors.favoriteSport && <span style={{color: '#ff8a8a', fontSize: '0.8rem'}}>{errors.favoriteSport}</span>}
               </div>
               </div>
 
