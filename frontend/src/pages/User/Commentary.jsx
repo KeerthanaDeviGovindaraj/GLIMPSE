@@ -53,7 +53,7 @@ const Commentary = () => {
   useEffect(() => {
     fetchCommentaries();
     fetchSportsScores();
-    const interval = setInterval(fetchSportsScores, 30000);
+    const interval = setInterval(fetchSportsScores, 60000);
     return () => clearInterval(interval);
   }, []);
 
