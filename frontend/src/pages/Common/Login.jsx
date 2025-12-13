@@ -119,7 +119,7 @@ const Login = () => {
       }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.error || 'Login failed');
       }
 
       // Dispatch to Redux and navigate
