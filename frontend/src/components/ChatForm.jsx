@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { findPredefinedAnswer } from "./predefinedQA";
 
 const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse }) => {
   const inputRef = useRef();
@@ -18,16 +19,30 @@ const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse }) => {
 
     setChatHistory((prev) => [...prev, newUserMessage]);
 
-    setTimeout(() => {
-      setChatHistory((prev) => [
-        ...prev,
-        { role: "model", parts: [{ text: "Thinking..." }] }
-      ]);
-    }, 600);
-    
-    setTimeout(() => {
-      generateBotResponse([...chatHistory, newUserMessage]);
-    }, 700);
+    // ✨ NEW: Check if it's a predefined question first
+    const predefinedAnswer = findPredefinedAnswer(userMessage);
+
+    if (predefinedAnswer) {
+      // ✨ NEW: Instant answer for predefined questions (no API call)
+      setTimeout(() => {
+        setChatHistory((prev) => [
+          ...prev,
+          { role: "model", parts: [{ text: predefinedAnswer }] }
+        ]);
+      }, 300);
+    } else {
+      // ✨ EXISTING: Use Gemini API for other questions
+      setTimeout(() => {
+        setChatHistory((prev) => [
+          ...prev,
+          { role: "model", parts: [{ text: "Thinking..." }] }
+        ]);
+      }, 600);
+      
+      setTimeout(() => {
+        generateBotResponse([...chatHistory, newUserMessage]);
+      }, 700);
+    }
   };
 
   return (

@@ -7,6 +7,8 @@ import "./Home.css";
 import ChatbotIcon from '../../components/ChatbotIcon';
 import ChatForm from '../../components/ChatForm';
 import ChatMessage from '../../components/ChatMessage';
+// ✨ NEW: Import predefined Q&A
+import { predefinedQA } from '../../components/predefinedQA';
 
 const features = [
     { icon: <FaMicrophone />, title: "Real-time Commentary", desc: "Get instant AI-powered commentary for live matches with insightful analytics." },
@@ -248,6 +250,37 @@ const Home = () => {
                             </p>
                         </div>
 
+                        {/* ✨ NEW: Suggested Questions - Only when no chat history */}
+                        {chatHistory.length === 0 && (
+                            <div className="suggested-questions-inline">
+                                <p className="suggestions-label">Quick questions:</p>
+                                <div className="suggestions-grid">
+                                    {predefinedQA.slice(0, 4).map((qa) => (
+                                        <button
+                                            key={qa.id}
+                                            className="suggestion-btn"
+                                            onClick={() => {
+                                                const userMessage = {
+                                                    role: "user",
+                                                    parts: [{ text: qa.question }]
+                                                };
+                                                setChatHistory([userMessage]);
+                                                setTimeout(() => {
+                                                    setChatHistory(prev => [
+                                                        ...prev,
+                                                        { role: "model", parts: [{ text: qa.answer }] }
+                                                    ]);
+                                                }, 300);
+                                            }}
+                                            type="button"
+                                        >
+                                            {qa.question}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {chatHistory.map((chat, index) => (
                             <ChatMessage key={index} chat={chat} />
                         ))}
@@ -335,6 +368,37 @@ const Home = () => {
                             Hello! <br /> How can I assist you today?
                         </p>
                     </div>
+
+                    {/* ✨ NEW: Suggested Questions - Only when no chat history */}
+                    {chatHistory.length === 0 && (
+                        <div className="suggested-questions-inline">
+                            <p className="suggestions-label">Quick questions:</p>
+                            <div className="suggestions-grid">
+                                {predefinedQA.slice(0, 4).map((qa) => (
+                                    <button
+                                        key={qa.id}
+                                        className="suggestion-btn"
+                                        onClick={() => {
+                                            const userMessage = {
+                                                role: "user",
+                                                parts: [{ text: qa.question }]
+                                            };
+                                            setChatHistory([userMessage]);
+                                            setTimeout(() => {
+                                                setChatHistory(prev => [
+                                                    ...prev,
+                                                    { role: "model", parts: [{ text: qa.answer }] }
+                                                ]);
+                                            }, 300);
+                                        }}
+                                        type="button"
+                                    >
+                                        {qa.question}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {chatHistory.map((chat, index) => (
                         <ChatMessage key={index} chat={chat} />
