@@ -8,6 +8,9 @@ import './Auth.css';
 import ChatbotIcon from '../../components/ChatbotIcon';
 import ChatForm from '../../components/ChatForm';
 import ChatMessage from '../../components/ChatMessage';
+// ✨ NEW: Import predefined Q&A
+import { predefinedQA } from '../../components/predefinedQA';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -118,13 +121,38 @@ const Login = () => {
       }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.error || 'Login failed');
       }
 
       // Dispatch to Redux and navigate
       dispatch(setCredentials({ ...data }));
       navigate('/commentary');
 
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE_URL}/api/auth/google`;
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google login failed');
+
+      dispatch(setCredentials(data));
+      navigate('/commentary');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -182,6 +210,23 @@ const Login = () => {
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
+{/* 
+          <button
+            type="button"
+            className="auth-btn"
+            onClick={handleGoogleLogin}
+            style={{ marginTop: '10px', backgroundColor: '#db4437' }}
+          >
+            Sign in with Google
+          </button> */}
+
+        <div className="google-login-container" style={{marginTop: '20px'}}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed. Please try again.')}
+            width="100%"
+          />
+        </div>
 
           <div className="auth-options">
             <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
@@ -224,6 +269,37 @@ const Login = () => {
                 Hello! <br /> How can I assist you today?
               </p>
             </div>
+
+            {/* ✨ NEW: Suggested Questions - Only when no chat history */}
+            {chatHistory.length === 0 && (
+              <div className="suggested-questions-inline">
+                <p className="suggestions-label">Quick questions:</p>
+                <div className="suggestions-grid">
+                  {predefinedQA.slice(0, 4).map((qa) => (
+                    <button
+                      key={qa.id}
+                      className="suggestion-btn"
+                      onClick={() => {
+                        const userMessage = {
+                          role: "user",
+                          parts: [{ text: qa.question }]
+                        };
+                        setChatHistory([userMessage]);
+                        setTimeout(() => {
+                          setChatHistory(prev => [
+                            ...prev,
+                            { role: "model", parts: [{ text: qa.answer }] }
+                          ]);
+                        }, 300);
+                      }}
+                      type="button"
+                    >
+                      {qa.question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {chatHistory.map((chat, index) => (
                 <ChatMessage key={index} chat={chat} />
