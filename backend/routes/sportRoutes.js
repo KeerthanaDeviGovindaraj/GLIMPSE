@@ -1,7 +1,11 @@
 // backend/routes/sportRoutes.js
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
-
+import {
+  deleteSport,
+  getAllSports,
+  createSport
+} from '../controllers/sportController.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Mock Cricket Data
@@ -156,5 +160,8 @@ router.get('/football/live', protect, async (req, res) => {
     });
   }
 });
+
+router.route('/').get(getAllSports).post(protect, authorize('admin'), createSport);
+router.route('/:id').delete(protect, authorize('admin'), deleteSport);
 
 export default router;
