@@ -21,7 +21,6 @@ import ForgotPassword from './pages/Common/ForgotPassword';
 import ResetPassword from './pages/Common/ResetPassword';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
-import UserDashboard from './pages/User/UserDashboard';
 import Profile from './pages/User/Profile';
 import Commentary from './pages/User/Commentary';
 
