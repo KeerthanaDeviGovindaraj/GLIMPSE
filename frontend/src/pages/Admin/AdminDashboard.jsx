@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, Trophy, TrendingUp, Database, Clock, AlertCircle, X } from 'lucide-react';
+import {
+  Home,
+  People as Users,
+  EmojiEvents as Trophy,
+  TrendingUp,
+  Storage as Database,
+  AccessTime as Clock,
+  ErrorOutline as AlertCircle,
+  Close as X
+} from '@mui/icons-material';
 import axios from 'axios';
 
 const AdminDashboard = () => {
