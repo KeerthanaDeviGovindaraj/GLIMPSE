@@ -9,8 +9,8 @@ import {
   Visibility,
   VisibilityOff
 } from '@mui/icons-material';
-import './AdminDashboard.css';
-import '../Common/Auth.css';
+import '../../components/styles/AdminDashboard.css';
+import '../../components/styles/CommonStyles.css';
 import api from '../../services/api';
 
 const AdminDashboard = () => {

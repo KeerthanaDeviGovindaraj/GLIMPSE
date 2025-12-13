@@ -14,7 +14,7 @@ import {
 import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera } from '@mui/icons-material';
 import { setCredentials } from '../../redux/slices/authSlice';
 import api from '../../services/api';
-import '../Common/Auth.css';
+import '../../components/styles/CommonStyles.css';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);

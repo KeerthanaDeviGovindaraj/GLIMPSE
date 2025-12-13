@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaFutbol, FaMicrophone, FaChartBar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import "./Home.css";
+import "../../components/styles/Home.css";
 // ✨ NEW: Chatbot imports
 import ChatbotIcon from '../../components/ChatbotIcon';
 import ChatForm from '../../components/ChatForm';

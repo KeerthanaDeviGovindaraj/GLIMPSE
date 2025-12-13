@@ -24,7 +24,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import './AnalystDashboard.css';
+import '../../components/styles/AnalystDashboard.css';
 
 const AnalystDashboard = () => {
   const { user } = useSelector((state) => state.auth);

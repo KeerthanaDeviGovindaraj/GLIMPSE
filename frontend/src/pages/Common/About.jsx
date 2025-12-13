@@ -6,7 +6,7 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import './Auth.css';
+import '../../components/styles/CommonStyles.css';
 
 function FounderCard({
   name = "Rushitaben Vachhani",

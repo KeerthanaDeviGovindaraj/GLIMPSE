@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/slices/authSlice';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import './Auth.css';
+import '../../components/styles/CommonStyles.css';
 // ✨ NEW: Chatbot imports
 import ChatbotIcon from '../../components/ChatbotIcon';
 import ChatForm from '../../components/ChatForm';

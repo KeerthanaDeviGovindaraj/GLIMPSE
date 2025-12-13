@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import './Auth.css';
+import '../../components/styles/CommonStyles.css';
 
 const Contact = () => {
   const navigate = useNavigate();

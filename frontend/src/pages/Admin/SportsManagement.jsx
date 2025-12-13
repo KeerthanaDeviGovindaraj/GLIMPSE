@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { Delete, SportsSoccer } from '@mui/icons-material';
 import api from '../../services/api';
-import './AdminDashboard.css';
+import '../../components/styles/AdminDashboard.css';
 
 const SportsManagement = () => {
   const [sports, setSports] = useState([]);
