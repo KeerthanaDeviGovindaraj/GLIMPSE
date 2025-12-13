@@ -14,6 +14,7 @@ Provide AI-powered sports commentary for games
 Support multiple languages (English, Spanish, and more)
 Deliver advanced analytics and insights for sports fans
 Offer seamless user authentication and profile management
+
 Features
 
 User Authentication: Secure login/signup with @northeastern.edu email validation
