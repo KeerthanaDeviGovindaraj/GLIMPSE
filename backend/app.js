@@ -13,7 +13,7 @@ import passwordRoutes from "./routes/passwordRoutes.js";
 import { protect, authorize } from "./middleware/authMiddleware.js";
 import commentaryRoutes from './routes/commentaryRoutes.js';
 import aiCommentaryRoutes from './routes/aiCommentary.js';
-import adminRoutes from './routes/admin.js'; // ⭐ ADD THIS LINE
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 
@@ -40,8 +40,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/password", passwordRoutes);
 app.use('/api/commentaries', commentaryRoutes);
-app.use('/api/ai-commentary', aiCommentaryRoutes); // 👈 Add this line
-app.use('/api/admin', adminRoutes); // ⭐ ADD THIS LINE
+app.use('/api/ai-commentary', aiCommentaryRoutes); 
+app.use('/api/admin', adminRoutes); 
 
 // Health check
 app.get("/health", (req, res) => res.json({ ok: true }));

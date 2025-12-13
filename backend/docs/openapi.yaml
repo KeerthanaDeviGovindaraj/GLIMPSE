@@ -1,15 +1,43 @@
 openapi: 3.0.0
 info:
   title: Glimpse API
-  description: API for user authentication, roles, and other features.
+  description: API for the Glimpse sports commentary platform, covering user authentication, roles, sports data, and AI-powered commentary generation.
   version: 1.0.0
+  contact:
+    name: Glimpse API Support
+    email: support@glimpse.com
 
 servers:
-  - url: /api
-    description: API Base Path
+  - url: /
+    description: API Server
+
+tags:
+  - name: Auth
+    description: User authentication and registration
+  - name: Users
+    description: User profile management
+  - name: Sports
+    description: Access to sports data and live scores
+  - name: Commentaries
+    description: Fan-generated commentaries
+  - name: AI Commentary
+    description: AI-powered commentary generation
+  - name: Password
+    description: Password recovery operations
+  - name: Admin
+    description: Administrative operations for user and system management
+  - name: Health
+    description: API health check
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
+    # ===== USER & AUTH SCHEMAS =====
     User:
       type: object
       properties:
@@ -17,9 +45,12 @@ components:
           type: string
           description: The user's unique ID.
           example: 60d0fe4f5311236168a109ca
-        name:
+        firstName:
           type: string
-          example: Rushitaben Vachhani
+          example: Rushitaben
+        lastName:
+          type: string
+          example: Vachhani
         email:
           type: string
           format: email
@@ -28,69 +59,337 @@ components:
           type: string
           enum: [user, admin, analyst]
           example: user
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+          example: active
+        favoriteSport:
+          type: string
+          description: ObjectId of the user's favorite sport.
+          example: "60d0fe4f5311236168a109cb"
+        favoriteSportName:
+          type: string
+          description: Denormalized name of the favorite sport.
+          example: "Cricket"
+        photoUrl:
+          type: string
+          format: uri
+          description: URL to the user's profile photo.
+          example: "data:image/png;base64,..."
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
-    AuthResponse:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: 60d0fe4f5311236168a109ca
-        name:
-          type: string
-          example: Rushitaben Vachhani
-        email:
-          type: string
-          format: email
-          example: rushi@northeastern.edu
-        role:
-          type: string
-          enum: [user, admin, analyst]
-          example: user
-        token:
-          type: string
-          description: JWT token for authentication.
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-    Error:
+    LoginResponse:
       type: object
       properties:
         message:
           type: string
-          description: A message describing the error.
+          example: Login successful
+        token:
+          type: string
+          description: JWT token for authentication.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/User'
+
+    ProfileUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Profile updated successfully.
+        user:
+          $ref: '#/components/schemas/User'
+
+    PhotoUploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Image uploaded successfully.
+        photoUrl:
+          type: string
+          format: uri
+          description: The new URL of the uploaded photo.
+          example: "data:image/png;base64,..."
+
+    # ===== SPORT SCHEMAS =====
+    Sport:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d0fe4f5311236168a109cb"
+        name:
+          type: string
+          example: "Cricket"
+
+    CricketMatch:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "cricket-1"
+        name:
+          type: string
+          example: "India vs Australia - 3rd Test Match"
+        isLive:
+          type: boolean
+        matchType:
+          type: string
+          example: "Test"
+        score:
+          type: array
+          items:
+            type: object
+            properties:
+              inning:
+                type: string
+                example: "India"
+              r:
+                type: integer
+                example: 328
+              w:
+                type: integer
+                example: 8
+              o:
+                type: integer
+                example: 90
+
+    FootballMatch:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "football-1"
+        league:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Premier League"
+        teams:
+          type: object
+          properties:
+            home:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Manchester United"
+            away:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Liverpool"
+        goals:
+          type: object
+          properties:
+            home:
+              type: integer
+              example: 2
+            away:
+              type: integer
+              example: 2
+        status:
+          type: object
+          properties:
+            long:
+              type: string
+              example: "In Play"
+            elapsed:
+              type: integer
+              example: 75
+
+    # ===== COMMENTARY SCHEMAS =====
+    Commentary:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "61d0fe4f5311236168a109cc"
+        comment:
+          type: string
+          example: "What a shot!"
+        username:
+          type: string
+          example: "Rushitaben Vachhani"
+        userId:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+        sport:
+          type: string
+          enum: [cricket, football, basketball, general]
+          example: "cricket"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AICommentaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        commentary:
+          type: string
+          example: "The batsman hits the ball for a massive six! The crowd is going wild!"
+        matchId:
+          type: string
+          example: "cricket-1"
+        sport:
+          type: string
+          example: "cricket"
+        isLive:
+          type: boolean
+          example: true
+        style:
+          type: string
+          example: "professional"
+        generatedAt:
+          type: string
+          format: date-time
+
+    AIStyle:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "professional"
+        name:
+          type: string
+          example: "Professional"
+        description:
+          type: string
+          example: "Standard professional sports commentary"
+
+    # ===== ADMIN & ANALYTICS SCHEMAS =====
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+          example: 25
+        activeUsers:
+          type: integer
+          example: 22
+        admins:
+          type: integer
+          example: 2
+        analysts:
+          type: integer
+          example: 3
+
+    SystemAnalytics:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalSports:
+          type: integer
+        usersByRole:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                enum: [user, admin, analyst]
+              count:
+                type: integer
+        usersBySport:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+        recentUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+    # ===== GENERIC SCHEMAS =====
+    Error:
+      type: object
+      properties:
         error:
           type: string
-          description: Detailed error information (optional).
+          description: A message describing the error.
+          example: "Invalid credentials"
+        details:
+          type: array
+          items:
+            type: object
+          description: Optional validation error details.
 
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation successful"
 
 security:
   - bearerAuth: []
 
 paths:
-  /auth/signup:
+  # ==================== HEALTH ====================
+  /health:
+    get:
+      summary: Health Check
+      description: Checks if the API server is running.
+      tags: [Health]
+      security: [] # Public
+      responses:
+        '200':
+          description: API is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+
+  # ==================== AUTH ====================
+  /api/auth/register:
     post:
       summary: Register a new user
       description: Creates a new user account. The default role is 'user'.
-      tags:
-        - Auth
+      tags: [Auth]
+      security: [] # This endpoint is public
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               required:
-                - name
+                - firstName
+                - lastName
                 - email
                 - password
+                - favoriteSport
               properties:
-                name:
+                firstName:
                   type: string
-                  example: Rushitaben Vachhani
+                  example: Rushitaben
+                lastName:
+                  type: string
+                  example: Vachhani
                 email:
                   type: string
                   format: email
@@ -102,15 +401,27 @@ paths:
                 role:
                   type: string
                   enum: [user, admin, analyst]
-                  description: Optional role for the new user. Defaults to 'user'.
+                  description: Optional role. Defaults to 'user'.
                   example: user
+                favoriteSport:
+                  type: string
+                  description: ObjectId of the favorite sport.
+                  example: "60d0fe4f5311236168a109cb"
+                photo:
+                  type: string
+                  format: binary
+                  description: Optional profile picture.
       responses:
         '201':
           description: User created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User created successfully."
         '400':
           description: Bad Request (e.g., user already exists, invalid data).
           content:
@@ -124,12 +435,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /auth/login:
+  /api/auth/login:
     post:
       summary: Log in a user
-      description: Authenticates a user and returns a JWT.
-      tags:
-        - Auth
+      description: Authenticates a user and returns a JWT and user profile.
+      tags: [Auth]
+      security: [] # This endpoint is public
       requestBody:
         required: true
         content:
@@ -154,9 +465,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/LoginResponse'
         '401':
           description: Unauthorized (Invalid email or password).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (Account disabled).
           content:
             application/json:
               schema:
@@ -168,14 +485,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /profile:
+  /api/auth/google:
+    post:
+      summary: Google Login
+      description: Authenticates a user via Google OAuth token or creates a new user if they don't exist.
+      tags: [Auth]
+      security: [] # Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+                  description: Google ID Token.
+      responses:
+        '200':
+          description: Google login successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request (e.g., token missing).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (Invalid Google token).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==================== USERS ====================
+  /api/users/profile:
     get:
       summary: Get user profile
       description: Retrieves the profile of the currently logged-in user.
-      tags:
-        - User
-      security:
-        - bearerAuth: []
+      tags: [Users]
       responses:
         '200':
           description: Successful response.
@@ -188,3 +540,607 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update user profile
+      description: Updates the profile of the currently logged-in user.
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                favoriteSport:
+                  type: string
+                  description: ObjectId of the new favorite sport.
+      responses:
+        '200':
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileUpdateResponse'
+        '400':
+          description: Bad Request (Validation failed).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/profile/photo:
+    post:
+      summary: Upload profile photo
+      description: Uploads or updates the profile photo for the logged-in user.
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: The image file to upload.
+      responses:
+        '200':
+          description: Image uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoUploadResponse'
+        '400':
+          description: Bad Request (No file or invalid format).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/analyst-data:
+    get:
+      summary: Get system analytics (Analyst/Admin)
+      description: Retrieves system-wide analytics. Requires analyst or admin privileges.
+      tags: [Users]
+      responses:
+        '200':
+          description: Analytics retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemAnalytics'
+        '401':
+          description: Not authorized.
+        '403':
+          description: Forbidden.
+
+  /api/users:
+    get:
+      summary: Get all users (Admin)
+      description: Retrieves a list of all users. Requires admin privileges.
+      tags: [Admin, Users]
+      responses:
+        '200':
+          description: A list of all users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Not authorized.
+        '403':
+          description: Forbidden.
+
+  /api/users/{id}:
+    delete:
+      summary: Delete a user (Admin)
+      description: Deletes a user by their ID. Requires admin privileges.
+      tags: [Admin, Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: User not found.
+
+  # ==================== PASSWORD ====================
+  /api/password/forgot:
+    post:
+      summary: Forgot Password
+      description: Sends a password reset link to the user's email.
+      tags: [Password]
+      security: [] # Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Email sent successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/password/reset/{resetToken}:
+    put:
+      summary: Reset Password
+      description: Resets the user's password using a valid token.
+      tags: [Password]
+      security: [] # Public
+      parameters:
+        - name: resetToken
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password reset successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Invalid or expired token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==================== SPORTS ====================
+  /api/sports:
+    get:
+      summary: Get all sports
+      description: Retrieves a list of all available sports.
+      tags: [Sports]
+      security: [] # Public
+      responses:
+        '200':
+          description: A list of sports.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sport'
+    post:
+      summary: Create a new sport (Admin)
+      description: Adds a new sport to the database. Requires admin privileges.
+      tags: [Admin, Sports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: "Tennis"
+      responses:
+        '201':
+          description: Sport created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sport'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Not authorized.
+        '403':
+          description: Forbidden.
+
+  /api/sports/{id}:
+    delete:
+      summary: Delete a sport (Admin)
+      description: Deletes a sport by its ID. Requires admin privileges.
+      tags: [Admin, Sports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sport deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '401':
+          description: Not authorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Sport not found.
+
+  /api/sports/cricket/live:
+    get:
+      summary: Get live cricket matches
+      description: Retrieves a list of live or recent cricket matches.
+      tags: [Sports]
+      responses:
+        '200':
+          description: A list of cricket matches.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CricketMatch'
+
+  /api/sports/football/live:
+    get:
+      summary: Get live football matches
+      description: Retrieves a list of live or recent football matches.
+      tags: [Sports]
+      responses:
+        '200':
+          description: A list of football matches.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FootballMatch'
+
+  # ==================== COMMENTARY ====================
+  /api/commentaries:
+    get:
+      summary: Get all commentaries
+      description: Retrieves the latest 100 commentaries.
+      tags: [Commentaries]
+      responses:
+        '200':
+          description: A list of commentaries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commentary'
+    post:
+      summary: Create a new commentary
+      description: Posts a new commentary for a sport.
+      tags: [Commentaries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment:
+                  type: string
+                sport:
+                  type: string
+                  enum: [cricket, football, basketball, general]
+      responses:
+        '201':
+          description: Commentary created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Commentary'
+
+  /api/commentaries/sport/{sport}:
+    get:
+      summary: Get commentaries by sport
+      description: Retrieves the latest 50 commentaries for a specific sport.
+      tags: [Commentaries]
+      parameters:
+        - name: sport
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [cricket, football, basketball, general]
+      responses:
+        '200':
+          description: A list of commentaries for the specified sport.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Commentary'
+
+  /api/commentaries/{id}:
+    delete:
+      summary: Delete a commentary
+      description: Deletes a commentary by its ID. User must be the author of the commentary.
+      tags: [Commentaries]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Commentary deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '403':
+          description: Not authorized to delete this commentary.
+        '404':
+          description: Commentary not found.
+
+  # ==================== AI COMMENTARY ====================
+  /api/ai-commentary/styles:
+    get:
+      summary: Get AI commentary styles
+      description: Retrieves the available styles for AI-generated commentary.
+      tags: [AI Commentary]
+      security: [] # Public
+      responses:
+        '200':
+          description: A list of available styles.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  styles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AIStyle'
+
+  /api/ai-commentary/auto/{sport}/{matchId}:
+    get:
+      summary: Generate AI commentary for a match (Auto)
+      description: Generates AI-powered commentary for a specific match and style using external APIs.
+      tags: [AI Commentary]
+      parameters:
+        - name: sport
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [cricket, football]
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: style
+          in: query
+          schema:
+            type: string
+            enum: [professional, casual, analytical, dramatic]
+            default: professional
+      responses:
+        '200':
+          description: AI commentary generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AICommentaryResponse'
+        '400':
+          description: Invalid sport type.
+        '404':
+          description: Match not found.
+        '500':
+          description: Failed to generate commentary.
+
+  /api/ai-commentary/generate:
+    post:
+      summary: Generate AI commentary from provided data
+      description: Generates AI-powered commentary from a given match data object.
+      tags: [AI Commentary]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [matchData]
+              properties:
+                matchData:
+                  type: object
+                  description: An object containing the current state of the match.
+                commentaryType:
+                  type: string
+                  enum: [general, exciting, analysis, dramatic]
+                  default: general
+      responses:
+        '200':
+          description: AI commentary generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AICommentaryResponse'
+        '500':
+          description: Failed to generate commentary.
+
+  # ==================== ADMIN ====================
+  /api/admin/panel:
+    get:
+      summary: Access Admin Panel
+      description: A protected endpoint to check for admin access.
+      tags: [Admin]
+      responses:
+        '200':
+          description: Welcome message for admin.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Welcome to the Admin Panel!
+
+  /api/admin/users:
+    get:
+      summary: Get all users (Admin)
+      description: Retrieves a list of all users. Requires admin privileges.
+      tags: [Admin]
+      responses:
+        '200':
+          description: A list of all users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Not authorized.
+        '403':
+          description: Forbidden.
+
+  /api/admin/users/{userId}/toggle-status:
+    patch:
+      summary: Toggle user status (Admin)
+      description: Enables or disables a user's account. Requires admin privileges.
+      tags: [Admin]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User status toggled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [active, inactive]
+        '400':
+          description: Cannot disable your own account.
+        '404':
+          description: User not found.
+
+  /api/admin/stats:
+    get:
+      summary: Get dashboard statistics (Admin)
+      description: Retrieves dashboard statistics. Requires admin privileges.
+      tags: [Admin]
+      responses:
+        '200':
+          description: Statistics retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStats'
+
+  /api/admin/users/{userId}:
+    delete:
+      summary: Delete a user (Admin)
+      description: Deletes a user by their ID. Requires admin privileges.
+      tags: [Admin]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Cannot delete your own account.
+        '404':
+          description: User not found.

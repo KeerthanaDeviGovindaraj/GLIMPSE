@@ -172,11 +172,6 @@ const Commentary = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
-
   // Render cricket scores
   const renderCricketScores = () => {
     if (cricketScores.length === 0) {
@@ -274,14 +269,6 @@ const Commentary = () => {
 
   return (
     <div className="commentary-container">
-      <header className="commentary-header">
-        <h1>Sports Commentary</h1>
-        <div className="user-info">
-          <span>Welcome, {user?.firstName || user?.email.split('@')[0]}</span>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      </header>
-
       {errorMessage && <div className="error-banner">⚠️ {errorMessage}</div>}
       {successMessage && <div className="success-message">✓ {successMessage}</div>}
 

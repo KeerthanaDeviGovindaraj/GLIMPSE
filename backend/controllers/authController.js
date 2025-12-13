@@ -109,7 +109,13 @@ export async function googleLogin(req, res) {
 
     const userProfile = await User.findById(user.id).select('-password');
 
-    res.status(200).json({ message: "Login successful", token: appToken, user: userProfile });
+    // Convert to a plain object to manipulate it
+    const userObj = userProfile.toObject({ virtuals: true });
+    // Remove the large photo buffer from the response
+    delete userObj.photo;
+    delete userObj.photoType;
+
+    res.status(200).json({ message: "Login successful", token: appToken, user: userObj });
 
   } catch (error) {
     console.error("Google Auth Error:", error);
@@ -143,7 +149,13 @@ export async function login(req, res) {
 
     const userProfile = await User.findById(user.id).select('-password');
 
-    return res.status(200).json({ message: "Login successful", token, user: userProfile });
+    // Convert to a plain object to manipulate it
+    const userObj = userProfile.toObject({ virtuals: true });
+    // Remove the large photo buffer from the response
+    delete userObj.photo;
+    delete userObj.photoType;
+
+    return res.status(200).json({ message: "Login successful", token, user: userObj });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }

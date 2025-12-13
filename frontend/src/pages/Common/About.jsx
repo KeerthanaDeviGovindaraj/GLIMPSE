@@ -10,7 +10,7 @@ import '../../components/styles/CommonStyles.css';
 
 function FounderCard({
   name = "Rushitaben Vachhani",
-  role = "Co-Founder & CTO",
+  role = "Founder",
   avatar = "https://media.licdn.com/dms/image/v2/D4D03AQGhVpCOH880_Q/profile-displayphoto-crop_800_800/B4DZm6RPDRJAAI-/0/1759766704750?e=1764806400&v=beta&t=IM1qKPf6D7zsi3DYdWnqtBT3Svlf-Fa8qNiA5Z7zG7o",
   highlights = [
     "M.S. in CS from Northeastern University",
@@ -125,13 +125,10 @@ export default function About() {
         {/* Our Mission */}
         <Box sx={{ textAlign: "center", mb: 8 }}>
           <Typography variant="h3" fontWeight={800} gutterBottom sx={{ color: 'var(--text-primary)', fontFamily: '"Cormorant Garamond", serif' }}>
-            OUR MISSION
+            ABOUT GLIMPSE
           </Typography>
           <Typography variant="h6" sx={{ maxWidth: 900, mx: "auto", color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            We empower you with equal opportunities to build your dream career.
-            Applying to numerous jobs without a clear strategy won’t land the ideal role.
-            With Glimpse's AI job copilot, you’ll be connected to the best opportunities
-            and guided at every step - so the offer you deserve comes sooner.
+            Glimpse AI is a cutting-edge, sports commentary platform that revolutionizes how fans experience live sports through artificial intelligence. Built as a comprehensive full-stack web application, Glimpse AI combines the power of machine learning with modern web technologies to deliver instant, accurate, and engaging sports commentary across multiple sports and languages.
           </Typography>
         </Box>
 
