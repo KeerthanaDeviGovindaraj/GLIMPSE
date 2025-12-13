@@ -205,7 +205,7 @@ const AdminDashboard = () => {
           top: '20px',
           right: '20px',
           padding: '16px 24px',
-          backgroundColor: '#32CD32',
+          backgroundColor: '#E50914',
           color: 'white',
           borderRadius: '8px',
           zIndex: 1000,
@@ -639,7 +639,7 @@ const AdminDashboard = () => {
                 color: '#ffd5d5',
                 margin: '8px 0 0 0'
               }}>
-                <span style={{ color: '#90EE90' }}>✓</span>
+                <span style={{ color: '#ffffff' }}>✓</span>
                 Full administrative access to sports management system
               </p>
             </div>
@@ -724,7 +724,7 @@ const AdminDashboard = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        color: '#90EE90'
+                        color: '#d4d4d4'
                       }}>
                         <TrendingUp style={{ width: '16px', height: '16px' }} />
                         {stat.change}
@@ -846,7 +846,7 @@ const AdminDashboard = () => {
                       <span style={{ 
                         fontSize: '14px',
                         fontWeight: '500',
-                        color: sport.trend === 'up' ? '#90EE90' : '#ff6b6b'
+                        color: '#d4d4d4'
                       }}>
                         {sport.change}
                       </span>
@@ -965,7 +965,7 @@ const AdminDashboard = () => {
               </p>
             </div>
 
-            {/* User Stats */}
+            {/* User Stats - ALL RED/GREY THEME */}
             <div style={{ 
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -992,7 +992,7 @@ const AdminDashboard = () => {
                 borderRadius: '12px',
                 padding: '24px',
                 color: 'white',
-                background: 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)'
+                background: 'linear-gradient(135deg, #FF0A16 0%, #E50914 100%)'
               }}>
                 <Trophy style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
                 <h3 style={{ 
@@ -1002,13 +1002,13 @@ const AdminDashboard = () => {
                 }}>
                   {stats.activeUsers}
                 </h3>
-                <p style={{ color: '#e6ffe6', margin: '4px 0 0 0' }}>Active Users</p>
+                <p style={{ color: '#ffd5d5', margin: '4px 0 0 0' }}>Active Users</p>
               </div>
               <div style={{
                 borderRadius: '12px',
                 padding: '24px',
                 color: 'white',
-                background: 'linear-gradient(135deg, #FF0A16 0%, #E50914 100%)'
+                background: 'linear-gradient(135deg, #B20710 0%, #8c0509 100%)'
               }}>
                 <Trophy style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
                 <h3 style={{ 
@@ -1024,7 +1024,7 @@ const AdminDashboard = () => {
                 borderRadius: '12px',
                 padding: '24px',
                 color: 'white',
-                background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)'
+                background: 'linear-gradient(135deg, #2f2f2f 0%, #1a1a1a 100%)'
               }}>
                 <Database style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
                 <h3 style={{ 
@@ -1034,7 +1034,7 @@ const AdminDashboard = () => {
                 }}>
                   {stats.analysts}
                 </h3>
-                <p style={{ color: '#ffe0b2', margin: '4px 0 0 0' }}>Analysts</p>
+                <p style={{ color: '#d4d4d4', margin: '4px 0 0 0' }}>Analysts</p>
               </div>
             </div>
 
@@ -1205,11 +1205,11 @@ const AdminDashboard = () => {
                                 fontSize: '12px',
                                 fontWeight: '500',
                                 backgroundColor: user.role === 'admin' ? 'rgba(229,9,20,0.2)' :
-                                               user.role === 'analyst' ? 'rgba(255,152,0,0.2)' :
-                                               'rgba(144,238,144,0.2)',
-                                color: user.role === 'admin' ? '#ff6b6b' :
-                                       user.role === 'analyst' ? '#ffb74d' :
-                                       '#90EE90'
+                                               user.role === 'analyst' ? 'rgba(255,10,22,0.2)' :
+                                               'rgba(212,212,212,0.2)',
+                                color: user.role === 'admin' ? '#FF0A16' :
+                                       user.role === 'analyst' ? '#ff6b6b' :
+                                       '#d4d4d4'
                               }}>
                                 {user.role.toUpperCase()}
                               </span>
@@ -1220,8 +1220,8 @@ const AdminDashboard = () => {
                                 borderRadius: '12px',
                                 fontSize: '12px',
                                 fontWeight: '500',
-                                backgroundColor: user.status === 'active' ? 'rgba(144,238,144,0.2)' : 'rgba(140,140,140,0.2)',
-                                color: user.status === 'active' ? '#90EE90' : '#8c8c8c'
+                                backgroundColor: user.status === 'active' ? 'rgba(212,212,212,0.2)' : 'rgba(140,140,140,0.2)',
+                                color: user.status === 'active' ? '#d4d4d4' : '#8c8c8c'
                               }}>
                                 {user.status}
                               </span>
@@ -1232,11 +1232,11 @@ const AdminDashboard = () => {
                                 disabled={loading}
                                 onMouseEnter={(e) => {
                                   if (!loading) {
-                                    e.currentTarget.style.backgroundColor = user.status === 'active' ? 'rgba(229,9,20,0.3)' : 'rgba(144,238,144,0.3)';
+                                    e.currentTarget.style.backgroundColor = user.status === 'active' ? 'rgba(229,9,20,0.3)' : 'rgba(212,212,212,0.3)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = user.status === 'active' ? 'rgba(229,9,20,0.2)' : 'rgba(144,238,144,0.2)';
+                                  e.currentTarget.style.backgroundColor = user.status === 'active' ? 'rgba(229,9,20,0.2)' : 'rgba(212,212,212,0.2)';
                                 }}
                                 style={{
                                   padding: '8px 16px',
@@ -1247,8 +1247,8 @@ const AdminDashboard = () => {
                                   cursor: loading ? 'not-allowed' : 'pointer',
                                   transition: 'background-color 0.2s',
                                   opacity: loading ? 0.6 : 1,
-                                  backgroundColor: user.status === 'active' ? 'rgba(229,9,20,0.2)' : 'rgba(144,238,144,0.2)',
-                                  color: user.status === 'active' ? '#ff6b6b' : '#90EE90'
+                                  backgroundColor: user.status === 'active' ? 'rgba(229,9,20,0.2)' : 'rgba(212,212,212,0.2)',
+                                  color: user.status === 'active' ? '#ff6b6b' : '#d4d4d4'
                                 }}
                               >
                                 {user.status === 'active' ? 'Disable' : 'Enable'}
