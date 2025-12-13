@@ -1,202 +1,310 @@
-import React from 'react';
+// src/components/NavBar.jsx
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Chip
+} from '@mui/material';
+import {
+  AccountCircle,
+  Logout,
+  Dashboard,
+  Home,
+  AdminPanelSettings,
+  Assessment,
+  SportsScore  // Added for commentary icon
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
 
-export default function NavBar() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const { user } = useSelector((state) => state.auth);
+const NavBar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate('/login');
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    handleClose();
+    navigate('/login');
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+  };
+
+  // Get navigation items based on user role
+  const getNavigationItems = () => {
+    const baseItems = [
+      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
+      { label: 'Home', path: '/home', icon: <Home /> }
+    ];
+
+    const roleSpecificItems = {
+      admin: [
+        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+      ],
+      analyst: [
+        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
+      ],
+      user: [
+        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
+      ]
     };
 
-    return (
-        <nav style={{
+    return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
+  };
+
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'admin': return 'error';
+      case 'analyst': return 'warning';
+      case 'user': return 'primary';
+      default: return 'default';
+    }
+  };
+
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+      case 'admin': return 'Administrator';
+      case 'analyst': return 'Analyst';
+      case 'user': return 'User';
+      default: return 'User';
+    }
+  };
+
+  const navigationItems = getNavigationItems();
+
+  return (
+      <AppBar
+          position="sticky"
+          sx={{
             background: 'rgba(15, 15, 15, 0.95)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            padding: '16px 48px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            position: 'sticky',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
             top: 0,
-            zIndex: 1000
-        }}>
-            {/* Logo/Brand */}
-            <div
-                onClick={() => navigate('/')}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.3s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-                <span style={{ fontSize: '1.5rem' }}>🏏</span>
-                <span style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: '1.75rem',
-                    fontWeight: 400,
-                    color: '#fafafa',
-                    letterSpacing: '0.15em',
-                    textTransform: 'uppercase'
-                }}>
-          GLIMPSE
-        </span>
-            </div>
-
-            {/* Navigation Links */}
-            <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                <a
-                    onClick={() => navigate('/commentary')}
-                    style={{
-                        color: '#d4d4d4',
-                        textDecoration: 'none',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        letterSpacing: '1.5px',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        transition: 'color 0.3s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = '#fafafa'}
-                    onMouseLeave={(e) => e.target.style.color = '#d4d4d4'}
-                >
-                    <span></span> Commentary
-                </a>
-
-                <a
-                    onClick={() => navigate('/')}
-                    style={{
-                        color: '#d4d4d4',
-                        textDecoration: 'none',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        letterSpacing: '1.5px',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        transition: 'color 0.3s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = '#fafafa'}
-                    onMouseLeave={(e) => e.target.style.color = '#d4d4d4'}
-                >
-                    <span></span> Home
-                </a>
-
-                {/* <a
-          onClick={() => navigate('/dashboard')}
-          style={{
-            color: '#d4d4d4',
-            textDecoration: 'none',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            transition: 'color 0.3s',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
+            zIndex: 100
           }}
-          onMouseEnter={(e) => e.target.style.color = '#fafafa'}
-          onMouseLeave={(e) => e.target.style.color = '#d4d4d4'}
-        >
-          <span></span> My Dashboard
-        </a> */}
-            </div>
-
-            {/* User Profile */}
-            <div style={{
+      >
+        <Toolbar>
+          {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
+          <Box
+              sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '20px'
-            }}>
-                <div
-                    onClick={() => navigate('/profile')}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        cursor: 'pointer',
-                        padding: '8px 20px',
-                        borderRadius: '50px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        transition: 'all 0.3s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                    }}
-                >
-                    <div style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #E50914 0%, #B20710 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 700,
-                        fontSize: '1rem'
-                    }}>
-                        {user?.username?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                    <span style={{
-                        color: '#fafafa',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        letterSpacing: '0.5px'
-                    }}>
-            {user?.username || 'User'}
-          </span>
-                </div>
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  transform: 'scale(1.05)'
+                }
+              }}
+              onClick={() => navigate('/commentary')}
+          >
+            <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
+            <Typography
+                variant="h6"
+                component="div"
+                sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
+            >
+              Commentary
+            </Typography>
+          </Box>
 
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        padding: '10px 24px',
-                        background: 'transparent',
-                        color: '#fafafa',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: '50px',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        fontSize: '0.8125rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '2px',
-                        transition: 'all 0.3s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.target.style.background = '#fafafa';
-                        e.target.style.color = '#0f0f0f';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.background = 'transparent';
-                        e.target.style.color = '#fafafa';
+          {/* Role Badge */}
+          {['admin', 'analyst'].includes(user?.role) && (
+              <Chip
+                  label={getRoleDisplayName(user?.role)}
+                  color={getRoleColor(user?.role)}
+                  size="small"
+                  sx={{
+                    ml: 2,
+                    color: 'white',
+                    fontWeight: 600,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    '& .MuiChip-label': {
+                      px: 2
+                    }
+                  }}
+              />
+          )}
+
+          {/* Navigation Links - Desktop */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+            {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
+                <Button
+                    key={item.path}
+                    color="inherit"
+                    onClick={() => navigate(item.path)}
+                    startIcon={item.icon}
+                    sx={{
+                      ml: 1,
+                      color: '#E5E5E5',
+                      textTransform: 'none',
+                      fontSize: '0.95rem',
+                      fontWeight: 500,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#FFFFFF',
+                        transform: 'translateY(-1px)'
+                      }
                     }}
                 >
-                    Logout
-                </button>
-            </div>
-        </nav>
-    );
-}
+                  {item.label}
+                </Button>
+            ))}
+          </Box>
+
+          {/* User Menu */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
+              {user?.firstName || user?.email?.split('@')[0] || 'User'}
+            </Typography>
+
+            <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  }
+                }}
+            >
+              <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                    border: '2px solid rgba(255, 255, 255, 0.3)'
+                  }}
+                  src={user?.photoUrl}
+                  alt={user?.email}
+              >
+                <AccountCircle />
+              </Avatar>
+            </IconButton>
+
+            <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                PaperProps={{
+                  sx: {
+                    mt: 1.5,
+                    minWidth: 240,
+                    backgroundColor: 'rgba(31, 31, 31, 0.95)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '16px',
+                    color: '#FFFFFF',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                    '& .MuiMenuItem-root': {
+                      padding: '12px 24px',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                      }
+                    },
+                    '& .MuiDivider-root': {
+                      borderColor: 'rgba(255, 255, 255, 0.12)',
+                      my: 1
+                    },
+                    '& .MuiListItemIcon-root': {
+                      color: '#B3B3B3',
+                      minWidth: '40px'
+                    }
+                  }
+                }}
+            >
+              {/* User Info */}
+              <MenuItem disabled sx={{ opacity: '1 !important' }}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold">
+                    {user?.email}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#B3B3B3' }}>
+                    {getRoleDisplayName(user?.role)}
+                  </Typography>
+                </Box>
+              </MenuItem>
+
+              <Divider />
+
+              {/* Mobile Navigation Items */}
+              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                {navigationItems.map((item) => (
+                    <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
+                      <ListItemIcon>
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText>{item.label}</ListItemText>
+                    </MenuItem>
+                ))}
+                <Divider />
+              </Box>
+
+              {/* Profile */}
+              <MenuItem onClick={() => handleNavigation('/profile')}>
+                <ListItemIcon>
+                  <AccountCircle fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Profile</ListItemText>
+              </MenuItem>
+
+              <Divider />
+
+              {/* Logout */}
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout fontSize="small" color="error" />
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography color="error">Logout</Typography>
+                </ListItemText>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+  );
+};
+
+export default NavBar;
