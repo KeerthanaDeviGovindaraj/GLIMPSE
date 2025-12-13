@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 import "./Commentary.css";
 
 const Commentary = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
 
   const [commentaries, setCommentaries] = useState([]);
@@ -168,11 +166,6 @@ const Commentary = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
-
   // Render cricket scores
   const renderCricketScores = () => {
     if (cricketScores.length === 0) {
@@ -262,14 +255,6 @@ const Commentary = () => {
 
   return (
     <div className="commentary-container">
-      <header className="commentary-header">
-        <h1>Sports Commentary</h1>
-        <div className="user-info">
-          <span>Welcome, {user?.firstName || user?.email.split('@')[0]}</span>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      </header>
-
       {errorMessage && <div className="error-banner">⚠️ {errorMessage}</div>}
       {successMessage && <div className="success-message">✓ {successMessage}</div>}
 
