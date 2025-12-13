@@ -14,6 +14,7 @@ Provide AI-powered sports commentary for games
 Support multiple languages (English, Spanish, and more)
 Deliver advanced analytics and insights for sports fans
 Offer seamless user authentication and profile management
+
 Features
 
 User Authentication: Secure login/signup with @northeastern.edu email validation
@@ -126,6 +127,7 @@ Developed contact form validation for landing page
 Integration & Collaboration The team followed Git best practices with individual branches merged into the main branch after review. Each member's work was integrated to create a cohesive, fully functional web application.
 
 License This project is created for educational purposes as part of INFO6150 Web Design/User Experience Engineering coursework at Northeastern University.
+
 
 Course: INFO6150 17654 - Web Design/User Experience Engineering
 Assignment: Group Assignment 5 - Login and Landing Page Development
