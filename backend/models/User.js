@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "analyst"],
     default: "user",
   },
+  status: {                          // ⭐ ADD THIS FIELD
+    type: String,
+    enum: ["active", "inactive"],
+    default: "active",
+  },
   favoriteSport: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sport',

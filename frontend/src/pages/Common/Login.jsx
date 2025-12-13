@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/slices/authSlice';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { GoogleLogin } from '@react-oauth/google';
 import './Auth.css';
 // ✨ NEW: Chatbot imports
 import ChatbotIcon from '../../components/ChatbotIcon';
@@ -42,7 +41,7 @@ const Login = () => {
     if (!API_KEY) {
       setChatHistory(prev => {
         const filtered = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+            msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
         );
         return [
           ...filtered,
@@ -72,7 +71,7 @@ const Login = () => {
 
       setChatHistory(prev => {
         const filteredHistory = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+            msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
         );
         return [...filteredHistory, { role: "model", parts: [{ text: apiResponse }] }];
       });
@@ -80,7 +79,7 @@ const Login = () => {
     } catch (error) {
       setChatHistory(prev => {
         const filteredHistory = prev.filter(
-          msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
+            msg => !(msg.role === "model" && msg.parts?.[0]?.text === "Thinking...")
         );
         return [...filteredHistory, { role: "model", parts: [{ text: `Error: ${error.message}. Please try again.` }] }];
       });
@@ -91,8 +90,8 @@ const Login = () => {
   useEffect(() => {
     if (chatBodyRef.current) {
       const isAtBottom =
-        chatBodyRef.current.scrollHeight ===
-        chatBodyRef.current.scrollTop + chatBodyRef.current.clientHeight;
+          chatBodyRef.current.scrollHeight ===
+          chatBodyRef.current.scrollTop + chatBodyRef.current.clientHeight;
 
       if (isAtBottom) {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,7 +102,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
@@ -125,28 +124,7 @@ const Login = () => {
       // Dispatch to Redux and navigate
       dispatch(setCredentials({ ...data }));
       navigate('/commentary');
-      
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: credentialResponse.credential })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Google login failed');
-
-      dispatch(setCredentials(data));
-      navigate('/commentary');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -155,122 +133,114 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to continue your journey</p>
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1>Welcome Back</h1>
+            <p className="auth-subtitle">Sign in to continue your journey</p>
+          </div>
+
+          {error && <div className="error-message">⚠️ {error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input
+                  type="email"
+                  name="email"
+                  className="form-input"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <div className="password-input-wrapper">
+                <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    className="form-input"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                />
+                <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="auth-btn" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="auth-options">
+            <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
+          </div>
+
+          <div className="auth-footer">
+            Don't have an account?
+            <Link to="/register" className="auth-link">Create Account</Link>
+          </div>
         </div>
 
-        {error && <div className="error-message">⚠️ {error}</div>}
+        {/* ✨ NEW: Chatbot Integration - Floating Button */}
+        <button
+            className="chat-toggler"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+        >
+          💬
+        </button>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              className="form-input"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              required
+        {/* ✨ NEW: Chatbot Popup */}
+        <div className={`chatbot-popup ${isChatOpen ? "open" : ""}`}>
+          <div className="chat-header">
+            <div className="header-info">
+              <ChatbotIcon />
+              <h2 className="logo-text">Chatbot</h2>
+            </div>
+
+            <button
+                className="material-symbols-rounded"
+                onClick={() => setIsChatOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="chat-body" ref={chatBodyRef}>
+            <div className="message bot-message">
+              <ChatbotIcon />
+              <p className="message-text">
+                Hello! <br /> How can I assist you today?
+              </p>
+            </div>
+
+            {chatHistory.map((chat, index) => (
+                <ChatMessage key={index} chat={chat} />
+            ))}
+
+            <div ref={chatEndRef} style={{ visibility: "visible" }} />
+          </div>
+
+          <div className="chat-footer">
+            <ChatForm
+                setChatHistory={setChatHistory}
+                chatHistory={chatHistory}
+                generateBotResponse={generateBotResponse}
             />
           </div>
-
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                className="form-input"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="google-login-container">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google login failed. Please try again.')}
-            width="100%"
-          />
-        </div>
-
-        <div className="auth-options">
-          <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
-        </div>
-
-        <div className="auth-footer">
-          Don't have an account? 
-          <Link to="/register" className="auth-link">Create Account</Link>
         </div>
       </div>
-
-      {/* ✨ NEW: Chatbot Integration - Floating Button */}
-      <button
-        className="chat-toggler"
-        onClick={() => setIsChatOpen(!isChatOpen)}
-      >
-        💬
-      </button>
-
-      {/* ✨ NEW: Chatbot Popup */}
-      <div className={`chatbot-popup ${isChatOpen ? "open" : ""}`}>
-        <div className="chat-header">
-          <div className="header-info">
-            <ChatbotIcon />
-            <h2 className="logo-text">Chatbot</h2>
-          </div>
-
-          <button
-            className="material-symbols-rounded"
-            onClick={() => setIsChatOpen(false)}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="chat-body" ref={chatBodyRef}>
-          <div className="message bot-message">
-            <ChatbotIcon />
-            <p className="message-text">
-              Hello! <br /> How can I assist you today?
-            </p>
-          </div>
-
-          {chatHistory.map((chat, index) => (
-            <ChatMessage key={index} chat={chat} />
-          ))}
-
-          <div ref={chatEndRef} style={{ visibility: "visible" }} />
-        </div>
-
-        <div className="chat-footer">
-          <ChatForm
-            setChatHistory={setChatHistory}
-            chatHistory={chatHistory}
-            generateBotResponse={generateBotResponse}
-          />
-        </div>
-      </div>
-    </div>
   );
 };
 
