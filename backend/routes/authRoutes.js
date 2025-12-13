@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login } from '../controllers/authController.js';
+import { register, login, googleLogin } from '../controllers/authController.js';
 import { createUserValidation, loginValidation } from '../middleware/validate.js';
 import multer from 'multer';
 
@@ -22,5 +22,7 @@ const router = express.Router();
 router.post('/register', upload.single('photo'), createUserValidation, register);
 
 router.post('/login', loginValidation, login);
+
+router.post('/google', googleLogin);
 
 export default router;

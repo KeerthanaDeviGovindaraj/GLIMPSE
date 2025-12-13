@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Stack,
-  Alert,
-} from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import PrimaryButton from '../../components/PrimaryButton';
+import './Auth.css';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -51,44 +42,46 @@ export default function ResetPassword() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" fontWeight={700} align="center" gutterBottom>
-            Reset Password
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Enter your new password below.
-          </Typography>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1>Reset Password</h1>
+          <p className="auth-subtitle">Enter your new password below.</p>
+        </div>
 
-          {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {message && <div className="success-message" style={{background: 'rgba(46, 204, 113, 0.15)', border: '1px solid rgba(46, 204, 113, 0.3)', color: '#2ecc71', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'center'}}>✓ {message}</div>}
+        {error && <div className="error-message">⚠️ {error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={3}>
-              <TextField
-                label="New Password"
-                type="password"
-                fullWidth
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <TextField
-                label="Confirm New Password"
-                type="password"
-                fullWidth
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              <PrimaryButton type="submit" disabled={loading}>
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </PrimaryButton>
-            </Stack>
-          </form>
-        </CardContent>
-      </Card>
-    </Container>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">New Password</label>
+            <input
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter new password"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Confirm New Password</label>
+            <input
+              type="password"
+              className="form-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Confirm new password"
+            />
+          </div>
+
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

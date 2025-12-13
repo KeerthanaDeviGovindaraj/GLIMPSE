@@ -21,6 +21,7 @@ import ForgotPassword from './pages/Common/ForgotPassword';
 import ResetPassword from './pages/Common/ResetPassword';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
+import UserDashboard from './pages/User/UserDashboard';
 import Profile from './pages/User/Profile';
 import Commentary from './pages/User/Commentary';
 
@@ -41,11 +42,11 @@ function App() {
       <Router>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           {isAuthenticated && <NavBar />}
-          
+
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
               {/* ===== PUBLIC ROUTES ===== */}
-              
+
               {/* Home - ALWAYS accessible, shows landing page */}
               <Route path="/" element={<Home />} />
 
@@ -78,7 +79,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
 
               {/* ===== PROTECTED ROUTES ===== */}
-              
+
               {/* Commentary - Main app */}
               <Route
                 path="/commentary"
