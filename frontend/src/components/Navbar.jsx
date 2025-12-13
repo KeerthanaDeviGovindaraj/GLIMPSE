@@ -1,186 +1,282 @@
-// components/Navbar.jsx
+// src/components/NavBar.jsx
 import React, { useState } from 'react';
-import { Menu, X, User, LogOut, Bell, Settings, Search } from 'lucide-react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Chip
+} from '@mui/material';
+import {
+  AccountCircle,
+  Logout,
+  Dashboard,
+  Home,
+  AdminPanelSettings,
+  Assessment,
+  SportsScore  // Added for commentary icon
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../redux/slices/authSlice';
 
-const Navbar = ({ 
-  user, 
-  onMenuClick, 
-  onLogout,
-  showMenu = true,
-  showSearch = false 
-}) => {
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+const NavBar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      setShowUserMenu(false);
-      onLogout();
+    dispatch(logout());
+    handleClose();
+    navigate('/login');
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+  };
+
+  // Get navigation items based on user role
+  const getNavigationItems = () => {
+    const baseItems = [
+      { label: 'Commentary', path: '/commentary', icon: <SportsScore /> },
+      { label: 'Home', path: '/home', icon: <Home /> }
+    ];
+
+    const roleSpecificItems = {
+      admin: [
+        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+      ],
+      analyst: [
+        { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
+      ],
+      user: [
+        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
+      ]
+    };
+
+    return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
+  };
+
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'admin': return 'error';
+      case 'analyst': return 'warning';
+      case 'user': return 'primary';
+      default: return 'default';
     }
   };
 
-  // Mock notifications
-  const notifications = [
-    { id: 1, text: 'New sport added: Volleyball', time: '5 min ago', unread: true },
-    { id: 2, text: 'File upload completed', time: '1 hour ago', unread: true },
-    { id: 3, text: 'System maintenance scheduled', time: '2 hours ago', unread: false }
-  ];
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+      case 'admin': return 'Administrator';
+      case 'analyst': return 'Analyst';
+      case 'user': return 'User';
+      default: return 'User';
+    }
+  };
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const navigationItems = getNavigationItems();
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Left side - Menu & Brand */}
-          <div className="flex items-center gap-4">
-            {showMenu && (
-              <button
-                onClick={onMenuClick}
-                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors lg:hidden"
-                aria-label="Toggle menu"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-            )}
+    <AppBar 
+      position="sticky"
+      sx={{
+        background: 'rgba(15, 15, 15, 0.95)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
+        top: 0,
+        zIndex: 100
+      }}
+    >
+      <Toolbar>
+        {/* Logo/Brand - CHANGED FROM "Info Portal" TO "Live Commentary" */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            cursor: 'pointer',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              transform: 'scale(1.05)'
+            }
+          }} 
+          onClick={() => navigate('/commentary')}
+        >
+          <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
+          <Typography 
+            variant="h6" 
+            component="div"
+            sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
+          >
+            Commentary
+          </Typography>
+        </Box>
+
+        {/* Role Badge */}
+        {['admin', 'analyst'].includes(user?.role) && (
+          <Chip
+            label={getRoleDisplayName(user?.role)}
+            color={getRoleColor(user?.role)}
+            size="small"
+            sx={{ 
+              ml: 2, 
+              color: 'white',
+              fontWeight: 600,
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              '& .MuiChip-label': {
+                px: 2
+              }
+            }}
+          />
+        )}
+
+        {/* Navigation Links - Desktop */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+          {navigationItems.slice(0, 4).map((item) => ( // Show first 4 items
+            <Button
+              key={item.path}
+              color="inherit"
+              onClick={() => navigate(item.path)}
+              startIcon={item.icon}
+              sx={{ 
+                ml: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-2px)',
+                  transition: 'all 0.3s ease'
+                }
+              }}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </Box>
+
+        {/* User Menu */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'capitalize' }}>
+            {user?.firstName || user?.email?.split('@')[0] || 'User'}
+          </Typography>
+          
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              }
+            }}
+          >
+            <Avatar 
+              sx={{ 
+                width: 32, 
+                height: 32, 
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                border: '2px solid rgba(255, 255, 255, 0.3)'
+              }} 
+              src={user?.photoUrl} 
+              alt={user?.email}
+            >
+              <AccountCircle />
+            </Avatar>
+          </IconButton>
+          
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            PaperProps={{
+              sx: { mt: 1, minWidth: 200 }
+            }}
+          >
+            {/* User Info */}
+            <MenuItem disabled>
+              <Box>
+                <Typography variant="body2" fontWeight="bold">
+                  {user?.email}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {getRoleDisplayName(user?.role)}
+                </Typography>
+              </Box>
+            </MenuItem>
             
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">SM</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Sports Management</h1>
-                <p className="text-xs text-gray-600 hidden sm:block">Dashboard & Analytics</p>
-              </div>
-            </div>
-          </div>
+            <Divider />
 
-          {/* Center - Search (optional) */}
-          {showSearch && (
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          )}
+            {/* Mobile Navigation Items */}
+            <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              {navigationItems.map((item) => (
+                <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
+                  <ListItemIcon>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText>{item.label}</ListItemText>
+                </MenuItem>
+              ))}
+              <Divider />
+            </Box>
 
-          {/* Right side - Notifications & User */}
-          <div className="flex items-center gap-4">
-            {/* Notifications */}
-            <div className="relative">
-              <button 
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowUserMenu(false);
-                }}
-                className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
+            {/* Profile */}
+            <MenuItem onClick={() => handleNavigation('/profile')}>
+              <ListItemIcon>
+                <AccountCircle fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
 
-              {/* Notifications Dropdown */}
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-fade-in">
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
-                  </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          notification.unread ? 'bg-blue-50' : ''
-                        }`}
-                      >
-                        <p className="text-sm text-gray-800">{notification.text}</p>
-                        <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-4 py-2 border-t border-gray-200">
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      View all notifications
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Divider />
 
-            {/* User menu */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowUserMenu(!showUserMenu);
-                  setShowNotifications(false);
-                }}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
-                  <p className="text-xs text-gray-600 capitalize">{user?.role || 'User'}</p>
-                </div>
-              </button>
-
-              {/* User Dropdown */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-fade-in">
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                    <p className="text-xs text-gray-600">{user?.email}</p>
-                  </div>
-                  
-                  <button
-                    onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <User className="w-4 h-4" />
-                    Profile Settings
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </button>
-                  
-                  <div className="border-t border-gray-200 my-2"></div>
-                  
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+            {/* Logout */}
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <Logout fontSize="small" color="error" />
+              </ListItemIcon>
+              <ListItemText>
+                <Typography color="error">Logout</Typography>
+              </ListItemText>
+            </MenuItem>
+          </Menu>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
-export default Navbar;
+export default NavBar;

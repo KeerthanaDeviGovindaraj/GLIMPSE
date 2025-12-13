@@ -1,278 +1,78 @@
-/* index.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* ==================== DARK COLOR PALETTE ==================== */
 :root {
-  /* Dark Theme Colors */
-  --bg: #0b0f1c;
-  --bg-elev: #0e1424;
-  --card: #0c1220;
-  --border: #1f2937;
-  --muted: #9aa4b2;
-  --text: #e5e7eb;
-  --accent: #ef4444;
-  --accent-600: #dc2626;
-  --accent-700: #b91c1c;
-  --accent-soft: rgba(239, 68, 68, 0.12);
-  --ring: #fca5a5;
-  
-  /* Light Theme Colors (for compatibility) */
-  --bg-light: #f9fafb;
-  --text-light: #111827;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  /* Let Material-UI handle color and background */
+  /* color-scheme: light dark; */
+  /* background-color: #242424; */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  
-  /* Light theme by default (can be changed to dark) */
-  background-color: #f9fafb;
-  color: #111827;
+  min-width: 320px;
+  min-height: 100vh;
+  height: 100%;
 }
 
-/* Dark theme class */
-body.dark-theme {
-  background-color: var(--bg);
-  color: var(--text);
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-body.dark-theme ::-webkit-scrollbar-track {
-  background: var(--bg-elev);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-body.dark-theme ::-webkit-scrollbar-thumb {
-  background: var(--border);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-body.dark-theme ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
-
-/* Custom Utilities */
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.2s ease-in;
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+    /* color: #213547; */
+    /* background-color: #ffffff; */
   }
-
-  .animate-slide-in {
-    animation: slideIn 0.3s ease-out;
+  a:hover {
+    color: #747bff;
   }
-
-  .animate-slide-out {
-    animation: slideOut 0.3s ease-in;
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
-  }
-
-  .animate-progress {
-    animation: progress linear;
-  }
-
-  /* Dark theme utilities */
-  .bg-dark {
-    background-color: var(--bg);
-  }
-
-  .bg-dark-elevated {
-    background-color: var(--bg-elev);
-  }
-
-  .bg-dark-card {
-    background-color: var(--card);
-  }
-
-  .border-dark {
-    border-color: var(--border);
-  }
-
-  .text-dark {
-    color: var(--text);
-  }
-
-  .text-dark-muted {
-    color: var(--muted);
-  }
-
-  .accent-bg {
-    background-color: var(--accent);
-  }
-
-  .accent-text {
-    color: var(--accent);
-  }
-
-  .accent-border {
-    border-color: var(--accent);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes progress {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
-}
-
-/* Custom Components */
-@layer components {
-  .btn-primary {
-    @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium;
-  }
-
-  .btn-secondary {
-    @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium;
-  }
-
-  .btn-danger {
-    @apply px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium;
-  }
-
-  /* Dark theme button variants */
-  .dark-theme .btn-primary {
-    background-color: var(--accent);
-    color: var(--text);
-  }
-
-  .dark-theme .btn-primary:hover {
-    background-color: var(--accent-600);
-  }
-
-  .dark-theme .btn-secondary {
-    background-color: var(--card);
-    border-color: var(--border);
-    color: var(--text);
-  }
-
-  .dark-theme .btn-secondary:hover {
-    background-color: var(--bg-elev);
-  }
-
-  .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-  }
-
-  .dark-theme .input-field {
-    background-color: var(--card);
-    border-color: var(--border);
-    color: var(--text);
-  }
-
-  .dark-theme .input-field:focus {
-    border-color: var(--accent);
-    ring-color: var(--ring);
-  }
-
-  .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
-  }
-
-  .dark-theme .card {
-    background-color: var(--card);
-    border-color: var(--border);
-  }
-
-  .badge {
-    @apply px-2 py-1 text-xs font-medium rounded-full;
-  }
-
-  .badge-success {
-    @apply bg-green-100 text-green-800;
-  }
-
-  .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-
-  .badge-danger {
-    @apply bg-red-100 text-red-800;
-  }
-
-  .dark-theme .badge-danger {
-    background-color: var(--accent-soft);
-    color: var(--accent);
-  }
-
-  .badge-info {
-    @apply bg-blue-100 text-blue-800;
+  button {
+    background-color: #f9f9f9;
   }
 }
