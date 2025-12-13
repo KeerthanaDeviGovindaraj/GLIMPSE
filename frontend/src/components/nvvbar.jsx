@@ -67,7 +67,9 @@ const NavBar = () => {
       analyst: [
         { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },
       ],
-      user: []
+      user: [
+        { label: 'My Dashboard', path: '/dashboard', icon: <Dashboard /> }
+      ]
     };
 
     return [...baseItems, ...(roleSpecificItems[user?.role] || roleSpecificItems.user)];
