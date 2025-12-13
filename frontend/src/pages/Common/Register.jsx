@@ -155,27 +155,6 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setLoading(true);
-    setErrors({});
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: credentialResponse.credential })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Google sign-in failed');
-
-      dispatch(setCredentials(data));
-      navigate('/commentary');
-    } catch (err) {
-      setErrors({ api: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="auth-container">
       <div className="auth-card register-card">

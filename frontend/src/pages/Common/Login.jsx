@@ -8,6 +8,7 @@ import './Auth.css';
 import ChatbotIcon from '../../components/ChatbotIcon';
 import ChatForm from '../../components/ChatForm';
 import ChatMessage from '../../components/ChatMessage';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -132,6 +133,31 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE_URL}/api/auth/google`;
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google login failed');
+
+      dispatch(setCredentials(data));
+      navigate('/commentary');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
       <div className="auth-container">
         <div className="auth-card">
@@ -182,6 +208,23 @@ const Login = () => {
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
+{/* 
+          <button
+            type="button"
+            className="auth-btn"
+            onClick={handleGoogleLogin}
+            style={{ marginTop: '10px', backgroundColor: '#db4437' }}
+          >
+            Sign in with Google
+          </button> */}
+
+        <div className="google-login-container">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed. Please try again.')}
+            width="100%"
+          />
+        </div>
 
           <div className="auth-options">
             <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
