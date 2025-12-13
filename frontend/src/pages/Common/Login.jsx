@@ -218,7 +218,7 @@ const Login = () => {
             Sign in with Google
           </button> */}
 
-        <div className="google-login-container">
+        <div className="google-login-container" style={{marginTop: '20px'}}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setError('Google login failed. Please try again.')}
