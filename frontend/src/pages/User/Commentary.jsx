@@ -337,7 +337,7 @@ const Commentary = () => {
         <div className="commentary-section">
           <div className="ai-commentary">
             <div className="ai-header">
-              <h3>🤖 AI Commentary</h3>
+              <h3>🤖 Commentary</h3>
               <div className="style-selector">
                 <select 
                   value={commentaryStyle} 
@@ -359,7 +359,7 @@ const Commentary = () => {
             </div>
             {!selectedMatch ? (
               <p className="placeholder-text">
-                👆 Click on any match above to get AI-powered commentary
+                👆 Click on any match above to get commentary
               </p>
             ) : aiLoading ? (
               <div className="loading-commentary">
