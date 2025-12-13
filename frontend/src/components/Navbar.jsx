@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import React, { useState } from 'react';
 import {
   AppBar,
@@ -22,11 +21,12 @@ import {
   Home,
   AdminPanelSettings,
   Assessment,
-  SportsScore  // Added for commentary icon
+  SportsScore 
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
+import logo from '../assets/logo.png';
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -124,13 +124,13 @@ const NavBar = () => {
           }} 
           onClick={() => navigate('/commentary')}
         >
-          <SportsScore sx={{ mr: 1, fontSize: '28px', color: '#E50914' }} />
+          <Box component="img" src={logo} alt="Glimpse Logo" sx={{ mr: 1, height: '36px', width: 'auto' }} />
           <Typography 
             variant="h6" 
             component="div"
             sx={{ fontWeight: 500, letterSpacing: '2px', fontFamily: '"Cormorant Garamond", serif', textTransform: 'uppercase' }}
           >
-            Commentary
+            Glimpse
           </Typography>
         </Box>
 
