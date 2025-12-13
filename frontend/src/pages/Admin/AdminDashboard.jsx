@@ -5,10 +5,13 @@ import {
   AdminPanelSettings,
   Analytics,
   ErrorOutline as AlertCircle,
-  Close as X
+  Close as X,
+  Visibility,
+  VisibilityOff
 } from '@mui/icons-material';
 import axios from 'axios';
 import './AdminDashboard.css';
+import '../Common/Auth.css';
 
 const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState('users');
@@ -25,11 +28,14 @@ const AdminDashboard = () => {
   
   // Add User Modal States
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role: 'user',
     favoriteSport: ''
   });
@@ -130,6 +136,7 @@ const AdminDashboard = () => {
         lastName: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: 'user',
         favoriteSport: ''
       });
@@ -217,216 +224,136 @@ const AdminDashboard = () => {
             </div>
 
             <form onSubmit={handleAddUser}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newUser.firstName}
-                    onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  />
-                </div>
+              <div className="modal-form-grid">
+              <div className="form-group">
+                <label className="form-label">First Name *</label>
+                <input
+                  type="text"
+                  value={newUser.firstName}
+                  onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                  className="form-input"
+                  placeholder="Enter first name"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newUser.lastName}
-                    onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label className="form-label">Last Name *</label>
+                <input
+                  type="text"
+                  value={newUser.lastName}
+                  onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                  className="form-input"
+                  placeholder="Enter last name"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label className="form-label">Email *</label>
+                <input
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  className="form-input"
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    Password *
-                  </label>
+              <div className="form-group">
+                <label className="form-label">Role *</label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                  className="form-select"
+                  required
+                >
+                  <option value="user">User</option>
+                  <option value="analyst">Analyst</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Password *</label>
+                <div className="password-input-wrapper">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={newUser.password}
                     onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
+                    className="form-input"
+                    placeholder="Enter password"
                     required
                   />
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    Role *
-                  </label>
-                  <select
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  >
-                    <option value="user">User</option>
-                    <option value="analyst">Analyst</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px',
-                    color: '#8c8c8c'
-                  }}>
-                    Favorite Sport *
-                  </label>
-                  <select
-                    value={newUser.favoriteSport}
-                    onChange={(e) => setNewUser({...newUser, favoriteSport: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: 'white',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  >
-                    <option value="">Select a sport</option>
-                    <option value="Cricket">Cricket</option>
-                    <option value="Football">Football</option>
-                  </select>
-                </div>
-
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '12px', 
-                  marginTop: '8px' 
-                }}>
                   <button
                     type="button"
-                    onClick={() => setShowAddUserModal(false)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: 'transparent',
-                      color: '#8c8c8c',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      cursor: 'pointer'
-                    }}
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      backgroundColor: '#E50914',
-                      color: 'white',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.6 : 1
-                    }}
-                  >
-                    {loading ? 'Adding...' : 'Add User'}
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Confirm Password *</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={newUser.confirmPassword}
+                    onChange={(e) => setNewUser({...newUser, confirmPassword: e.target.value})}
+                    className="form-input"
+                    placeholder="Confirm password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Favorite Sport *</label>
+                <select
+                  value={newUser.favoriteSport}
+                  onChange={(e) => setNewUser({...newUser, favoriteSport: e.target.value})}
+                  className="form-select"
+                  required
+                >
+                  <option value="">Select a sport</option>
+                  <option value="Cricket">Cricket</option>
+                  <option value="Football">Football</option>
+                </select>
+              </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  className="auth-btn"
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: 'var(--text-secondary)',
+                    marginTop: 0
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="auth-btn"
+                  style={{ marginTop: 0 }}
+                >
+                  {loading ? 'Adding...' : 'Add User'}
+                </button>
               </div>
             </form>
           </div>

@@ -130,6 +130,4 @@ License This project is created for educational purposes as part of INFO6150 Web
 
 
 Course: INFO6150 17654 - Web Design/User Experience Engineering
-Assignment: Group Assignment 5 - Login and Landing Page Development
-Date: 11 October 2025
 Institution: Northeastern University
