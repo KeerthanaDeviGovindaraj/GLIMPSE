@@ -46,6 +46,7 @@ export async function register(req, res) {
       newUser.photo = req.file.buffer;
       newUser.photoType = req.file.mimetype;
     }
+
     await User.create(newUser);
 
     return res.status(201).json({ message: "User created successfully." });
@@ -125,6 +126,13 @@ export async function login(req, res) {
 
     const ok = await user.matchPassword(password);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+
+    // ⭐ ADD THIS: Check if user account is active
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        error: 'Your account has been disabled. Please contact an administrator.'
+      });
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
