@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Home,
-  People as Users,
-  EmojiEvents as Trophy,
-  TrendingUp,
-  Storage as Database,
-  AccessTime as Clock,
+  People,
+  Person,
+  AdminPanelSettings,
+  Analytics,
   ErrorOutline as AlertCircle,
   Close as X
 } from '@mui/icons-material';
 import axios from 'axios';
+import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState('users');
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -154,39 +153,8 @@ const AdminDashboard = () => {
     fetchStats();
   }, [currentPage]);
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'users', label: 'User Management', icon: Users },
-  ];
-
-  const statsData = [
-    { label: 'Total Sports', value: '2', change: '+0%', icon: Trophy },
-    { label: 'Active Sports', value: '2', change: '+0%', icon: Trophy },
-    { label: 'Total Users', value: stats.totalUsers.toString(), change: '+0%', icon: Users },
-    { label: 'Active Users', value: stats.activeUsers.toString(), change: '+0%', icon: Users },
-  ];
-
-  const topSports = [
-    { rank: 1, name: 'Cricket', players: 1250, change: '+12%', trend: 'up' },
-    { rank: 2, name: 'Football', players: 980, change: '+8%', trend: 'up' },
-  ];
-
-  const recentActivity = [
-    { type: 'add', title: 'New sport added', subtitle: 'Cricket', time: '2 hours ago', icon: Trophy },
-    { type: 'user', title: 'User registered', subtitle: 'New analyst joined', time: '5 hours ago', icon: Users },
-    { type: 'update', title: 'Sport updated', subtitle: 'Cricket', time: '1 day ago', icon: Trophy },
-    { type: 'report', title: 'User status changed', subtitle: 'Account disabled', time: '2 days ago', icon: Users },
-  ];
-
   return (
-    <div style={{ 
-      display: 'flex',
-      height: '100vh',
-      backgroundColor: '#0f0f0f',
-      color: '#ffffff',
-      fontFamily: "'Inter', sans-serif",
-      overflow: 'hidden'
-    }}>
+    <div className="dashboard-container">
       {/* Notifications */}
       {error && (
         <div style={{
@@ -230,35 +198,10 @@ const AdminDashboard = () => {
 
       {/* Add User Modal */}
       {showAddUserModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: '#242424',
-            borderRadius: '12px',
-            padding: '32px',
-            width: '90%',
-            maxWidth: '500px',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            border: '1px solid #2f2f2f'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: '24px'
-            }}>
-              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>Add New User</h2>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Add New User</h2>
               <button
                 onClick={() => setShowAddUserModal(false)}
                 style={{
@@ -292,8 +235,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -319,8 +262,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -346,8 +289,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -373,8 +316,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -399,8 +342,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -429,8 +372,8 @@ const AdminDashboard = () => {
                       width: '100%',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid #2f2f2f',
-                      backgroundColor: '#1a1a1a',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -490,560 +433,54 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Sidebar */}
-      <div style={{ 
-        width: '256px',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#1a1a1a',
-        borderRight: '1px solid #2f2f2f'
-      }}>
-        <div style={{ 
-          padding: '24px',
-          borderBottom: '1px solid #2f2f2f'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ 
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #E50914 0%, #B20710 100%)'
-            }}>
-              <Trophy style={{ width: '24px', height: '24px', color: 'white' }} />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Sports Management</h1>
-              <p style={{ fontSize: '12px', color: '#8c8c8c', margin: 0 }}>Dashboard & Analytics</p>
-            </div>
+      {/* User Management Page */}
+      {currentPage === 'users' && (
+        <>
+          <div className="dashboard-header">
+            <h1>User Management</h1>
+            <p>Manage user accounts and permissions</p>
           </div>
-        </div>
 
-        <nav style={{ 
-          flex: 1,
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px'
-        }}>
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPage === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setCurrentPage(item.id)}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.backgroundColor = '#2f2f2f';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  backgroundColor: isActive ? '#E50914' : 'transparent',
-                  color: isActive ? '#ffffff' : '#b3b3b3',
-                }}
-              >
-                <Icon style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '14px', fontWeight: '500' }}>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div style={{ 
-          padding: '16px',
-          borderTop: '1px solid #2f2f2f'
-        }}>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '0 8px'
-          }}>
-            <div style={{ 
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#E50914'
-            }}>
-              <span style={{ fontSize: '14px', fontWeight: 'bold' }}>A</span>
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '14px', fontWeight: '500', margin: 0 }}>Admin</p>
-              <p style={{ fontSize: '12px', color: '#8c8c8c', margin: 0 }}>Full Access</p>
-            </div>
-          </div>
-          <div style={{ 
-            marginTop: '12px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
-            textAlign: 'center',
-            fontSize: '12px'
-          }}>
-            <div style={{ 
-              borderRadius: '4px',
-              padding: '8px',
-              backgroundColor: '#242424'
-            }}>
-              <div style={{ color: '#8c8c8c' }}>Sports</div>
-              <div style={{ fontWeight: 'bold' }}>2</div>
-            </div>
-            <div style={{ 
-              borderRadius: '4px',
-              padding: '8px',
-              backgroundColor: '#242424'
-            }}>
-              <div style={{ color: '#8c8c8c' }}>Users</div>
-              <div style={{ fontWeight: 'bold' }}>{stats.totalUsers}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ 
-        flex: 1,
-        overflow: 'auto',
-        backgroundColor: '#0f0f0f'
-      }}>
-        {/* Dashboard Page */}
-        {currentPage === 'dashboard' && (
-          <div style={{ padding: '32px' }}>
-            {/* Welcome Banner */}
-            <div style={{
-              borderRadius: '16px',
-              padding: '32px',
-              marginBottom: '32px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-              background: 'linear-gradient(135deg, #E50914 0%, #B20710 100%)'
-            }}>
-              <h2 style={{ 
-                fontSize: '30px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-                margin: 0
-              }}>
-                Welcome back, Admin User! 👋
-              </h2>
-              <p style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#ffd5d5',
-                margin: '8px 0 0 0'
-              }}>
-                <span style={{ color: '#ffffff' }}>✓</span>
-                Full administrative access to sports management system
-              </p>
-            </div>
-
-            {/* Refresh Bar */}
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '24px'
-            }}>
-              <button 
-                onClick={() => {
-                  fetchStats();
-                  setSuccess('Dashboard refreshed!');
-                  setTimeout(() => setSuccess(''), 2000);
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#8c8c8c'}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '14px',
-                  color: '#8c8c8c',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'color 0.2s'
-                }}
-              >
-                <Trophy style={{ width: '16px', height: '16px' }} />
-                Refresh
-              </button>
-              <span style={{ fontSize: '14px', color: '#666666' }}>
-                Last updated: {new Date().toLocaleTimeString()}
-              </span>
-            </div>
-
-            {/* Stats Grid */}
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
-              {statsData.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <div 
-                    key={index}
-                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#E50914'}
-                    onMouseLeave={(e) => e.currentTarget.style.borderColor = '#2f2f2f'}
-                    style={{ 
-                      borderRadius: '12px',
-                      padding: '24px',
-                      backgroundColor: '#242424',
-                      border: '1px solid #2f2f2f',
-                      transition: 'border-color 0.2s'
-                    }}
-                  >
-                    <div style={{ 
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      marginBottom: '16px'
-                    }}>
-                      <div style={{ 
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#E50914'
-                      }}>
-                        <Icon style={{ width: '24px', height: '24px', color: 'white' }} />
-                      </div>
-                      <span style={{ 
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        color: '#d4d4d4'
-                      }}>
-                        <TrendingUp style={{ width: '16px', height: '16px' }} />
-                        {stat.change}
-                      </span>
-                    </div>
-                    <h3 style={{ 
-                      fontSize: '14px',
-                      marginBottom: '4px',
-                      color: '#8c8c8c',
-                      margin: '0 0 4px 0'
-                    }}>
-                      {stat.label}
-                    </h3>
-                    <p style={{ 
-                      fontSize: '30px',
-                      fontWeight: 'bold',
-                      margin: 0
-                    }}>
-                      {stat.value}
-                    </p>
-                    <p style={{ 
-                      fontSize: '12px',
-                      marginTop: '8px',
-                      color: '#666666',
-                      margin: '8px 0 0 0'
-                    }}>
-                      from last month
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Two Column Section */}
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-              gap: '24px'
-            }}>
-              {/* Top Sports */}
-              <div style={{ 
-                borderRadius: '12px',
-                padding: '24px',
-                backgroundColor: '#242424',
-                border: '1px solid #2f2f2f'
-              }}>
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '24px'
-                }}>
-                  <div>
-                    <h3 style={{ 
-                      fontSize: '20px',
-                      fontWeight: 'bold',
-                      margin: 0
-                    }}>
-                      Top Sports by Popularity
-                    </h3>
-                    <p style={{ 
-                      fontSize: '14px',
-                      color: '#8c8c8c',
-                      margin: '4px 0 0 0'
-                    }}>
-                      Most active sports this month
-                    </p>
-                  </div>
-                  <Trophy style={{ width: '24px', height: '24px', color: '#E50914' }} />
+            {/* User Stats */}
+            <div className="dashboard-grid">
+              <div className="dashboard-card" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="dashboard-card-content">
+                  <div className="dashboard-card-title">Total Users</div>
+                  <div className="dashboard-card-value">{stats.totalUsers}</div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {topSports.map((sport) => (
-                    <div 
-                      key={sport.rank}
-                      style={{ 
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px'
-                      }}
-                    >
-                      <div style={{ 
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        backgroundColor: '#E50914'
-                      }}>
-                        {sport.rank}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          marginBottom: '4px'
-                        }}>
-                          <span style={{ fontWeight: '500' }}>{sport.name}</span>
-                          <span style={{ fontSize: '14px', color: '#8c8c8c' }}>
-                            {sport.players} players
-                          </span>
-                        </div>
-                        <div style={{ 
-                          height: '8px',
-                          borderRadius: '4px',
-                          overflow: 'hidden',
-                          backgroundColor: '#1a1a1a'
-                        }}>
-                          <div style={{ 
-                            height: '100%',
-                            borderRadius: '4px',
-                            background: 'linear-gradient(90deg, #E50914 0%, #FF0A16 100%)',
-                            width: `${(sport.players / 1250) * 100}%` 
-                          }} />
-                        </div>
-                      </div>
-                      <span style={{ 
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#d4d4d4'
-                      }}>
-                        {sport.change}
-                      </span>
-                    </div>
-                  ))}
+                <div className="dashboard-icon-wrapper">
+                  <People style={{ fontSize: '2.5rem' }} />
                 </div>
               </div>
 
-              {/* Recent Activity */}
-              <div style={{ 
-                borderRadius: '12px',
-                padding: '24px',
-                backgroundColor: '#242424',
-                border: '1px solid #2f2f2f'
-              }}>
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '24px'
-                }}>
-                  <div>
-                    <h3 style={{ 
-                      fontSize: '20px',
-                      fontWeight: 'bold',
-                      margin: 0
-                    }}>
-                      Recent Activity
-                    </h3>
-                    <p style={{ 
-                      fontSize: '14px',
-                      color: '#8c8c8c',
-                      margin: '4px 0 0 0'
-                    }}>
-                      Latest updates and changes
-                    </p>
-                  </div>
-                  <Clock style={{ width: '24px', height: '24px', color: '#E50914' }} />
+              <div className="dashboard-card" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="dashboard-card-content">
+                  <div className="dashboard-card-title">Active Users</div>
+                  <div className="dashboard-card-value">{stats.activeUsers}</div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {recentActivity.map((activity, index) => {
-                    const Icon = activity.icon;
-                    return (
-                      <div 
-                        key={index}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2f2f2f'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1a1a1a'}
-                        style={{ 
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '16px',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          backgroundColor: '#1a1a1a',
-                          transition: 'background-color 0.2s'
-                        }}
-                      >
-                        <div style={{ 
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          backgroundColor: '#2f2f2f'
-                        }}>
-                          <Icon style={{ width: '20px', height: '20px', color: '#E50914' }} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ 
-                            fontWeight: '500',
-                            fontSize: '14px',
-                            margin: 0
-                          }}>
-                            {activity.title}
-                          </p>
-                          <p style={{ 
-                            fontSize: '12px',
-                            color: '#8c8c8c',
-                            margin: '2px 0 0 0'
-                          }}>
-                            {activity.subtitle}
-                          </p>
-                        </div>
-                        <span style={{ 
-                          fontSize: '12px',
-                          whiteSpace: 'nowrap',
-                          color: '#666666'
-                        }}>
-                          {activity.time}
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div className="dashboard-icon-wrapper">
+                  <Person style={{ fontSize: '2.5rem' }} />
                 </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* User Management Page */}
-        {currentPage === 'users' && (
-          <div style={{ padding: '32px' }}>
-            <div style={{ marginBottom: '32px' }}>
-              <h2 style={{ 
-                fontSize: '30px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-                margin: '0 0 8px 0'
-              }}>
-                User Management
-              </h2>
-              <p style={{ color: '#8c8c8c', margin: 0 }}>
-                Manage user accounts and permissions
-              </p>
-            </div>
+              <div className="dashboard-card" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="dashboard-card-content">
+                  <div className="dashboard-card-title">Admins</div>
+                  <div className="dashboard-card-value">{stats.admins}</div>
+                </div>
+                <div className="dashboard-icon-wrapper">
+                  <AdminPanelSettings style={{ fontSize: '2.5rem' }} />
+                </div>
+              </div>
 
-            {/* User Stats - ALL RED/GREY THEME */}
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
-              <div style={{
-                borderRadius: '12px',
-                padding: '24px',
-                color: 'white',
-                background: 'linear-gradient(135deg, #E50914 0%, #B20710 100%)'
-              }}>
-                <Users style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
-                <h3 style={{ 
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  margin: 0
-                }}>
-                  {stats.totalUsers}
-                </h3>
-                <p style={{ color: '#ffd5d5', margin: '4px 0 0 0' }}>Total Users</p>
-              </div>
-              <div style={{
-                borderRadius: '12px',
-                padding: '24px',
-                color: 'white',
-                background: 'linear-gradient(135deg, #FF0A16 0%, #E50914 100%)'
-              }}>
-                <Trophy style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
-                <h3 style={{ 
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  margin: 0
-                }}>
-                  {stats.activeUsers}
-                </h3>
-                <p style={{ color: '#ffd5d5', margin: '4px 0 0 0' }}>Active Users</p>
-              </div>
-              <div style={{
-                borderRadius: '12px',
-                padding: '24px',
-                color: 'white',
-                background: 'linear-gradient(135deg, #B20710 0%, #8c0509 100%)'
-              }}>
-                <Trophy style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
-                <h3 style={{ 
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  margin: 0
-                }}>
-                  {stats.admins}
-                </h3>
-                <p style={{ color: '#ffd5d5', margin: '4px 0 0 0' }}>Admins</p>
-              </div>
-              <div style={{
-                borderRadius: '12px',
-                padding: '24px',
-                color: 'white',
-                background: 'linear-gradient(135deg, #2f2f2f 0%, #1a1a1a 100%)'
-              }}>
-                <Database style={{ width: '40px', height: '40px', marginBottom: '12px' }} />
-                <h3 style={{ 
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  margin: 0
-                }}>
-                  {stats.analysts}
-                </h3>
-                <p style={{ color: '#d4d4d4', margin: '4px 0 0 0' }}>Analysts</p>
+              <div className="dashboard-card" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="dashboard-card-content">
+                  <div className="dashboard-card-title">Analysts</div>
+                  <div className="dashboard-card-value">{stats.analysts}</div>
+                </div>
+                <div className="dashboard-icon-wrapper">
+                  <Analytics style={{ fontSize: '2.5rem' }} />
+                </div>
               </div>
             </div>
 
@@ -1271,55 +708,8 @@ const AdminDashboard = () => {
                 )}
               </div>
             </div>
-
-            {/* Info Box */}
-            <div style={{
-              marginTop: '24px',
-              borderRadius: '12px',
-              padding: '24px',
-              backgroundColor: 'rgba(229,9,20,0.1)',
-              border: '1px solid rgba(229,9,20,0.3)'
-            }}>
-              <div style={{ 
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '16px'
-              }}>
-                <div style={{ 
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  backgroundColor: 'rgba(229,9,20,0.2)'
-                }}>
-                  <Users style={{ width: '24px', height: '24px', color: '#ff6b6b' }} />
-                </div>
-                <div>
-                  <h4 style={{ 
-                    fontWeight: 'bold',
-                    marginBottom: '4px',
-                    color: '#ff6b6b',
-                    margin: '0 0 4px 0'
-                  }}>
-                    Admin Access Control
-                  </h4>
-                  <p style={{ 
-                    fontSize: '14px',
-                    color: '#8c8c8c',
-                    margin: 0
-                  }}>
-                    As an admin, you can enable or disable user accounts. Disabled users cannot log in to the system.
-                    Use this feature to manage access control and ensure system security.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
