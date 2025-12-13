@@ -11,7 +11,7 @@ import {
   Snackbar,
   IconButton,
 } from '@mui/material';
-import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera, Delete } from '@mui/icons-material';
+import { Person, Email, SportsSoccer, AdminPanelSettings, CalendarToday, Edit, Save, Cancel, PhotoCamera } from '@mui/icons-material';
 import { setCredentials } from '../../redux/slices/authSlice';
 import api from '../../services/api';
 import '../Common/Auth.css';
@@ -28,7 +28,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [sports, setSports] = useState([]);
-  const [newSport, setNewSport] = useState('');
 
   useEffect(() => {
     const fetchSports = async () => {
@@ -62,39 +61,6 @@ const Profile = () => {
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
-
-  const handleAddSport = async () => {
-    if (!newSport.trim()) return;
-    setLoading(true);
-    try {
-      const { data } = await api.post('/sports', { name: newSport }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSports([...sports, data].sort((a, b) => a.name.localeCompare(b.name)));
-      setNewSport('');
-      setSuccess('Sport added successfully!');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add sport');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteSport = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this sport?')) return;
-    setLoading(true);
-    try {
-      await api.delete(`/sports/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSports(sports.filter((sport) => sport._id !== id));
-      setSuccess('Sport deleted successfully!');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete sport');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -296,37 +262,6 @@ const Profile = () => {
                     <div className="profile-detail-label">Member Since</div>
                   </div>
                   <div className="profile-detail-value">{new Date(profile.createdAt).toLocaleDateString()}</div>
-                </div>
-              </div>
-            )}
-
-            {profile.role === 'admin' && !editMode && (
-              <div className="admin-section">
-                <h3>Admin Controls</h3>
-                <div className="form-group">
-                  <label className="form-label">Add New Sport</label>
-                  <Box display="flex" gap={2}>
-                    <input
-                      className="form-input"
-                      placeholder="New sport name"
-                      value={newSport}
-                      onChange={(e) => setNewSport(e.target.value)}
-                    />
-                    <button className="auth-btn" onClick={handleAddSport} disabled={loading || !newSport.trim()}>Add</button>
-                  </Box>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Manage Existing Sports</label>
-                  <div className="sport-management-list">
-                    {sports.map((sport) => (
-                      <div key={sport._id} className="sport-item">
-                        <span>{sport.name}</span>
-                        <IconButton className="delete-sport-btn" onClick={() => handleDeleteSport(sport._id)} disabled={loading}>
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             )}

@@ -120,7 +120,7 @@ const AnalystDashboard = () => {
                 itemStyle={{ color: '#fff' }}
               />
               <Legend wrapperStyle={{ color: 'var(--text-secondary)' }} />
-              <Bar dataKey="count" fill="#8884d8" name="Users" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" fill='var(--netflix-dark-red)' name="Users" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -141,7 +141,7 @@ const AnalystDashboard = () => {
                 labelLine={false}
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 outerRadius={120}
-                fill="#8884d8"
+                fill='var(--netflix-dark-red)'
                 dataKey="value"
               >
                 {roleData.map((entry, index) => (

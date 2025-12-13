@@ -63,7 +63,8 @@ const NavBar = () => {
 
     const roleSpecificItems = {
       admin: [
-        { label: 'Admin Dashboard', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+        { label: 'User Management', path: '/admin/dashboard', icon: <AdminPanelSettings /> },
+        { label: 'Sports Management', path: '/admin/sports', icon: <SportsScore /> },
       ],
       analyst: [
         { label: 'Analyst Dashboard', path: '/analyst/dashboard', icon: <Assessment /> },

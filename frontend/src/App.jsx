@@ -21,6 +21,7 @@ import ForgotPassword from './pages/Common/ForgotPassword';
 import ResetPassword from './pages/Common/ResetPassword';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AnalystDashboard from './pages/Analyst/AnalystDashboard';
+import SportsManagement from './pages/Admin/SportsManagement';
 import Profile from './pages/User/Profile';
 import Commentary from './pages/User/Commentary';
 
@@ -105,6 +106,16 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Sports Management */}
+              <Route
+                path="/admin/sports"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <SportsManagement />
                   </ProtectedRoute>
                 }
               />
