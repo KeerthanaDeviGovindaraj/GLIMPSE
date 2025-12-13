@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../redux/slices/authSlice";
 import "./Commentary.css";
 
 const Commentary = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
 
   const [commentaries, setCommentaries] = useState([]);
@@ -24,6 +26,7 @@ const Commentary = () => {
   // AI commentary state
   const [aiCommentary, setAiCommentary] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [commentaryStyle, setCommentaryStyle] = useState("professional");
 
   const [cricketIsLive, setCricketIsLive] = useState(false);
   const [footballIsLive, setFootballIsLive] = useState(false);
@@ -51,7 +54,7 @@ const Commentary = () => {
   useEffect(() => {
     fetchCommentaries();
     fetchSportsScores();
-    const interval = setInterval(fetchSportsScores, 60000);
+    const interval = setInterval(fetchSportsScores, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -107,9 +110,12 @@ const Commentary = () => {
     setAiCommentary(""); // Clear previous commentary
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-commentary/${sport}/${matchId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/ai-commentary/${sport}/${matchId}?style=${commentaryStyle}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -166,6 +172,11 @@ const Commentary = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
   // Render cricket scores
   const renderCricketScores = () => {
     if (cricketScores.length === 0) {
@@ -178,34 +189,39 @@ const Commentary = () => {
       );
     }
 
-    return cricketScores.map((match) => (
-      <div 
-        key={match.id} 
-        className={`score-card cricket-card ${activeMatchId === match.id ? 'active' : ''}`}
-        onClick={() => handleMatchClick(match)}
-      >
-        <div className="match-header">
-          <h3>{match.name}</h3>
-          <span className={`match-status ${match.isLive ? 'live' : 'finished'}`}>
-            {match.isLive ? '🔴 LIVE' : 'FT'}
-          </span>
-        </div>
-        {match.score && match.score.length > 0 ? (
-          <div className="scores">
-            {match.score.map((teamScore, i) => (
-              <div key={i} className="team-score">
-                <span className="team-name">{teamScore.inning}</span>
-                <span className="score-value">
-                  {teamScore.r}/{teamScore.w} ({teamScore.o})
-                </span>
-              </div>
-            ))}
+    return cricketScores.map((match) => {
+      const isLive = match.isLive === true;
+      return (
+        <div 
+          key={match.id} 
+          className={`score-card cricket-card ${activeMatchId === match.id ? 'active' : ''}`}
+          onClick={() => handleMatchClick(match)}
+        >
+          <div className="match-header">
+            <h3>{match.name}</h3>
+            {isLive ? (
+              <span className="match-status live">🔴 LIVE</span>
+            ) : (
+              <span className="match-status finished">FT</span>
+            )}
           </div>
-        ) : (
-          <div className="match-info">Match details updating...</div>
-        )}
-      </div>
-    ));
+          {match.score && match.score.length > 0 ? (
+            <div className="scores">
+              {match.score.map((teamScore, i) => (
+                <div key={i} className="team-score">
+                  <span className="team-name">{teamScore.inning}</span>
+                  <span className="score-value">
+                    {teamScore.r}/{teamScore.w} ({teamScore.o})
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="match-info">Match details updating...</div>
+          )}
+        </div>
+      );
+    });
   };
 
   // Render football scores
@@ -223,6 +239,7 @@ const Commentary = () => {
     return footballScores.map((match) => {
       const matchId = match.id || match.idEvent || Math.random();
       const isLive = match.isLive === true;
+      
       return (
         <div 
           key={matchId} 
@@ -233,9 +250,11 @@ const Commentary = () => {
             <div className="league-info">
               <span>{match.strLeague || 'Football Match'}</span>
             </div>
-            <span className={`match-status ${isLive ? 'live' : 'finished'}`}>
-              {isLive ? '🔴 LIVE' : 'FT'}
-            </span>
+            {isLive ? (
+              <span className="match-status live">🔴 LIVE</span>
+            ) : (
+              <span className="match-status finished">FT</span>
+            )}
           </div>
           <div className="football-match">
             <div className="team">
@@ -255,6 +274,14 @@ const Commentary = () => {
 
   return (
     <div className="commentary-container">
+      <header className="commentary-header">
+        <h1>Sports Commentary</h1>
+        <div className="user-info">
+          <span>Welcome, {user?.firstName || user?.email.split('@')[0]}</span>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      </header>
+
       {errorMessage && <div className="error-banner">⚠️ {errorMessage}</div>}
       {successMessage && <div className="success-message">✓ {successMessage}</div>}
 
@@ -309,7 +336,27 @@ const Commentary = () => {
 
         <div className="commentary-section">
           <div className="ai-commentary">
-            <h3>🤖 AI Commentary</h3>
+            <div className="ai-header">
+              <h3>🤖 AI Commentary</h3>
+              <div className="style-selector">
+                <select 
+                  value={commentaryStyle} 
+                  onChange={(e) => {
+                    setCommentaryStyle(e.target.value);
+                    if (selectedMatch) {
+                      setActiveMatchId(selectedMatch.id || selectedMatch.idEvent);
+                      fetchAiCommentary(activeTab, selectedMatch.id || selectedMatch.idEvent);
+                    }
+                  }}
+                  className="style-dropdown"
+                >
+                  <option value="professional">🎙️ Professional</option>
+                  <option value="casual">😄 Casual Fan</option>
+                  <option value="analytical">📊 Analytical</option>
+                  <option value="dramatic">⚡ Dramatic</option>
+                </select>
+              </div>
+            </div>
             {!selectedMatch ? (
               <p className="placeholder-text">
                 👆 Click on any match above to get AI-powered commentary
@@ -317,7 +364,7 @@ const Commentary = () => {
             ) : aiLoading ? (
               <div className="loading-commentary">
                 <div className="spinner"></div>
-                <p>Generating expert commentary...</p>
+                <p>Generating {commentaryStyle} commentary...</p>
               </div>
             ) : (
               <div className="commentary-content">
